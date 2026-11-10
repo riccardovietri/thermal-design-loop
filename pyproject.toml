@@ -3,6 +3,7 @@ name = "coldplate-design-loop"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "coolprop>=8.0.0",
     "gmsh>=4.15.2",
     "matplotlib>=3.11.2",
     "meshio>=5.3.5",
@@ -16,3 +17,7 @@ dependencies = [
 dev = [
     "pytest>=9.2.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

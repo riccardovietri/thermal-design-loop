@@ -1,19 +1,27 @@
 # PROGRESS
 
 ## Resume here
-Next: Riccardo approves SPEC.md → start M1 (one design end to end).
+Next: M2 — 1D straight-fin screen as `tools/screen_1d.py` with tests, then M3 batch loop.
+Branch `feat/m1-single-design` holds M1; `main` has the frozen spec.
 
 ## Done
-- 2026-11-10 (Tue): interview complete; SPEC/PLAN/DECISIONS drafted; repo created as a uv project.
+- 2026-11-10 (Tue): interview complete; SPEC frozen; repo created as a uv project.
 - 2026-11-10: toolchain proven. `uv run python validation/duct_fully_developed.py` → f·Re and Nu_H1
-  within 0.007% of Shah & London at α = 1, 0.5, 0.25, 0.125 (results in `validation/duct_fully_developed.json`).
+  within 0.007% of Shah & London at α = 1, 0.5, 0.25, 0.125.
+- 2026-11-10: M1 done a day early. `tools/mesh.py` (gmsh unit cell + quality) and `tools/run_cfd.py`
+  (conjugate solve) run one design in 0.1–0.3 s; `uv run pytest` → 4 passed. Numbers in `docs/build-log.md`.
 
 ## Open items
-- SPEC.md approval.
-- PG25 properties at 40 °C must be confirmed against a datasheet (thermal-mcp-server has only water and EG50).
-- No GitHub remote yet (local commits only).
-- thermal-mcp-server not yet installed as a dependency (add in M2).
+- GitHub remote: not created yet (see session notes).
+- ΔP parity is exact by construction (both models fully developed); decide whether the hero parity plot
+  is R_th only, or whether to add the stretch streamwise/entrance case.
+- Energy-balance check is currently the pinned-node reaction (near machine zero by construction);
+  M4 should add an independent interface heat-flux integral.
+- `tools/run_cfd.py` has no CLI yet (mesh has one); add with M3.
+- Dow lists cp about 4% above CoolProp for PG25; unresolved, low impact.
+- thermal-mcp-server not yet a dependency (add in M2 if its resistance-network code is reused).
+- Portfolio write-up: keep `docs/build-log.md` current each session; it feeds the README and site page.
 
 ## Notes for a fresh session
 - Run everything with `uv run`. In Claude Code's sandbox, `uv` and `git` writes need the sandbox disabled.
-- Fable usage: 3% used at the start of the session on 11/10.
+- Fable usage: 5% used after the first two exchanges on 11/10.
