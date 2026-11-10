@@ -12,7 +12,8 @@ Branch `feat/m1-single-design` holds M1; `main` has the frozen spec.
   (conjugate solve) run one design in 0.1–0.3 s; `uv run pytest` → 4 passed. Numbers in `docs/build-log.md`.
 
 ## Open items
-- GitHub remote: not created yet (see session notes).
+- Level 2 (2D developing-flow Navier-Stokes) approved by Riccardo as a conditional stretch after V1 runs end to end;
+  prototype in `prototypes/`. Showcase case not yet chosen (wavy fins ruled out: needs 3D).
 - ΔP parity is exact by construction (both models fully developed); decide whether the hero parity plot
   is R_th only, or whether to add the stretch streamwise/entrance case.
 - Energy-balance check is currently the pinned-node reaction (near machine zero by construction);
@@ -24,4 +25,5 @@ Branch `feat/m1-single-design` holds M1; `main` has the frozen spec.
 
 ## Notes for a fresh session
 - Run everything with `uv run`. In Claude Code's sandbox, `uv` and `git` writes need the sandbox disabled.
-- Fable usage: 5% used after the first two exchanges on 11/10.
+- Fable usage: 7% used after M1 on 11/10.
+- GitHub: private repo riccardovietri/coldplate-design-loop; `main` pushed once with Riccardo's OK, work goes on branches.

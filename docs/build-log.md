@@ -25,3 +25,19 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
 - Observation: ΔP agrees to four figures because both models are fully developed with the same f·Re.
   The informative parity axis is R_th (−1% to +5% so far); ΔP parity only becomes interesting with
   entrance effects.
+
+## 2026-11-10 (Tue, later) — field plot and a Level 2 prototype
+- `tools/postprocess.py` plots axial velocity and temperature on the cross-section
+  (`docs/figures/fields_w0300_t0300_h3000_q200.png`). Fin root-to-tip drop is about 2.3 K at 0.3 × 3 mm.
+- Design ranges checked against published practice: Boyd lists copper skived fins at 0.1–0.8 mm thick with a
+  0.1 mm minimum gap; an ASME direct-to-chip paper reports 100–200 µm fins and gaps, 1–2 mm tall
+  (aspect ratio 10–20). Our 0.15 mm minimum and aspect ratio ≤ 10 sit inside that. No source found for base thickness.
+- Prototype `prototypes/level2_wavy_channel.py` (not part of V1): 2D planar steady Navier-Stokes, Taylor-Hood,
+  Newton with Reynolds continuation, 15 s for eight solves.
+  - Straight channel reproduces plane Poiseuille ΔP to three decimals at Re 20–200.
+  - Sine-wave walls (0.3 mm gap, 0.3 mm amplitude, 2 mm wavelength): ΔP is 2.05× the straight-channel value at
+    Re 20 and 2.31× at Re 200. Most of that is geometric (the gap normal to the flow narrows on the slopes);
+    inertia adds about 13% between Re 20 and 200. No recirculation appears up to Re 200.
+  - Surprise: in 2D at microchannel Reynolds numbers, wavy fins are a pressure-drop penalty with no new flow
+    structure. The published enhancement (Sui et al. 2010) comes from Dean vortices, which are 3D.
+    Wavy fins are therefore a Level 3 case, not a Level 2 one.
