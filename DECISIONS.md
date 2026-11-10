@@ -14,3 +14,5 @@ Format: date — decision — why — alternatives rejected.
 - 2026-11-10 — **R_th = (avg base T − T_inlet)/Q, incl. base + caloric, excl. TIM and R_jc** — isolates what the plate design controls.
 - 2026-11-10 — **License MIT** — matches thermal-mcp-server.
 - 2026-11-10 — **Model use: Fable as main model, no separate advisor** — Riccardo's call; revisit at each usage check (delegate coding to Opus subagents if Fable usage passes ~50% before the Monday reset).
+- 2026-11-10 — **PG25 properties from CoolProp `INCOMP::MPG[0.26]` (Melinder data) at 40 °C** — reproducible in code and citable; cross-checked against DOWFROST LC 25 typical data (μ = 1.15 mPa·s and k = 0.485 W/m·K at 50 °C vs CoolProp 1.18 and 0.487 at 47 °C) — rejected: hand-typed datasheet values; note inhibited commercial fluids run about 1–2% denser and Dow lists a higher cp (4.13 vs 3.98 kJ/kg·K), not resolved.
+- 2026-11-10 — **SPEC.md frozen** — Riccardo approved.

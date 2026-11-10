@@ -1,6 +1,6 @@
 # SPEC — Cold-plate design loop (V1)
 
-Status: **DRAFT — awaiting Riccardo's OK.** Frozen on approval; changes need his sign-off.
+Status: **FROZEN 2026-11-10 (approved by Riccardo).** Changes need his sign-off.
 
 ## Purpose
 Automate an engineer's design loop for a direct-to-chip cold plate:
@@ -12,7 +12,7 @@ Every step is a plain function/CLI that runs without an LLM. One command reprodu
 |---|---|
 | Heat load | 1,000 W, uniform flux over the finned footprint (27.8 W/cm²) |
 | Footprint | 60 × 60 mm, flow length 60 mm |
-| Coolant | PG25, 40 °C inlet, constant properties at 40 °C |
+| Coolant | PG25 (25 vol% ≈ 26 mass% propylene glycol), 40 °C inlet, constant properties at 40 °C from CoolProp `INCOMP::MPG[0.26]`: ρ = 1010.6 kg/m³, cp = 3958 J/kg·K, k = 0.481 W/m·K, μ = 1.394 mPa·s (Pr = 11.5) |
 | Flow rate | 1–2 LPM (design variable) |
 | ΔP budget | ≤ 30 kPa, channel core only (no manifolds/QDs), at 40 °C inlet |
 | Plate | Copper, k = 390 W/m·K, 2 mm base (fixed), cover adiabatic, no tip clearance |
