@@ -5,6 +5,7 @@
 import argparse
 import json
 import time
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -13,7 +14,7 @@ import yaml
 from tools.check_confidence import check_confidence, mesh_independence
 from tools.fluids import fluid_props
 from tools.mesh import mesh
-from tools.pareto import knee_index, pareto_indices, spread_along_front
+from tools.pareto import knee_index, pareto_indices, recommend, spread_along_front
 from tools.postprocess import plot_fields
 from tools.report import parity_stats, plot_pareto, plot_parity, write_report
 from tools.run_cfd import run_cfd
@@ -32,7 +33,8 @@ def load(path: Path) -> tuple[str, Requirements, DesignSpace, dict]:
     cfg = yaml.safe_load(Path(path).read_text())
     r, s, c = cfg["requirements"], cfg["design_space"], cfg["constraints"]
     req = Requirements(r["heat_load_w"], r["footprint_width_mm"] / 1e3, r["flow_length_mm"] / 1e3, r["base_thickness_mm"] / 1e3,
-                       r["solid_k_w_mk"], r["inlet_temp_c"], r["dp_budget_kpa"] * 1e3, r["coolant"])
+                       r["solid_k_w_mk"], r["inlet_temp_c"], r["dp_budget_kpa"] * 1e3, r["coolant"],
+                       r["r_th_target_mk_w"] / 1e3 if r.get("r_th_target_mk_w") is not None else None)
     mm = lambda key: tuple(v / 1e3 for v in _levels(s[key]))
     space = DesignSpace(mm("w_ch_mm"), mm("t_fin_mm"), mm("h_fin_mm"), _levels(s["flow_lpm"]), c["min_feature_mm"] / 1e3, c["max_aspect_ratio"])
     return cfg["name"], req, space, cfg["study"]
@@ -66,25 +68,41 @@ def run_study(config: Path, out_dir: Path | None = None, runs_dir: Path | None =
     cfd = [c for _, c in pairs]
     ok = [(s, c) for s, c in pairs if c.dp_pa <= req.dp_budget_pa]
     cfd_front = [ok[i] for i in pareto_indices([c.dp_pa for _, c in ok], [c.r_th_k_per_w for _, c in ok])]
-    recommended = cfd_front[knee_index([c.dp_pa for _, c in cfd_front], [c.r_th_k_per_w for _, c in cfd_front])]
+    rec = recommend([(c.dp_pa, c.r_th_k_per_w) for _, c in pairs], req.dp_budget_pa, req.r_th_target_k_per_w)
+    recommended = pairs[rec["index"]]
+    knee = cfd_front[knee_index([c.dp_pa for _, c in cfd_front], [c.r_th_k_per_w for _, c in cfd_front])]
     lowest = min(ok, key=lambda p: p[1].r_th_k_per_w)
 
     cells = opts["mesh_cells_across_half_channel"]
-    mesh_study = mesh_independence(recommended[0].design, req, fluid, runs_dir / "_mesh_study", (cells // 2, cells, cells * 2))
+    rec_design = recommended[0].design
+    flows = sorted(set(opts.get("flow_sensitivity_lpm", [])) | {rec_design.flow_lpm})
+    sens_dir = runs_dir / "_flow_sensitivity"
+    sens_mesh = mesh(rec_design, req.base_thickness_m, sens_dir / "mesh", cells)
+    sensitivity = []
+    for q in flows:
+        d = replace(rec_design, flow_lpm=q)
+        c = run_cfd(d, req, fluid, sens_mesh.path, sens_dir / d.design_id)
+        sensitivity.append({"flow_lpm": q, "design_id": d.design_id, "dp_pa": c.dp_pa, "r_th_k_per_w": c.r_th_k_per_w,
+                            "base_avg_temp_c": c.base_avg_temp_c, "base_max_temp_c": c.base_max_temp_c, "reynolds": c.reynolds})
+    mesh_study = mesh_independence(rec_design, req, fluid, runs_dir / "_mesh_study", (cells // 2, cells, cells * 2))
     confidence = check_confidence(cfd, mesh_study, min(qualities))
 
     study = {
-        "name": name, "requirements": req, "fluid": fluid, "pairs": pairs, "recommended": recommended, "lowest_r_th": lowest,
+        "name": name, "requirements": req, "fluid": fluid, "pairs": pairs, "recommended": recommended, "rule": rec["rule"],
+        "knee": knee, "lowest_r_th": lowest, "flow_sensitivity": sensitivity,
         "n_sweep": len(sweep), "n_feasible": len(feasible), "t_screen_s": t_screen, "t_cfd_s": t_cfd, "confidence": confidence,
         "parity": parity_stats([s.r_th_k_per_w for s, _ in pairs], [c.r_th_k_per_w for _, c in pairs]),
         "dp_max_abs_pct": max(100 * abs(s.dp_pa / c.dp_pa - 1) for s, c in pairs),
     }
-    plot_pareto(sweep, front, cfd, recommended[1].design_id, req.dp_budget_pa, out_dir / "pareto.png")
+    plot_pareto(sweep, front, cfd, recommended[1].design_id, req.dp_budget_pa, out_dir / "pareto.png", req.r_th_target_k_per_w,
+                knee[1].design_id)
     plot_parity(pairs, out_dir / "parity.png")
     plot_fields(runs_dir / recommended[1].design_id, out_dir / "fields_recommended.png")
     write_report(study, out_dir / "report.md")
     (out_dir / "results.json").write_text(json.dumps({
-        "recommended": recommended[1].design_id, "parity": study["parity"], "confidence": confidence,
+        "recommended": recommended[1].design_id, "rule": rec["rule"], "knee": knee[1].design_id,
+        "dp_budget_pa": req.dp_budget_pa, "r_th_target_k_per_w": req.r_th_target_k_per_w,
+        "parity": study["parity"], "confidence": confidence, "flow_sensitivity": sensitivity,
         "designs": [{"one_d": to_dict(s), "cfd": to_dict(c)} for s, c in pairs],
     }, indent=2))
     return study
@@ -100,7 +118,9 @@ def main() -> None:
     rec = study["recommended"][1]
     out = a.out or Path("out") / study["name"]
     print(f"{study['n_sweep']} designs screened, {len(study['pairs'])} solved with CFD in {time.perf_counter()-t0:.1f} s total")
-    print(f"recommended {rec.design_id}: R_th {rec.r_th_k_per_w*1e3:.2f} mK/W at {rec.dp_pa/1e3:.2f} kPa")
+    print(f"recommended {rec.design_id} ({study['rule']}): R_th {rec.r_th_k_per_w*1e3:.2f} mK/W at {rec.dp_pa/1e3:.2f} kPa")
+    knee = study["knee"][1]
+    print(f"knee {knee.design_id}: R_th {knee.r_th_k_per_w*1e3:.2f} mK/W at {knee.dp_pa/1e3:.2f} kPa")
     print(f"1D vs CFD R_th: mean |diff| {study['parity']['mean_abs_pct']:.1f}%, max {study['parity']['max_abs_pct']:.1f}%")
     print(f"confidence checks: {'all pass' if study['confidence']['all_pass'] else 'FAILURES, see report'}")
     print(f"report: {out / 'report.md'}")

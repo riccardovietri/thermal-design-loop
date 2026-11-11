@@ -7,15 +7,17 @@ requirements:
   solid_k_w_mk: 390          # copper
   coolant: PG25
   inlet_temp_c: 40
-  dp_budget_kpa: 30          # channel core only
+  dp_budget_kpa: 6           # channel core only, at rated flow (SPEC Amendment 1)
+  r_th_target_mk_w: 15       # average interface 55 °C at 1 kW and 40 °C inlet
 design_space:
-  w_ch_mm: {min: 0.15, max: 1.0, levels: 8, spacing: geometric}
-  t_fin_mm: {min: 0.15, max: 1.0, levels: 6, spacing: geometric}
+  w_ch_mm: {min: 0.15, max: 1.0, levels: 12, spacing: geometric}
+  t_fin_mm: {min: 0.15, max: 1.0, levels: 8, spacing: geometric}
   h_fin_mm: {min: 1.0, max: 4.0, levels: 7, spacing: linear}
-  flow_lpm: [1.0, 1.5, 2.0]
+  flow_lpm: [1.5]           # rated flow, 1.5 LPM per kW; not a design variable
 constraints:
   min_feature_mm: 0.15
   max_aspect_ratio: 10
 study:
   n_cfd: 10
   mesh_cells_across_half_channel: 8
+  flow_sensitivity_lpm: [1.0, 2.0]   # reported for the recommended design
