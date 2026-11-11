@@ -66,7 +66,37 @@ class CfdResult:
     coolant_rise_k: float
     energy_residual_rel: float
     n_dofs: int
+    linear_residual_rel: float = 0.0
+    base_flux_error_rel: float = 0.0
 
 
 def to_dict(obj) -> dict:
     return asdict(obj)
+
+
+@dataclass(frozen=True)
+class DesignSpace:
+    w_ch_m: tuple[float, ...]
+    t_fin_m: tuple[float, ...]
+    h_fin_m: tuple[float, ...]
+    flow_lpm: tuple[float, ...]
+    min_feature_m: float
+    max_aspect_ratio: float
+
+
+@dataclass(frozen=True)
+class Screen1DResult:
+    design: Design
+    n_channels: int
+    reynolds: float
+    dp_pa: float
+    r_th_k_per_w: float
+    r_th_max_k_per_w: float
+    r_base: float
+    r_conv: float
+    r_caloric: float
+    fin_efficiency: float
+    nusselt: float
+    f_re_fanning: float
+    feasible: bool
+    violations: tuple[str, ...]

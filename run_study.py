@@ -1,0 +1,110 @@
+"""run_study: requirements.yaml in, Pareto plot, parity plot and report.md out. No LLM involved.
+
+    uv run python run_study.py examples/gpu_coldplate.yaml
+"""
+import argparse
+import json
+import time
+from pathlib import Path
+
+import numpy as np
+import yaml
+
+from tools.check_confidence import check_confidence, mesh_independence
+from tools.fluids import fluid_props
+from tools.mesh import mesh
+from tools.pareto import knee_index, pareto_indices, spread_along_front
+from tools.postprocess import plot_fields
+from tools.report import parity_stats, plot_pareto, plot_parity, write_report
+from tools.run_cfd import run_cfd
+from tools.screen_1d import screen_1d
+from tools.types import DesignSpace, Requirements, to_dict
+
+
+def _levels(spec) -> tuple[float, ...]:
+    if isinstance(spec, list):
+        return tuple(float(v) for v in spec)
+    fn = np.geomspace if spec.get("spacing") == "geometric" else np.linspace
+    return tuple(float(v) for v in fn(spec["min"], spec["max"], spec["levels"]))
+
+
+def load(path: Path) -> tuple[str, Requirements, DesignSpace, dict]:
+    cfg = yaml.safe_load(Path(path).read_text())
+    r, s, c = cfg["requirements"], cfg["design_space"], cfg["constraints"]
+    req = Requirements(r["heat_load_w"], r["footprint_width_mm"] / 1e3, r["flow_length_mm"] / 1e3, r["base_thickness_mm"] / 1e3,
+                       r["solid_k_w_mk"], r["inlet_temp_c"], r["dp_budget_kpa"] * 1e3, r["coolant"])
+    mm = lambda key: tuple(v / 1e3 for v in _levels(s[key]))
+    space = DesignSpace(mm("w_ch_mm"), mm("t_fin_mm"), mm("h_fin_mm"), _levels(s["flow_lpm"]), c["min_feature_mm"] / 1e3, c["max_aspect_ratio"])
+    return cfg["name"], req, space, cfg["study"]
+
+
+def run_study(config: Path, out_dir: Path | None = None, runs_dir: Path | None = None) -> dict:
+    name, req, space, opts = load(config)
+    out_dir = Path(out_dir or Path("out") / name)
+    runs_dir = Path(runs_dir or Path("runs") / name)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    fluid = fluid_props(req.coolant, req.inlet_temp_c)
+
+    t0 = time.perf_counter()
+    sweep = screen_1d(req, fluid, space)
+    t_screen = time.perf_counter() - t0
+    feasible = [s for s in sweep if s.feasible]
+    if not feasible:
+        raise SystemExit("No feasible design in the 1D sweep; relax the constraints or widen the design space.")
+    front = [feasible[i] for i in pareto_indices([s.dp_pa for s in feasible], [s.r_th_k_per_w for s in feasible])]
+    shortlist = [front[i] for i in spread_along_front([s.dp_pa for s in front], opts["n_cfd"])]
+
+    t0 = time.perf_counter()
+    pairs, qualities = [], []
+    for s in shortlist:
+        run = runs_dir / s.design.design_id
+        info = mesh(s.design, req.base_thickness_m, run, opts["mesh_cells_across_half_channel"])
+        qualities.append(info.min_quality_sicn)
+        pairs.append((s, run_cfd(s.design, req, fluid, info.path, run)))
+    t_cfd = time.perf_counter() - t0
+
+    cfd = [c for _, c in pairs]
+    ok = [(s, c) for s, c in pairs if c.dp_pa <= req.dp_budget_pa]
+    cfd_front = [ok[i] for i in pareto_indices([c.dp_pa for _, c in ok], [c.r_th_k_per_w for _, c in ok])]
+    recommended = cfd_front[knee_index([c.dp_pa for _, c in cfd_front], [c.r_th_k_per_w for _, c in cfd_front])]
+    lowest = min(ok, key=lambda p: p[1].r_th_k_per_w)
+
+    cells = opts["mesh_cells_across_half_channel"]
+    mesh_study = mesh_independence(recommended[0].design, req, fluid, runs_dir / "_mesh_study", (cells // 2, cells, cells * 2))
+    confidence = check_confidence(cfd, mesh_study, min(qualities))
+
+    study = {
+        "name": name, "requirements": req, "fluid": fluid, "pairs": pairs, "recommended": recommended, "lowest_r_th": lowest,
+        "n_sweep": len(sweep), "n_feasible": len(feasible), "t_screen_s": t_screen, "t_cfd_s": t_cfd, "confidence": confidence,
+        "parity": parity_stats([s.r_th_k_per_w for s, _ in pairs], [c.r_th_k_per_w for _, c in pairs]),
+        "dp_max_abs_pct": max(100 * abs(s.dp_pa / c.dp_pa - 1) for s, c in pairs),
+    }
+    plot_pareto(sweep, front, cfd, recommended[1].design_id, req.dp_budget_pa, out_dir / "pareto.png")
+    plot_parity(pairs, out_dir / "parity.png")
+    plot_fields(runs_dir / recommended[1].design_id, out_dir / "fields_recommended.png")
+    write_report(study, out_dir / "report.md")
+    (out_dir / "results.json").write_text(json.dumps({
+        "recommended": recommended[1].design_id, "parity": study["parity"], "confidence": confidence,
+        "designs": [{"one_d": to_dict(s), "cfd": to_dict(c)} for s, c in pairs],
+    }, indent=2))
+    return study
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("config", type=Path)
+    ap.add_argument("--out", type=Path, default=None)
+    a = ap.parse_args()
+    t0 = time.perf_counter()
+    study = run_study(a.config, a.out)
+    rec = study["recommended"][1]
+    out = a.out or Path("out") / study["name"]
+    print(f"{study['n_sweep']} designs screened, {len(study['pairs'])} solved with CFD in {time.perf_counter()-t0:.1f} s total")
+    print(f"recommended {rec.design_id}: R_th {rec.r_th_k_per_w*1e3:.2f} mK/W at {rec.dp_pa/1e3:.2f} kPa")
+    print(f"1D vs CFD R_th: mean |diff| {study['parity']['mean_abs_pct']:.1f}%, max {study['parity']['max_abs_pct']:.1f}%")
+    print(f"confidence checks: {'all pass' if study['confidence']['all_pass'] else 'FAILURES, see report'}")
+    print(f"report: {out / 'report.md'}")
+
+
+if __name__ == "__main__":
+    main()

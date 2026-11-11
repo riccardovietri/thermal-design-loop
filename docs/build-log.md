@@ -41,3 +41,12 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
   - Surprise: in 2D at microchannel Reynolds numbers, wavy fins are a pressure-drop penalty with no new flow
     structure. The published enhancement (Sui et al. 2010) comes from Dean vortices, which are 3D.
     Wavy fins are therefore a Level 3 case, not a Level 2 one.
+
+## 2026-11-10 (Tue, late) — V1 study runs end to end
+- `run_study.py examples/gpu_coldplate.yaml`: 1008 designs screened in 3 ms, 10 solved with CFD in 1.6 s, about 3 s in total.
+- 1D vs CFD on R_th along the front: mean |difference| 0.9%, max 2.9% (the widest, lowest-aspect-ratio channel).
+- The honest reading: for straight fins in fully developed laminar flow, a correct 1D model is enough.
+  The earlier 1D model (circular-tube constants, no fin efficiency) would not have been. CFD here is a check, not a discovery tool.
+- Resistance floor: at 2 LPM the coolant heating term is 3.8 mK/W and the base 1.4 mK/W, so no fin design gets below about 5.2 mK/W.
+  The best design in budget reaches 9.3 mK/W; flow rate and base, not fins, set what is left.
+- Base thickness: literature spans 0.1–4.5 mm with no typical value; kept at 2 mm as a labelled assumption.

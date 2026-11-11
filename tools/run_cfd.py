@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 
 import numpy as np
-from skfem import Basis, BilinearForm, ElementTriP2, FacetBasis, LinearForm, MeshTri, asm, condense, solve
+from skfem import Basis, BilinearForm, ElementTriP2, FacetBasis, Functional, LinearForm, MeshTri, asm, condense, solve
 from skfem.helpers import dot, grad
 
 from .types import CfdResult, Design, Fluid, Requirements, to_dict
@@ -28,6 +28,11 @@ def _mass(u, v, _):
 @LinearForm
 def _unit(v, _):
     return 1.0 * v
+
+
+@Functional
+def _dtdy(w):
+    return w["temp"].grad[1]
 
 
 def run_cfd(design: Design, req: Requirements, fluid: Fluid, mesh_path: Path, out_dir: Path | None = None) -> CfdResult:
@@ -72,12 +77,18 @@ def run_cfd(design: Design, req: Requirements, fluid: Fluid, mesh_path: Path, ou
     flux = q_cell_per_len / half_pitch
     dtdx = req.heat_load_w / (fluid.rho * fluid.cp * vdot * length)
     bottom = m.facets_satisfying(lambda x: np.abs(x[1]) < tol)
-    b_bottom = asm(_unit, FacetBasis(m, elem, facets=bottom))
+    fb_bottom = FacetBasis(m, elem, facets=bottom)
+    b_bottom = asm(_unit, fb_bottom)
     a = req.solid_k * asm(_laplace, basis_s) + fluid.k * k_f
     rhs = flux * b_bottom - fluid.rho * fluid.cp * dtdx * (grad_p / fluid.mu) * (m_f @ u)
     pin = np.array([basis.nodal_dofs[0, 0]])
     temp = solve(*condense(a, rhs, D=pin))
-    energy_residual = abs((a @ temp - rhs)[pin[0]]) / q_cell_per_len
+    residual = a @ temp - rhs
+    energy_residual = abs(residual[pin[0]]) / q_cell_per_len
+    linear_residual = np.linalg.norm(np.delete(residual, pin)) / np.linalg.norm(rhs)
+    # Independent check: conducted flux recovered from the temperature gradient at the chip interface vs applied flux.
+    recovered = -req.solid_k * _dtdy.assemble(fb_bottom, temp=fb_bottom.interpolate(temp))
+    base_flux_error = recovered / q_cell_per_len - 1
     temp -= (u @ (m_f @ temp)) / int_u  # local bulk temperature -> 0
 
     coolant_rise = req.heat_load_w / (fluid.rho * fluid.cp * vdot)
@@ -98,6 +109,7 @@ def run_cfd(design: Design, req: Requirements, fluid: Fluid, mesh_path: Path, ou
         base_avg_temp_c=float(req.inlet_temp_c + coolant_rise / 2 + base_avg),
         base_max_temp_c=float(req.inlet_temp_c + coolant_rise + base_max),
         coolant_rise_k=float(coolant_rise), energy_residual_rel=float(energy_residual), n_dofs=int(basis.N),
+        linear_residual_rel=float(linear_residual), base_flux_error_rel=float(base_flux_error),
     )
     if out_dir is not None:
         out_dir = Path(out_dir)

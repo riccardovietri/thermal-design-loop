@@ -1,0 +1,74 @@
+import math
+from dataclasses import replace
+
+import pytest
+
+from tools.pareto import knee_index, pareto_indices, spread_along_front
+from tools.screen_1d import analyze_1d, f_re_fanning, nu_h1, screen_1d
+from tools.types import Design, DesignSpace, Fluid, Requirements
+
+REQ = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 30e3, "PG25")
+FLUID = Fluid("test", 40.0, 1000.0, 4000.0, 0.5, 1.0e-3)
+SPACE = DesignSpace((0.15e-3, 0.5e-3), (0.15e-3, 0.5e-3), (1e-3, 4e-3), (1.0, 2.0), 0.15e-3, 10.0)
+
+# Shah & London (1978) tabulated values: alpha -> (Fanning f*Re, Nu_H1)
+TABLE = {1.0: (14.227, 3.608), 0.5: (15.548, 4.123), 0.25: (18.233, 5.331), 0.125: (20.585, 6.490)}
+
+
+@pytest.mark.parametrize("alpha", TABLE)
+def test_polynomials_match_shah_london_table(alpha):
+    assert f_re_fanning(alpha) == pytest.approx(TABLE[alpha][0], rel=0.005)
+    assert nu_h1(alpha) == pytest.approx(TABLE[alpha][1], rel=0.005)
+
+
+def test_hand_calculation():
+    """0.5 mm channels and fins, 2 mm tall, 1.5 LPM: every term worked by hand from the definitions."""
+    r = analyze_1d(Design(0.5e-3, 0.5e-3, 2e-3, 1.5), REQ, FLUID)
+    assert r.n_channels == 60
+    v = 2.5e-5 / (60 * 0.5e-3 * 2e-3)  # 0.41667 m/s
+    dh = 0.8e-3
+    assert r.reynolds == pytest.approx(1000 * v * dh / 1e-3)
+    assert r.dp_pa == pytest.approx(2 * f_re_fanning(0.25) * 1e-3 * v * 0.06 / dh**2)
+    htc = nu_h1(0.25) * 0.5 / dh
+    m = math.sqrt(2 * htc / (390 * 0.5e-3))
+    eta = math.tanh(m * 2e-3) / (m * 2e-3)
+    assert r.fin_efficiency == pytest.approx(eta)
+    assert r.r_conv == pytest.approx(1 / (60 * 0.06 * htc * (0.5e-3 + 2 * eta * 2e-3)))
+    assert r.r_base == pytest.approx(0.002 / (390 * 0.06 * 0.06))
+    assert r.r_caloric == pytest.approx(1 / (2 * 1000 * 4000 * 2.5e-5))
+    assert r.r_th_k_per_w == pytest.approx(r.r_base + r.r_conv + r.r_caloric)
+
+
+def test_trends():
+    base = analyze_1d(Design(0.3e-3, 0.3e-3, 2e-3, 1.0), REQ, FLUID)
+    more_flow = analyze_1d(Design(0.3e-3, 0.3e-3, 2e-3, 2.0), REQ, FLUID)
+    assert more_flow.dp_pa == pytest.approx(2 * base.dp_pa)
+    assert more_flow.r_th_k_per_w < base.r_th_k_per_w
+    assert more_flow.r_conv == pytest.approx(base.r_conv)  # fully developed laminar: h independent of flow
+
+
+def test_constraints_flagged():
+    tight = replace(REQ, dp_budget_pa=100.0)
+    r = analyze_1d(Design(0.15e-3, 0.15e-3, 4e-3, 2.0), tight, FLUID, SPACE)
+    assert not r.feasible
+    assert {"dp_over_budget", "fin_aspect_ratio", "channel_aspect_ratio"} <= set(r.violations)
+
+
+def test_sweep_is_full_factorial():
+    assert len(screen_1d(REQ, FLUID, SPACE)) == 16
+
+
+def test_pareto_front_is_non_dominated():
+    x = [1, 2, 3, 4, 2.5]
+    y = [5, 3, 4, 1, 2.9]
+    front = pareto_indices(x, y)
+    assert front == [0, 1, 4, 3]
+    for i in front:
+        assert not any(x[j] <= x[i] and y[j] <= y[i] and (x[j] < x[i] or y[j] < y[i]) for j in range(len(x)))
+
+
+def test_spread_and_knee():
+    xs = [10**e for e in (0, 0.1, 0.2, 1.0, 2.0, 2.1, 3.0)]
+    picks = spread_along_front(xs, 4)
+    assert picks[0] == 0 and picks[-1] == 6 and len(picks) == 4
+    assert knee_index([1, 10, 100], [100, 2, 1]) == 1
