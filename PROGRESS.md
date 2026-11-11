@@ -4,8 +4,9 @@
 V1 (Level 1) is functionally complete on branch `feat/v1-study`:
 `uv run python run_study.py examples/gpu_coldplate.yaml` → `out/gpu_coldplate/` (pareto.png, parity.png,
 fields_recommended.png, report.md, results.json) in about 3 s. A committed copy is in `examples/output/gpu_coldplate/`.
-Next: (1) Riccardo reviews the report and the recommendation rule; (2) README + hero figure (M5);
-(3) Level 2: thermal validation case, then slot-jet impingement; (4) blog post on the fidelity ladder.
+Next: (1) Level 2: thermal validation case (developing flow between parallel plates), then slot-jet impingement;
+(2) Riccardo decides the ΔP budget (ASSUMPTIONS.md R5: 30 kPa looks high; 5–10 kPa core-only is more representative);
+(3) blog post on the fidelity ladder; (4) pick the final repo name and make it public.
 
 ## Done
 - 2026-11-10: M0 spec frozen, toolchain validated (0.007% vs Shah & London).
@@ -21,7 +22,8 @@ Knee design: 0.44 mm channels, 0.47 mm fins, 4.0 mm tall, 1.5 LPM → 15.7 mK/W 
 Lowest R_th in budget: 0.15 / 0.15 / 1.5 mm, 1.5 LPM → 9.3 mK/W at 26.4 kPa.
 
 ## Open items
-- Branches `feat/m1-single-design` and `feat/v1-study` are pushed, not merged to `main` (needs a PR; Riccardo to say).
+- Merge policy (Riccardo agreed 11/10): branch per milestone, pull request into `main`, merge when CI passes.
+- README, ASSUMPTIONS.md, AGENTS.md and CI (`.github/workflows/ci.yml`) added 11/10.
 - CLIs exist for screen_1d, mesh, postprocess and run_study; run_cfd, check_confidence, pareto and report are functions only.
 - The energy-balance check passes at 1e-12 because the base temperature field is linear near the chip interface;
   it is a real check but a weak one.
