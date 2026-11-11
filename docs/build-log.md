@@ -68,3 +68,14 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
   (`docs/figures/slot_jet_example/fields.png`). Thermally it is far worse than fins: no area enhancement, and almost no pressure used.
 - Scaling insight: slot Reynolds number depends only on the number of slots (Re = ρQ/μNL), and the wall-jet region behaves like a
   thin channel heated from one side, so heat transfer is set by the gap. Narrow gaps are where slot jets become competitive.
+
+## 2026-11-10 (Tue, night) — slot-jet sweep vs straight fins
+- 24 cases (slot 0.15/0.3 mm, gap 0.05–0.4 mm, pitch 2–8 mm, 1.5 LPM), 3–209 s each, all converged, energy balance within 0.01%.
+  Results in `examples/output/level2_slot_jet/`.
+- Thermal resistance is set almost entirely by the gap: about 57, 37, 24 and 16–17 mK/W at 0.4, 0.2, 0.1 and 0.05 mm.
+  Slot width and pitch change it by a few percent.
+- Pressure drop rises about 4× per doubling of pitch at fixed gap, with almost no thermal benefit, so the tightest pitch wins.
+- Against the Level 1 fin front: slot jets are better below about 1 kPa (24 mK/W at 0.11 kPa vs 39 mK/W for fins at 0.12 kPa;
+  16.4 at 0.85 kPa vs 18.2 at 0.79 kPa); fins are better above it (12 mK/W at 3.4 kPa, where the best jet is still 16).
+  Caveats: the fin points at low ΔP are at 1.0 LPM and the jets at 1.5 LPM; every competitive jet design needs a gap of 0.05–0.1 mm,
+  below the 0.15 mm feature limit applied to fins; pitches under 2 mm and gaps under 0.05 mm were not explored.
