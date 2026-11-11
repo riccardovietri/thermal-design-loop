@@ -37,3 +37,21 @@ def knee_index(x_front, y_front) -> int:
     dx, dy = lx[-1] - lx[0], ly[-1] - ly[0]
     dist = np.abs(dx * (ly - ly[0]) - dy * (lx - lx[0])) / np.hypot(dx, dy)
     return int(np.argmax(dist))
+
+
+def recommend(candidates, dp_budget_pa: float, r_th_target: float | None) -> dict:
+    """Recommendation rule (SPEC Amendment 1) over (dp_pa, r_th_k_per_w) pairs, e.g. CFD-verified designs.
+
+    Among candidates with dp <= budget and r_th <= target, pick the lowest dp ("meets_target_lowest_dp").
+    If none meets the target (or there is no target), pick the lowest r_th within budget ("fallback_lowest_r_th").
+    Ties break on the other objective. Returns {"index": position in candidates, "rule": name}.
+    """
+    pts = [(float(dp), float(r)) for dp, r in candidates]
+    in_budget = [i for i, (dp, _) in enumerate(pts) if dp <= dp_budget_pa]
+    if not in_budget:
+        raise ValueError("No candidate meets the pressure-drop budget.")
+    if r_th_target is not None:
+        meets = [i for i in in_budget if pts[i][1] <= r_th_target]
+        if meets:
+            return {"index": min(meets, key=lambda i: (pts[i][0], pts[i][1])), "rule": "meets_target_lowest_dp"}
+    return {"index": min(in_budget, key=lambda i: (pts[i][1], pts[i][0])), "rule": "fallback_lowest_r_th"}

@@ -79,3 +79,24 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
   16.4 at 0.85 kPa vs 18.2 at 0.79 kPa); fins are better above it (12 mK/W at 3.4 kPa, where the best jet is still 16).
   Caveats: the fin points at low ΔP are at 1.0 LPM and the jets at 1.5 LPM; every competitive jet design needs a gap of 0.05–0.1 mm,
   below the 0.15 mm feature limit applied to fins; pitches under 2 mm and gaps under 0.05 mm were not explored.
+
+## 2026-11-10 (Tue, late night) — requirements amendment: rated flow, 6 kPa budget, 15 mK/W target
+- Riccardo's sense check (SPEC Amendment 1): rated flow 1.5 LPM; core ΔP ≤ 6 kPa at rated flow; R_th ≤ 15 mK/W; recommend the
+  lowest-ΔP CFD-verified design that meets both, else the lowest R_th within budget; the knee becomes secondary because it depends
+  on where the front's end points are. Minimum slot-jet gap and slot width 0.1 mm. Plots restricted to the region of interest.
+- Level 1, rated flow only, refined grid 12 × 8 × 7 = 672 designs (273 feasible). The 1D front within 6 kPa has only 9 points,
+  so 9 designs (not 10) were solved with CFD.
+- Recommended (rule `meets_target_lowest_dp`): 0.42 mm channels, 0.44 mm fins, 4.0 mm tall, 69 channels → 14.93 mK/W at 1.29 kPa,
+  interface average 54.9 °C, peak 59.9 °C. The margin to the target is 0.5%; the 1D screen gives 14.79.
+- Knee (secondary): 0.50 / 0.44 / 4.0 mm → 17.12 mK/W at 0.86 kPa. Lowest R_th within budget: 0.25 / 0.26 / 2.5 mm → 11.35 mK/W at 5.75 kPa.
+- 1D vs CFD on R_th over the 9 designs: mean |difference| 1.1%, max 2.9%, mean signed +0.3%. ΔP within 0.03%. All confidence checks pass.
+- Flow sensitivity of the recommended design (same geometry): 1.0 LPM → 0.86 kPa, 17.43 mK/W, 57.4 °C average;
+  1.5 LPM → 1.29 kPa, 14.93 mK/W, 54.9 °C; 2.0 LPM → 1.73 kPa, 13.68 mK/W, 53.7 °C. The design misses the target below rated flow.
+- Slot jets, 18 cases at 1.5 LPM (slots 0.1/0.2 mm, gaps 0.1/0.15/0.2 mm, pitches 1/2/4 mm), all converged in 1–85 s,
+  energy balance within 0.002%. Best R_th 23.76 mK/W at 0.49 kPa (0.1 mm slot, 0.1 mm gap, 4 mm pitch). No case meets 15 mK/W;
+  the best is 58% above it. R_th is set by the gap: about 24–26, 30–33 and 36–39 mK/W at 0.1, 0.15 and 0.2 mm.
+- Jets vs fins at equal flow: jets win below about 0.35 kPa (24.6 mK/W at 0.03 kPa, where fins do not reach); fins match them at
+  0.38 kPa (23.7 mK/W) and beat them above it, reaching the target at 1.3 kPa. With a flat base and ≥ 0.1 mm gaps, slot jets do not
+  compete for this requirement; the earlier competitive cases needed 0.05 mm gaps.
+- Slot-jet mesh study (0.2 mm slot, 0.1 mm gap, 2 mm pitch): 10/20/40 cells → R_th 24.3773/24.3780/24.3784 mK/W,
+  ΔP 104.93/105.27/105.53 Pa; 20 → 40 changes R_th by +0.002% and ΔP by +0.25%.

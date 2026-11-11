@@ -71,3 +71,15 @@ Unit cell: half fin + half channel + base, symmetry on both sides.
 ## Out of scope (V1)
 3D, developing flow in the main study, FEA, web UI, cloud runs, renaming thermal-mcp-server,
 autonomous agent. Stretch: MCP wrapper over the same tools; one streamwise case to bound entrance error.
+
+## Amendment 1 (2026-11-10, approved by Riccardo)
+Supersedes the flow-rate, ΔP-budget and recommendation items above where they conflict; everything else stands.
+- **Rated flow** is 1.5 LPM (1.5 LPM per kW). The Pareto study is run at rated flow only; flow is no longer a design variable.
+  Flow sensitivity (1.0 and 2.0 LPM) is reported for the recommended design.
+- **Pressure budget:** channel core ΔP ≤ 6 kPa at rated flow (replaces 30 kPa).
+- **Thermal target:** R_th ≤ 15 mK/W.
+- **Recommendation rule:** among CFD-verified designs that meet both the ΔP budget and the R_th target, recommend the one with
+  the lowest ΔP. If none meets the target, recommend the lowest R_th within budget and say so. The knee (existing definition:
+  the point on the CFD-verified front farthest from the chord between its end points in log-log space) is still computed and
+  reported as secondary information.
+- **Plots** show the region of interest only.

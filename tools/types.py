@@ -22,6 +22,7 @@ class Requirements:
     inlet_temp_c: float
     dp_budget_pa: float
     coolant: str
+    r_th_target_k_per_w: float | None = None
 
 
 @dataclass(frozen=True)

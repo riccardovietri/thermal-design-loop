@@ -1,0 +1,37 @@
+{
+  "design": {
+    "slot_width_m": 0.0002,
+    "gap_m": 0.0001,
+    "pitch_m": 0.002,
+    "flow_lpm": 1.5
+  },
+  "production_cells_across": 20,
+  "levels": [
+    {
+      "cells_across": 10,
+      "n_unknowns": 15513,
+      "r_th_k_per_w": 0.024377302026491885,
+      "dp_pa": 104.93233173277065,
+      "energy_balance_error": 1.1304503741316196e-05,
+      "seconds": 1.0298239579424262
+    },
+    {
+      "cells_across": 20,
+      "n_unknowns": 58477,
+      "r_th_k_per_w": 0.024377953543666567,
+      "dp_pa": 105.26902589652794,
+      "energy_balance_error": 1.8959364287418623e-06,
+      "seconds": 6.317430458031595
+    },
+    {
+      "cells_across": 40,
+      "n_unknowns": 229737,
+      "r_th_k_per_w": 0.024378404309575788,
+      "dp_pa": 105.53434071511535,
+      "energy_balance_error": 7.215942066096659e-09,
+      "seconds": 62.941225999966264
+    }
+  ],
+  "r_th_change_pct_20_to_40": 0.0018490719838837322,
+  "dp_change_pct_20_to_40": 0.2520350277090966
+}

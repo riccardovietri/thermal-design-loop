@@ -1,34 +1,46 @@
 # Cold-plate design study: gpu_coldplate
 
-**Recommended design:** 0.44 mm channels, 0.47 mm fins, 4.0 mm tall (65 channels) at 1.5 LPM. CFD gives R_th = 15.7 mK/W at ΔP = 1.2 kPa, so the chip interface averages 55.7 °C (peak 60.7 °C) for 1000 W and 40 °C inlet.
+**Recommended design:** 0.42 mm channels, 0.44 mm fins, 4.0 mm tall (69 channels) at 1.5 LPM (rated flow). CFD gives R_th = 14.9 mK/W at ΔP = 1.3 kPa, so the chip interface averages 54.9 °C (peak 59.9 °C) for 1000 W and 40 °C inlet.
 
 ## Why this design
-- It is the knee of the CFD-verified front: the point farthest from the straight line between the two ends of the front in log-log space.
-- The lowest-resistance design within budget (0.15 mm channels, 0.15 mm fins, 1.5 mm tall, 1.5 LPM) reaches 9.3 mK/W at 26.4 kPa: 41% lower resistance for 22.2× the pressure drop.
-- At the recommended point the resistance splits into base conduction 1.4, fin and convection 9.2, and coolant heating 5.0 mK/W (1D breakdown).
+- Rule: among the CFD-verified designs that meet both the ΔP budget and the R_th target, recommend the one with the lowest ΔP. If none meets the target, recommend the lowest R_th within budget and say so.
+- Budget: channel-core ΔP ≤ 6 kPa at rated flow. Target: R_th ≤ 15 mK/W.
+- Rule that fired: `meets_target_lowest_dp`: at least one CFD-verified design meets both the budget and the target, so the one with the lowest ΔP is recommended.
+- Secondary: the knee of the CFD-verified front is 0.50 mm channels, 0.44 mm fins, 4.0 mm tall: 17.1 mK/W at 0.86 kPa. The knee is the point on the CFD-verified front farthest from the straight line joining the front's two end points, in log10(ΔP)–log10(R_th) coordinates; it depends on where the front's end points are.
+- The lowest-resistance design within budget (0.25 mm channels, 0.26 mm fins, 2.5 mm tall) reaches 11.3 mK/W at 5.75 kPa: 24% lower resistance for 4.4× the pressure drop.
+- At the recommended point the resistance splits into base conduction 1.4, fin and convection 8.4, and coolant heating 5.0 mK/W (1D breakdown).
 
 ![Pareto](pareto.png)
 
-## 1D screen vs CFD
-The 1D screen evaluated 1008 designs (530 feasible) in 3 ms. 10 designs spread along its Pareto front were solved with the 2D conjugate model in 1.6 s.
+The plot shows the region of interest only: ΔP from 0.3 kPa to 1.5× the budget, R_th from 0.7× the lowest feasible value to 2× the target. Designs outside it are screened but not drawn.
 
-- R_th: 1D differs from CFD by 0.9% on average, 2.9% at worst (mean signed +0.0%).
+## Flow sensitivity of the recommended design
+
+| Flow (LPM) | ΔP (kPa) | R_th (mK/W) | Average interface (°C) | Peak interface (°C) |
+|---|---|---|---|---|
+| 1.0 | 0.86 | 17.43 | 57.4 | 64.9 |
+| 1.5 (rated) | 1.29 | 14.93 | 54.9 | 59.9 |
+| 2.0 | 1.73 | 13.68 | 53.7 | 57.4 |
+
+## 1D screen vs CFD
+The 1D screen evaluated 672 designs (273 feasible) in 2 ms. 9 designs spread along its Pareto front were solved with the 2D conjugate model in 1.2 s.
+
+- R_th: 1D differs from CFD by 1.1% on average, 2.9% at worst (mean signed +0.3%).
 - ΔP: identical to within 0.03%. This is expected, not a result: both models assume fully developed flow and share the same f·Re.
 
 ![Parity](parity.png)
 
 | Channel (mm) | Fin (mm) | Height (mm) | Flow (LPM) | Re | ΔP CFD (kPa) | R_th 1D (mK/W) | R_th CFD (mK/W) | 1D − CFD | Fin eff. |
 |---|---|---|---|---|---|---|---|---|---|
-| 1.00 | 0.47 | 4.0 | 1.0 | 121 | 0.12 | 40.19 | 39.05 | +2.9% | 0.92 |
-| 0.76 | 0.47 | 4.0 | 1.0 | 106 | 0.22 | 29.12 | 28.72 | +1.4% | 0.89 |
-| 0.58 | 0.47 | 4.0 | 1.0 | 93 | 0.41 | 22.19 | 22.14 | +0.2% | 0.86 |
-| 0.44 | 0.47 | 4.0 | 1.0 | 84 | 0.79 | 18.11 | 18.21 | -0.6% | 0.82 |
-| 0.44 **(recommended)** | 0.47 | 4.0 | 1.5 | 126 | 1.19 | 15.61 | 15.71 | -0.6% | 0.82 |
-| 0.34 | 0.32 | 3.0 | 1.5 | 119 | 2.56 | 13.17 | 13.27 | -0.8% | 0.81 |
-| 0.34 | 0.32 | 3.0 | 2.0 | 159 | 3.41 | 11.92 | 12.02 | -0.8% | 0.81 |
-| 0.26 | 0.32 | 2.5 | 2.0 | 170 | 8.10 | 10.54 | 10.60 | -0.5% | 0.82 |
-| 0.20 | 0.15 | 1.5 | 1.5 | 123 | 13.85 | 10.51 | 10.55 | -0.4% | 0.82 |
-| 0.15 | 0.15 | 1.5 | 1.5 | 110 | 26.45 | 9.24 | 9.31 | -0.8% | 0.78 |
+| 1.00 | 0.44 | 4.0 | 1.5 | 177 | 0.18 | 37.04 | 35.98 | +2.9% | 0.91 |
+| 0.84 | 0.44 | 4.0 | 1.5 | 163 | 0.26 | 29.64 | 29.09 | +1.9% | 0.89 |
+| 0.71 | 0.44 | 4.0 | 1.5 | 148 | 0.38 | 23.92 | 23.69 | +1.0% | 0.88 |
+| 0.60 | 0.44 | 4.0 | 1.5 | 138 | 0.57 | 20.09 | 20.05 | +0.2% | 0.85 |
+| 0.50 | 0.44 | 4.0 | 1.5 | 128 | 0.86 | 17.04 | 17.12 | -0.4% | 0.83 |
+| 0.42 **(recommended)** | 0.44 | 4.0 | 1.5 | 119 | 1.29 | 14.79 | 14.93 | -0.9% | 0.80 |
+| 0.36 | 0.44 | 3.5 | 1.5 | 125 | 2.28 | 13.70 | 13.78 | -0.6% | 0.81 |
+| 0.30 | 0.26 | 2.5 | 1.5 | 121 | 3.79 | 12.50 | 12.58 | -0.6% | 0.81 |
+| 0.25 | 0.26 | 2.5 | 1.5 | 113 | 5.75 | 11.24 | 11.35 | -1.0% | 0.78 |
 
 ## Confidence checks
 
@@ -36,23 +48,24 @@ The 1D screen evaluated 1008 designs (530 feasible) in 3 ms. 10 designs spread a
 |---|---|---|---|
 | Mesh independence, R_th (production vs 2× finer) | 0.001% | < 1.0% | pass |
 | Mesh independence, ΔP (production vs 2× finer) | 0.000% | < 1.0% | pass |
-| Linear solver residual, worst run | 9.1e-12 | < 1e-08 | pass |
+| Linear solver residual, worst run | 6.2e-12 | < 1e-08 | pass |
 | Energy balance: flux recovered at chip interface vs applied, worst run | 0.000% | < 1.0% | pass |
-| Laminar assumption: highest Reynolds number | 170 | < 2000 | pass |
+| Laminar assumption: highest Reynolds number | 177 | < 2000 | pass |
 | Mesh quality: lowest element quality (SICN) | 0.76 | > 0.3 | pass |
 
-Mesh study on `w0444_t0468_h4000_q150`:
+Mesh study on `w0422_t0444_h4000_q150`:
 
 | Cells across half channel | Unknowns | R_th (mK/W) | ΔP (kPa) |
 |---|---|---|---|
-| 4 | 4879 | 15.7090 | 1.1894 |
-| 8 | 17951 | 15.7096 | 1.1894 |
-| 16 | 68255 | 15.7098 | 1.1894 |
+| 4 | 4995 | 14.9276 | 1.2943 |
+| 8 | 18559 | 14.9281 | 1.2942 |
+| 16 | 71883 | 14.9283 | 1.2942 |
 
 ![Fields](fields_recommended.png)
 
 ## Inputs
-- Heat load 1000 W, uniform over 60 × 60 mm; 2.0 mm base, k = 390 W/m·K; ΔP budget 30 kPa (channel core).
+- Heat load 1000 W, uniform over 60 × 60 mm; 2.0 mm base, k = 390 W/m·K.
+- Rated flow 1.5 LPM (1.5 LPM per kW); the Pareto study is run at rated flow only. ΔP budget 6 kPa (channel core, at rated flow). R_th target 15 mK/W.
 - PG25 at 40 °C (CoolProp): ρ = 1010.6 kg/m³, cp = 3958 J/kg·K, k = 0.481 W/m·K, μ = 1.394 mPa·s.
 - R_th = (average chip-interface temperature − inlet temperature) / heat load. TIM and junction-to-case are excluded.
 

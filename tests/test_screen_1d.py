@@ -3,7 +3,7 @@ from dataclasses import replace
 
 import pytest
 
-from tools.pareto import knee_index, pareto_indices, spread_along_front
+from tools.pareto import knee_index, pareto_indices, recommend, spread_along_front
 from tools.screen_1d import analyze_1d, f_re_fanning, nu_h1, screen_1d
 from tools.types import Design, DesignSpace, Fluid, Requirements
 
@@ -72,3 +72,26 @@ def test_spread_and_knee():
     picks = spread_along_front(xs, 4)
     assert picks[0] == 0 and picks[-1] == 6 and len(picks) == 4
     assert knee_index([1, 10, 100], [100, 2, 1]) == 1
+
+
+# (dp_pa, r_th_k_per_w) candidates for the recommendation rule; budget 6 kPa, target 15 mK/W
+CANDIDATES = [(500.0, 30e-3), (1500.0, 14.8e-3), (3000.0, 12e-3), (5500.0, 10e-3), (9000.0, 8e-3)]
+
+
+def test_recommend_target_met_picks_lowest_dp_among_qualifying():
+    rec = recommend(CANDIDATES, 6e3, 15e-3)
+    assert rec == {"index": 1, "rule": "meets_target_lowest_dp"}
+
+
+def test_recommend_falls_back_to_lowest_r_th_when_target_unmet():
+    rec = recommend(CANDIDATES, 6e3, 5e-3)
+    assert rec == {"index": 3, "rule": "fallback_lowest_r_th"}
+
+
+def test_recommend_budget_excludes_lower_r_th_design():
+    # the 8 mK/W design is the only one meeting a 9 mK/W target, but it is over budget
+    rec = recommend(CANDIDATES, 6e3, 9e-3)
+    assert rec == {"index": 3, "rule": "fallback_lowest_r_th"}
+    assert recommend(CANDIDATES, 10e3, 9e-3) == {"index": 4, "rule": "meets_target_lowest_dp"}
+    with pytest.raises(ValueError):
+        recommend(CANDIDATES, 100.0, 15e-3)

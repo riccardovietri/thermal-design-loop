@@ -75,7 +75,7 @@ def main() -> None:
     ap.add_argument("--coolant", default="PG25")
     ap.add_argument("--inlet_c", type=float, default=40.0)
     a = ap.parse_args()
-    req = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, a.inlet_c, 30e3, a.coolant)
+    req = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, a.inlet_c, 6e3, a.coolant, r_th_target_k_per_w=15e-3)
     d = Design(a.w_ch_mm / 1e3, a.t_fin_mm / 1e3, a.h_fin_mm / 1e3, a.flow_lpm)
     print(json.dumps(to_dict(analyze_1d(d, req, fluid_props(a.coolant, a.inlet_c))), indent=2))
 
