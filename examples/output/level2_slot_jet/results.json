@@ -1,0 +1,626 @@
+[
+  {
+    "design": {
+      "slot_width_m": 0.00015,
+      "gap_m": 5e-05,
+      "pitch_m": 0.002,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0150_g0050_p02000_q150",
+      "n_slots": 30,
+      "reynolds_slot": 10.069517542128995,
+      "jet_velocity_m_s": 0.09259259259259262,
+      "dp_pa": 846.3533676952368,
+      "r_th_k_per_w": 0.016354905021809984,
+      "r_conv_k_per_w": 0.01493040359730856,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 42528.21912825695,
+      "h_mean_w_m2k": 18604.8405166925,
+      "base_avg_temp_c": 56.354905021809984,
+      "base_max_temp_c": 70.34529843243254,
+      "energy_balance_error": -1.7264332741184774e-07,
+      "newton_iterations": 4,
+      "n_unknowns": 119012
+    },
+    "seconds": 11.433320041978732
+  },
+  {
+    "design": {
+      "slot_width_m": 0.00015,
+      "gap_m": 5e-05,
+      "pitch_m": 0.004,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0150_g0050_p04000_q150",
+      "n_slots": 15,
+      "reynolds_slot": 20.13903508425799,
+      "jet_velocity_m_s": 0.18518518518518523,
+      "dp_pa": 3560.2871742695015,
+      "r_th_k_per_w": 0.016138073385720368,
+      "r_conv_k_per_w": 0.014713571961218943,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 57615.42939919942,
+      "h_mean_w_m2k": 18879.01717610965,
+      "base_avg_temp_c": 56.13807338572037,
+      "base_max_temp_c": 69.38838464142061,
+      "energy_balance_error": -6.339763958251865e-07,
+      "newton_iterations": 3,
+      "n_unknowns": 244181
+    },
+    "seconds": 31.928295749938115
+  },
+  {
+    "design": {
+      "slot_width_m": 0.00015,
+      "gap_m": 5e-05,
+      "pitch_m": 0.008,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0150_g0050_p08000_q150",
+      "n_slots": 7,
+      "reynolds_slot": 43.15507518055283,
+      "jet_velocity_m_s": 0.39682539682539686,
+      "dp_pa": 15676.4795963562,
+      "r_th_k_per_w": 0.016771102848959017,
+      "r_conv_k_per_w": 0.01524485132270749,
+      "r_base_k_per_w": 0.0015262515262515263,
+      "h_stagnation_w_m2k": 82036.46605326394,
+      "h_mean_w_m2k": 19522.59430537958,
+      "base_avg_temp_c": 56.77110284895902,
+      "base_max_temp_c": 70.87399575989008,
+      "energy_balance_error": 9.040292457740406e-06,
+      "newton_iterations": 4,
+      "n_unknowns": 494727
+    },
+    "seconds": 72.2573210420087
+  },
+  {
+    "design": {
+      "slot_width_m": 0.00015,
+      "gap_m": 0.0001,
+      "pitch_m": 0.002,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0150_g0100_p02000_q150",
+      "n_slots": 30,
+      "reynolds_slot": 10.069517542128995,
+      "jet_velocity_m_s": 0.09259259259259262,
+      "dp_pa": 111.29428641872452,
+      "r_th_k_per_w": 0.024156831876804414,
+      "r_conv_k_per_w": 0.02273233045230299,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 27642.042998862467,
+      "h_mean_w_m2k": 12219.502895253594,
+      "base_avg_temp_c": 64.15683187680442,
+      "base_max_temp_c": 82.2758950968104,
+      "energy_balance_error": 1.4649042672232326e-06,
+      "newton_iterations": 4,
+      "n_unknowns": 59414
+    },
+    "seconds": 5.886334625072777
+  },
+  {
+    "design": {
+      "slot_width_m": 0.00015,
+      "gap_m": 0.0001,
+      "pitch_m": 0.004,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0150_g0100_p04000_q150",
+      "n_slots": 15,
+      "reynolds_slot": 20.13903508425799,
+      "jet_velocity_m_s": 0.18518518518518523,
+      "dp_pa": 459.58550955043495,
+      "r_th_k_per_w": 0.02385350998125406,
+      "r_conv_k_per_w": 0.022429008556752634,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 38396.30968226974,
+      "h_mean_w_m2k": 12384.755085134964,
+      "base_avg_temp_c": 63.853509981254064,
+      "base_max_temp_c": 82.5929092423213,
+      "energy_balance_error": 9.156908395313579e-06,
+      "newton_iterations": 3,
+      "n_unknowns": 121966
+    },
+    "seconds": 16.578144958009943
+  },
+  {
+    "design": {
+      "slot_width_m": 0.00015,
+      "gap_m": 0.0001,
+      "pitch_m": 0.008,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0150_g0100_p08000_q150",
+      "n_slots": 7,
+      "reynolds_slot": 43.15507518055283,
+      "jet_velocity_m_s": 0.39682539682539686,
+      "dp_pa": 2017.820545827342,
+      "r_th_k_per_w": 0.02482923613111116,
+      "r_conv_k_per_w": 0.023302984604859633,
+      "r_base_k_per_w": 0.0015262515262515263,
+      "h_stagnation_w_m2k": 56105.12005045793,
+      "h_mean_w_m2k": 12771.713695291279,
+      "base_avg_temp_c": 64.82923613111116,
+      "base_max_temp_c": 85.57194593180377,
+      "energy_balance_error": 6.171001483568084e-05,
+      "newton_iterations": 4,
+      "n_unknowns": 247187
+    },
+    "seconds": 33.82275779196061
+  },
+  {
+    "design": {
+      "slot_width_m": 0.00015,
+      "gap_m": 0.0002,
+      "pitch_m": 0.002,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0150_g0200_p02000_q150",
+      "n_slots": 30,
+      "reynolds_slot": 10.069517542128995,
+      "jet_velocity_m_s": 0.09259259259259262,
+      "dp_pa": 18.281064912186014,
+      "r_th_k_per_w": 0.03679967709232162,
+      "r_conv_k_per_w": 0.0353751756678202,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 17211.79737408636,
+      "h_mean_w_m2k": 7852.33634982241,
+      "base_avg_temp_c": 76.79967709232162,
+      "base_max_temp_c": 105.18566530451538,
+      "energy_balance_error": 2.354891865952169e-06,
+      "newton_iterations": 4,
+      "n_unknowns": 51714
+    },
+    "seconds": 8.334626666037366
+  },
+  {
+    "design": {
+      "slot_width_m": 0.00015,
+      "gap_m": 0.0002,
+      "pitch_m": 0.004,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0150_g0200_p04000_q150",
+      "n_slots": 15,
+      "reynolds_slot": 20.13903508425799,
+      "jet_velocity_m_s": 0.18518518518518523,
+      "dp_pa": 71.96744200675764,
+      "r_th_k_per_w": 0.03612633321060731,
+      "r_conv_k_per_w": 0.03470183178610589,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 26060.869873911823,
+      "h_mean_w_m2k": 8004.700716951661,
+      "base_avg_temp_c": 76.12633321060731,
+      "base_max_temp_c": 106.32933866008591,
+      "energy_balance_error": 2.9191518300386576e-06,
+      "newton_iterations": 3,
+      "n_unknowns": 107362
+    },
+    "seconds": 20.735517875058576
+  },
+  {
+    "design": {
+      "slot_width_m": 0.00015,
+      "gap_m": 0.0002,
+      "pitch_m": 0.008,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0150_g0200_p08000_q150",
+      "n_slots": 7,
+      "reynolds_slot": 43.15507518055283,
+      "jet_velocity_m_s": 0.39682539682539686,
+      "dp_pa": 319.31523756683566,
+      "r_th_k_per_w": 0.03760918768041559,
+      "r_conv_k_per_w": 0.03608293615416406,
+      "r_base_k_per_w": 0.0015262515262515263,
+      "h_stagnation_w_m2k": 41926.71826303626,
+      "h_mean_w_m2k": 8248.193726460413,
+      "base_avg_temp_c": 77.60918768041559,
+      "base_max_temp_c": 111.13122835114166,
+      "energy_balance_error": 6.932125670222611e-05,
+      "newton_iterations": 5,
+      "n_unknowns": 216806
+    },
+    "seconds": 46.9420860838145
+  },
+  {
+    "design": {
+      "slot_width_m": 0.00015,
+      "gap_m": 0.0004,
+      "pitch_m": 0.002,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0150_g0400_p02000_q150",
+      "n_slots": 30,
+      "reynolds_slot": 10.069517542128995,
+      "jet_velocity_m_s": 0.09259259259259262,
+      "dp_pa": 7.279480927722272,
+      "r_th_k_per_w": 0.05637029138191657,
+      "r_conv_k_per_w": 0.05494578995741515,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 10513.14385492345,
+      "h_mean_w_m2k": 5055.487927156293,
+      "base_avg_temp_c": 96.37029138191657,
+      "base_max_temp_c": 145.01094881431206,
+      "energy_balance_error": -4.116230602813076e-06,
+      "newton_iterations": 4,
+      "n_unknowns": 89864
+    },
+    "seconds": 25.263384541962296
+  },
+  {
+    "design": {
+      "slot_width_m": 0.00015,
+      "gap_m": 0.0004,
+      "pitch_m": 0.004,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0150_g0400_p04000_q150",
+      "n_slots": 15,
+      "reynolds_slot": 20.13903508425799,
+      "jet_velocity_m_s": 0.18518518518518523,
+      "dp_pa": 27.55694547986115,
+      "r_th_k_per_w": 0.05465508540333256,
+      "r_conv_k_per_w": 0.05323058397883114,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 18617.53906510117,
+      "h_mean_w_m2k": 5218.386818529834,
+      "base_avg_temp_c": 94.65508540333256,
+      "base_max_temp_c": 147.65396692681523,
+      "energy_balance_error": -2.251950383280743e-06,
+      "newton_iterations": 3,
+      "n_unknowns": 199189
+    },
+    "seconds": 79.11668670806102
+  },
+  {
+    "design": {
+      "slot_width_m": 0.00015,
+      "gap_m": 0.0004,
+      "pitch_m": 0.008,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0150_g0400_p08000_q150",
+      "n_slots": 7,
+      "reynolds_slot": 43.15507518055283,
+      "jet_velocity_m_s": 0.39682539682539686,
+      "dp_pa": 125.70238346793597,
+      "r_th_k_per_w": 0.05800405860067831,
+      "r_conv_k_per_w": 0.05647780707442678,
+      "r_base_k_per_w": 0.0015262515262515263,
+      "h_stagnation_w_m2k": 33896.71058782037,
+      "h_mean_w_m2k": 5269.663661459864,
+      "base_avg_temp_c": 98.00405860067832,
+      "base_max_temp_c": 156.10944615617123,
+      "energy_balance_error": 1.3872822540283991e-05,
+      "newton_iterations": 6,
+      "n_unknowns": 424125
+    },
+    "seconds": 208.76100116595626
+  },
+  {
+    "design": {
+      "slot_width_m": 0.0003,
+      "gap_m": 5e-05,
+      "pitch_m": 0.002,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0300_g0050_p02000_q150",
+      "n_slots": 30,
+      "reynolds_slot": 10.069517542128995,
+      "jet_velocity_m_s": 0.04629629629629631,
+      "dp_pa": 733.008727233763,
+      "r_th_k_per_w": 0.017825026288068074,
+      "r_conv_k_per_w": 0.01640052486356665,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 32197.21347444054,
+      "h_mean_w_m2k": 16937.12732297087,
+      "base_avg_temp_c": 57.825026288068074,
+      "base_max_temp_c": 88.27150540697882,
+      "energy_balance_error": -2.1509025948107663e-05,
+      "newton_iterations": 4,
+      "n_unknowns": 111765
+    },
+    "seconds": 9.764183334074914
+  },
+  {
+    "design": {
+      "slot_width_m": 0.0003,
+      "gap_m": 5e-05,
+      "pitch_m": 0.004,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0300_g0050_p04000_q150",
+      "n_slots": 15,
+      "reynolds_slot": 20.13903508425799,
+      "jet_velocity_m_s": 0.09259259259259262,
+      "dp_pa": 3335.4495592728595,
+      "r_th_k_per_w": 0.016485961396309718,
+      "r_conv_k_per_w": 0.015061459971808295,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 42924.7951052735,
+      "h_mean_w_m2k": 18442.951632691387,
+      "base_avg_temp_c": 56.48596139630972,
+      "base_max_temp_c": 77.14715100761318,
+      "energy_balance_error": 2.9798180500861804e-07,
+      "newton_iterations": 3,
+      "n_unknowns": 237038
+    },
+    "seconds": 32.47346920915879
+  },
+  {
+    "design": {
+      "slot_width_m": 0.0003,
+      "gap_m": 5e-05,
+      "pitch_m": 0.008,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0300_g0050_p08000_q150",
+      "n_slots": 7,
+      "reynolds_slot": 43.15507518055283,
+      "jet_velocity_m_s": 0.19841269841269843,
+      "dp_pa": 15190.623947597083,
+      "r_th_k_per_w": 0.01685383469742462,
+      "r_conv_k_per_w": 0.015327583171173092,
+      "r_base_k_per_w": 0.0015262515262515263,
+      "h_stagnation_w_m2k": 60084.65634427508,
+      "h_mean_w_m2k": 19417.219550880403,
+      "base_avg_temp_c": 56.85383469742462,
+      "base_max_temp_c": 73.2713460554564,
+      "energy_balance_error": 1.385784202501128e-06,
+      "newton_iterations": 5,
+      "n_unknowns": 487077
+    },
+    "seconds": 80.53021829086356
+  },
+  {
+    "design": {
+      "slot_width_m": 0.0003,
+      "gap_m": 0.0001,
+      "pitch_m": 0.002,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0300_g0100_p02000_q150",
+      "n_slots": 30,
+      "reynolds_slot": 10.069517542128995,
+      "jet_velocity_m_s": 0.04629629629629631,
+      "dp_pa": 95.42724203405264,
+      "r_th_k_per_w": 0.02500414449562358,
+      "r_conv_k_per_w": 0.023579643071122154,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 21264.131433241953,
+      "h_mean_w_m2k": 11780.40638443635,
+      "base_avg_temp_c": 65.00414449562358,
+      "base_max_temp_c": 88.30748069836925,
+      "energy_balance_error": -6.6429656109257e-08,
+      "newton_iterations": 4,
+      "n_unknowns": 56447
+    },
+    "seconds": 4.7972575419116765
+  },
+  {
+    "design": {
+      "slot_width_m": 0.0003,
+      "gap_m": 0.0001,
+      "pitch_m": 0.004,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0300_g0100_p04000_q150",
+      "n_slots": 15,
+      "reynolds_slot": 20.13903508425799,
+      "jet_velocity_m_s": 0.09259259259259262,
+      "dp_pa": 425.42914939836794,
+      "r_th_k_per_w": 0.024154924692632078,
+      "r_conv_k_per_w": 0.022730423268130653,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 28807.662706397896,
+      "h_mean_w_m2k": 12220.52816619733,
+      "base_avg_temp_c": 64.15492469263208,
+      "base_max_temp_c": 86.46810101100984,
+      "energy_balance_error": -1.2759630892977825e-06,
+      "newton_iterations": 3,
+      "n_unknowns": 119012
+    },
+    "seconds": 15.518379416083917
+  },
+  {
+    "design": {
+      "slot_width_m": 0.0003,
+      "gap_m": 0.0001,
+      "pitch_m": 0.008,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0300_g0100_p08000_q150",
+      "n_slots": 7,
+      "reynolds_slot": 43.15507518055283,
+      "jet_velocity_m_s": 0.19841269841269843,
+      "dp_pa": 1927.7335805630903,
+      "r_th_k_per_w": 0.024963514419754307,
+      "r_conv_k_per_w": 0.02343726289350278,
+      "r_base_k_per_w": 0.0015262515262515263,
+      "h_stagnation_w_m2k": 41017.867353608926,
+      "h_mean_w_m2k": 12698.54116376161,
+      "base_avg_temp_c": 64.9635144197543,
+      "base_max_temp_c": 89.17329240396744,
+      "energy_balance_error": 1.53805914093752e-06,
+      "newton_iterations": 4,
+      "n_unknowns": 244181
+    },
+    "seconds": 33.96531845792197
+  },
+  {
+    "design": {
+      "slot_width_m": 0.0003,
+      "gap_m": 0.0002,
+      "pitch_m": 0.002,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0300_g0200_p02000_q150",
+      "n_slots": 30,
+      "reynolds_slot": 10.069517542128995,
+      "jet_velocity_m_s": 0.04629629629629631,
+      "dp_pa": 13.302096430655729,
+      "r_th_k_per_w": 0.03785856616121216,
+      "r_conv_k_per_w": 0.036434064736710736,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 13820.97133962948,
+      "h_mean_w_m2k": 7624.122638665968,
+      "base_avg_temp_c": 77.85856616121217,
+      "base_max_temp_c": 108.50394318452108,
+      "energy_balance_error": 1.0102176073445435e-06,
+      "newton_iterations": 4,
+      "n_unknowns": 28099
+    },
+    "seconds": 2.672245250083506
+  },
+  {
+    "design": {
+      "slot_width_m": 0.0003,
+      "gap_m": 0.0002,
+      "pitch_m": 0.004,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0300_g0200_p04000_q150",
+      "n_slots": 15,
+      "reynolds_slot": 20.13903508425799,
+      "jet_velocity_m_s": 0.09259259259259262,
+      "dp_pa": 56.8132691963633,
+      "r_th_k_per_w": 0.03668054636002744,
+      "r_conv_k_per_w": 0.03525604493552602,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 19198.656204289982,
+      "h_mean_w_m2k": 7878.869518284308,
+      "base_avg_temp_c": 76.68054636002745,
+      "base_max_temp_c": 109.34723946040282,
+      "energy_balance_error": 1.0862572719094743e-05,
+      "newton_iterations": 3,
+      "n_unknowns": 59414
+    },
+    "seconds": 7.7466886669863015
+  },
+  {
+    "design": {
+      "slot_width_m": 0.0003,
+      "gap_m": 0.0002,
+      "pitch_m": 0.008,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0300_g0200_p08000_q150",
+      "n_slots": 7,
+      "reynolds_slot": 43.15507518055283,
+      "jet_velocity_m_s": 0.19841269841269843,
+      "dp_pa": 255.50327165055538,
+      "r_th_k_per_w": 0.03791049638920568,
+      "r_conv_k_per_w": 0.036384244862954156,
+      "r_base_k_per_w": 0.0015262515262515263,
+      "h_stagnation_w_m2k": 28052.26136513229,
+      "h_mean_w_m2k": 8179.887991081504,
+      "base_avg_temp_c": 77.91049638920569,
+      "base_max_temp_c": 114.78205285733165,
+      "energy_balance_error": 9.391432920335951e-05,
+      "newton_iterations": 4,
+      "n_unknowns": 121966
+    },
+    "seconds": 16.40782266599126
+  },
+  {
+    "design": {
+      "slot_width_m": 0.0003,
+      "gap_m": 0.0004,
+      "pitch_m": 0.002,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0300_g0400_p02000_q150",
+      "n_slots": 30,
+      "reynolds_slot": 10.069517542128995,
+      "jet_velocity_m_s": 0.04629629629629631,
+      "dp_pa": 2.7812899620433926,
+      "r_th_k_per_w": 0.05874683819565125,
+      "r_conv_k_per_w": 0.057322336771149826,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 8605.142769150589,
+      "h_mean_w_m2k": 4845.8906845818365,
+      "base_avg_temp_c": 98.74683819565125,
+      "base_max_temp_c": 146.5850668912784,
+      "energy_balance_error": -5.163459391832603e-06,
+      "newton_iterations": 4,
+      "n_unknowns": 23308
+    },
+    "seconds": 2.82291645812802
+  },
+  {
+    "design": {
+      "slot_width_m": 0.0003,
+      "gap_m": 0.0004,
+      "pitch_m": 0.004,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0300_g0400_p04000_q150",
+      "n_slots": 15,
+      "reynolds_slot": 20.13903508425799,
+      "jet_velocity_m_s": 0.09259259259259262,
+      "dp_pa": 10.66931683359258,
+      "r_th_k_per_w": 0.056127648560750976,
+      "r_conv_k_per_w": 0.054703147136249554,
+      "r_base_k_per_w": 0.0014245014245014246,
+      "h_stagnation_w_m2k": 13030.441224335695,
+      "h_mean_w_m2k": 5077.912191887507,
+      "base_avg_temp_c": 96.12764856075097,
+      "base_max_temp_c": 149.50469543326835,
+      "energy_balance_error": 2.716365646149299e-05,
+      "newton_iterations": 3,
+      "n_unknowns": 51714
+    },
+    "seconds": 9.753039707895368
+  },
+  {
+    "design": {
+      "slot_width_m": 0.0003,
+      "gap_m": 0.0004,
+      "pitch_m": 0.008,
+      "flow_lpm": 1.5
+    },
+    "result": {
+      "design_id": "jet_b0300_g0400_p08000_q150",
+      "n_slots": 7,
+      "reynolds_slot": 43.15507518055283,
+      "jet_velocity_m_s": 0.19841269841269843,
+      "dp_pa": 48.68996316878087,
+      "r_th_k_per_w": 0.05797459024687737,
+      "r_conv_k_per_w": 0.056448338720625844,
+      "r_base_k_per_w": 0.0015262515262515263,
+      "h_stagnation_w_m2k": 20958.340732970144,
+      "h_mean_w_m2k": 5272.414642564132,
+      "base_avg_temp_c": 97.97459024687737,
+      "base_max_temp_c": 158.47568312538235,
+      "energy_balance_error": 9.736446849206715e-05,
+      "newton_iterations": 5,
+      "n_unknowns": 107362
+    },
+    "seconds": 22.245838083093986
+  }
+]

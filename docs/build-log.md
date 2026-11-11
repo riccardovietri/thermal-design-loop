@@ -50,3 +50,32 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
 - Resistance floor: at 2 LPM the coolant heating term is 3.8 mK/W and the base 1.4 mK/W, so no fin design gets below about 5.2 mK/W.
   The best design in budget reaches 9.3 mK/W; flow rate and base, not fins, set what is left.
 - Base thickness: literature spans 0.1–4.5 mm with no typical value; kept at 2 mm as a labelled assumption.
+
+## 2026-11-10 (Tue, night) — requirements sense check, Level 2 solver, first slot-jet case
+- ΔP budget check against published numbers: an 80 kW rack example budgets 124 kPa in total with 34 kPa in hoses and fittings;
+  a 4 kW cold plate is quoted at 55 kPa for the full loop including fittings and quick-disconnects; one measured plate
+  reaches 7.6 mK/W at 4 kPa. A 30 kPa budget for the channel core alone is high; 5–10 kPa is more representative.
+  Flow guidance of 1.2–1.5 LPM per kW matches the 1–2 LPM range used here.
+- The knee is real, not a plotting artefact: left of it, 10× more ΔP buys about 60% lower R_th (0.12 → 1.19 kPa, 39 → 15.7 mK/W);
+  right of it, 22× more buys 41% (1.19 → 26.4 kPa, 15.7 → 9.3 mK/W). The bend comes from the coolant-heating and base terms,
+  which fins cannot reduce.
+- Level 2 solver (`level2/planar.py`): steady Navier-Stokes (Taylor-Hood, Newton with Reynolds continuation) plus energy.
+  Validation on thermally developing flow between parallel plates (`validation/level2_thermal_entrance.py`):
+  pressure drop exact to 4 decimals, fully developed Nu 8.243 vs 8.235 (+0.10%), local Nu within 0.64% of an independent
+  finite-difference marching solution from x* = 0.002 to 0.1, energy balance −0.03%.
+- First slot-jet case (0.3 mm slots, 0.6 mm gap, 6 mm pitch, 1.5 LPM): Re 30, ΔP 15 Pa, stagnation h 14.5 kW/m²K,
+  mean 4.0 kW/m²K, R_th 71 mK/W. The field plot shows the stagnation zone, wall jet and a recirculation cell beside the jet
+  (`docs/figures/slot_jet_example/fields.png`). Thermally it is far worse than fins: no area enhancement, and almost no pressure used.
+- Scaling insight: slot Reynolds number depends only on the number of slots (Re = ρQ/μNL), and the wall-jet region behaves like a
+  thin channel heated from one side, so heat transfer is set by the gap. Narrow gaps are where slot jets become competitive.
+
+## 2026-11-10 (Tue, night) — slot-jet sweep vs straight fins
+- 24 cases (slot 0.15/0.3 mm, gap 0.05–0.4 mm, pitch 2–8 mm, 1.5 LPM), 3–209 s each, all converged, energy balance within 0.01%.
+  Results in `examples/output/level2_slot_jet/`.
+- Thermal resistance is set almost entirely by the gap: about 57, 37, 24 and 16–17 mK/W at 0.4, 0.2, 0.1 and 0.05 mm.
+  Slot width and pitch change it by a few percent.
+- Pressure drop rises about 4× per doubling of pitch at fixed gap, with almost no thermal benefit, so the tightest pitch wins.
+- Against the Level 1 fin front: slot jets are better below about 1 kPa (24 mK/W at 0.11 kPa vs 39 mK/W for fins at 0.12 kPa;
+  16.4 at 0.85 kPa vs 18.2 at 0.79 kPa); fins are better above it (12 mK/W at 3.4 kPa, where the best jet is still 16).
+  Caveats: the fin points at low ΔP are at 1.0 LPM and the jets at 1.5 LPM; every competitive jet design needs a gap of 0.05–0.1 mm,
+  below the 0.15 mm feature limit applied to fins; pitches under 2 mm and gaps under 0.05 mm were not explored.

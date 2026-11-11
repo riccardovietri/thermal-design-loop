@@ -13,7 +13,10 @@ Instructions for any coding agent (or person) picking this project up cold.
 ## Commands
 - `uv sync` then `uv run pytest` (must pass before any commit).
 - `uv run python run_study.py examples/gpu_coldplate.yaml` — the whole Level 1 study, about 3 s.
-- `uv run python validation/duct_fully_developed.py` — solver validation against Shah & London.
+- `uv run python validation/duct_fully_developed.py` — Level 1 solver validation against Shah & London.
+- `uv run python validation/level2_thermal_entrance.py` — Level 2 solver validation (developing flow between plates), about 20 s.
+- `uv run python -m level2.slot_jet --slot_mm 0.3 --gap_mm 0.6 --pitch_mm 6 --flow_lpm 1.5` — one slot-jet case with a field plot.
+- `uv run python -m level2.sweep` — the 24-case slot-jet sweep and comparison plot, several minutes.
 
 ## Rules
 - Every tool in `tools/` is a plain function with typed, JSON-serialisable inputs and outputs. No LLM calls in the pipeline.

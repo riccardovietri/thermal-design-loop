@@ -1,12 +1,15 @@
 # PROGRESS
 
 ## Resume here
-V1 (Level 1) is functionally complete on branch `feat/v1-study`:
-`uv run python run_study.py examples/gpu_coldplate.yaml` → `out/gpu_coldplate/` (pareto.png, parity.png,
-fields_recommended.png, report.md, results.json) in about 3 s. A committed copy is in `examples/output/gpu_coldplate/`.
-Next: (1) Level 2: thermal validation case (developing flow between parallel plates), then slot-jet impingement;
-(2) Riccardo decides the ΔP budget (ASSUMPTIONS.md R5: 30 kPa looks high; 5–10 kPa core-only is more representative);
-(3) blog post on the fidelity ladder; (4) pick the final repo name and make it public.
+Level 1 is merged to `main` (pull request #1). Level 2 (planar Navier-Stokes, slot-jet arrays) is on `feat/level2-planar`
+as pull request #2: solver validated, one example case with a field plot, a 24-case sweep and a comparison plot against fins.
+Next: (1) Riccardo answers the open questions below; (2) blog post on the fidelity ladder (levels 1 and 2), format modelled on
+Anthropic/OpenAI engineering posts, linking to the reports; (3) final repo name, make public; (4) LinkedIn post.
+
+## Open questions for Riccardo
+- ΔP budget: change 30 kPa to 10 kPa core-only? (ASSUMPTIONS.md R5)
+- Minimum manufacturable jet gap? Competitive slot-jet designs need 0.05–0.1 mm. (ASSUMPTIONS.md L8)
+- Compare jets and fins at equal flow rate, and extend the jet sweep to pitches under 2 mm?
 
 ## Done
 - 2026-11-10: M0 spec frozen, toolchain validated (0.007% vs Shah & London).
@@ -14,6 +17,8 @@ Next: (1) Level 2: thermal validation case (developing flow between parallel pla
 - 2026-11-10: M2 1D straight-fin screen (`tools/screen_1d.py`), Pareto tools (`tools/pareto.py`).
 - 2026-11-10: M3/M4 batch study, confidence checks, plots, report (`run_study.py`, `tools/check_confidence.py`,
   `tools/report.py`). `uv run pytest` → 16 passed.
+- 2026-11-10: Level 2 solver (`level2/planar.py`), validation (`validation/level2_thermal_entrance.py`), slot-jet case and sweep
+  (`level2/slot_jet.py`, `level2/sweep.py`). `uv run pytest` → 18 passed.
 - 2026-11-10: Level 2 prototype (`prototypes/level2_wavy_channel.py`), findings in `docs/build-log.md`.
 
 ## Result of the example study

@@ -14,3 +14,4 @@ jobs:
       - run: uv run pytest -q
       - run: uv run python validation/duct_fully_developed.py
       - run: uv run python run_study.py examples/gpu_coldplate.yaml
+      - run: uv run python validation/level2_thermal_entrance.py
