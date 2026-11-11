@@ -1,15 +1,16 @@
 # PROGRESS
 
 ## Resume here
-Level 1 is merged to `main` (pull request #1). Level 2 (planar Navier-Stokes, slot-jet arrays) is on `feat/level2-planar`
-as pull request #2: solver validated, one example case with a field plot, a 24-case sweep and a comparison plot against fins.
-Next: (1) Riccardo answers the open questions below; (2) blog post on the fidelity ladder (levels 1 and 2), format modelled on
+Levels 1 and 2 are merged to `main` (pull requests #1 and #2). The requirements amendment (SPEC Amendment 1: 1.5 LPM rated flow,
+6 kPa core budget, 15 mK/W target, target-based recommendation rule, 0.1 mm jet features, region-of-interest plots) is on
+`feat/rated-flow-requirements` as a pull request awaiting Riccardo's review.
+Next: (1) Riccardo reviews and merges the amendment; (2) blog post on the fidelity ladder (levels 1 and 2), format modelled on
 Anthropic/OpenAI engineering posts, linking to the reports; (3) final repo name, make public; (4) LinkedIn post.
 
 ## Open questions for Riccardo
-- ΔP budget: change 30 kPa to 10 kPa core-only? (ASSUMPTIONS.md R5)
-- Minimum manufacturable jet gap? Competitive slot-jet designs need 0.05–0.1 mm. (ASSUMPTIONS.md L8)
-- Compare jets and fins at equal flow rate, and extend the jet sweep to pitches under 2 mm?
+- The recommended design meets 15 mK/W with a 0.5% margin (14.93 mK/W) and misses it at 1.0 LPM (17.4 mK/W). Is a margin
+  needed on the target (e.g. for entrance effects, manifolds or tolerance), which would move the pick to 0.36 mm channels (13.8 mK/W at 2.3 kPa)?
+- Slot jets on a flat base cannot reach 15 mK/W at ≥ 0.1 mm gaps (best 23.8 mK/W). Drop them, or try jets onto a finned base?
 
 ## Done
 - 2026-11-10: M0 spec frozen, toolchain validated (0.007% vs Shah & London).
@@ -20,11 +21,15 @@ Anthropic/OpenAI engineering posts, linking to the reports; (3) final repo name,
 - 2026-11-10: Level 2 solver (`level2/planar.py`), validation (`validation/level2_thermal_entrance.py`), slot-jet case and sweep
   (`level2/slot_jet.py`, `level2/sweep.py`). `uv run pytest` → 18 passed.
 - 2026-11-10: Level 2 prototype (`prototypes/level2_wavy_channel.py`), findings in `docs/build-log.md`.
+- 2026-11-10: SPEC Amendment 1: rated flow, 6 kPa budget, 15 mK/W target, `tools.pareto.recommend`, flow sensitivity,
+  region-of-interest plots, 18-case slot-jet sweep at rated flow with a mesh study. `uv run pytest` → 21 passed.
 
 ## Result of the example study
-1008 designs screened (530 feasible), 10 solved. 1D vs CFD on R_th: mean |diff| 0.9%, max 2.9%. All confidence checks pass.
-Knee design: 0.44 mm channels, 0.47 mm fins, 4.0 mm tall, 1.5 LPM → 15.7 mK/W at 1.2 kPa.
-Lowest R_th in budget: 0.15 / 0.15 / 1.5 mm, 1.5 LPM → 9.3 mK/W at 26.4 kPa.
+Rated flow 1.5 LPM, 672 designs screened (273 feasible within 6 kPa), 9 solved. 1D vs CFD on R_th: mean |diff| 1.1%, max 2.9%.
+All confidence checks pass.
+Recommended (`meets_target_lowest_dp`): 0.42 mm channels, 0.44 mm fins, 4.0 mm tall → 14.9 mK/W at 1.29 kPa, interface 54.9 °C average.
+Knee (secondary): 0.50 / 0.44 / 4.0 mm → 17.1 mK/W at 0.86 kPa. Lowest R_th in budget: 0.25 / 0.26 / 2.5 mm → 11.3 mK/W at 5.75 kPa.
+Slot jets at 1.5 LPM with ≥ 0.1 mm features: best 23.8 mK/W at 0.49 kPa; none meets the target.
 
 ## Open items
 - Merge policy (Riccardo agreed 11/10): branch per milestone, pull request into `main`, merge when CI passes.
