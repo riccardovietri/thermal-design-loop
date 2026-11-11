@@ -8,6 +8,8 @@ Next: (1) Riccardo reviews and merges the amendment; (2) blog post on the fideli
 Anthropic/OpenAI engineering posts, linking to the reports; (3) final repo name, make public; (4) LinkedIn post.
 
 ## Open questions for Riccardo
+- Next topology: manifold microchannels (jets feeding short fin channels) via a depth-averaged 2D model, validated against Level 1
+  in the long-channel limit? Supported by docs/literature.md; needs Riccardo's OK as new scope.
 - The recommended design meets 15 mK/W with a 0.5% margin (14.93 mK/W) and misses it at 1.0 LPM (17.4 mK/W). Is a margin
   needed on the target (e.g. for entrance effects, manifolds or tolerance), which would move the pick to 0.36 mm channels (13.8 mK/W at 2.3 kPa)?
 - Slot jets on a flat base cannot reach 15 mK/W at ≥ 0.1 mm gaps (best 23.8 mK/W). Drop them, or try jets onto a finned base?

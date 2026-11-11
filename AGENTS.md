@@ -8,7 +8,8 @@ Instructions for any coding agent (or person) picking this project up cold.
 3. `PLAN.md` — milestones and acceptance checks.
 4. `ASSUMPTIONS.md` — every external number and modelling choice, with its basis. Add a row before relying on a new one.
 5. `DECISIONS.md` — one line per decision: date, decision, why, alternatives rejected.
-6. `docs/build-log.md` — what was tried and what the numbers were; raw material for the write-up.
+6. `docs/literature.md` — literature survey with confidence flags; snippet-level numbers are unverified.
+7. `docs/build-log.md` — what was tried and what the numbers were; raw material for the write-up.
 
 ## Commands
 - `uv sync` then `uv run pytest` (must pass before any commit).
