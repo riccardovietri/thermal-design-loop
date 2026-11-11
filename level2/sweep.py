@@ -77,7 +77,7 @@ def plot_compare(rows: list[dict], out: Path) -> Path:
     x_lo, x_hi = 0.7 * min(xs), 1.5 * max(max(xs), budget)
     y_lo, y_hi = 0.7 * min(ys + [target]), 1.3 * max(ys)
 
-    fig, ax = plt.subplots(figsize=(7.8, 5.4), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(10.5, 5.6), constrained_layout=True)
     ax.fill_between([x_lo, budget], y_lo, target, color="#16a34a", alpha=0.08, lw=0, zorder=0, label="Meets budget and target")
     ax.plot([p[0] for p in fins], [p[1] for p in fins], "o-", color="#1d4ed8", label=f"Straight fins (Level 1 CFD, {FLOW_LPM} LPM)")
     for gap, colour in zip(GAPS_MM, ("#7c2d12", "#c2410c", "#f59e0b")):
@@ -101,9 +101,9 @@ def plot_compare(rows: list[dict], out: Path) -> Path:
     ax.text(x_lo * 1.05, target * 0.98, f"R_th target {target:g} mK/W", color="#15803d", ha="left", va="top", fontsize=9)
     ax.set_xlabel("Pressure drop ΔP (kPa)")
     ax.set_ylabel("Thermal resistance R_th (mK/W)")
-    ax.set_title(f"Slot-jet arrays on a flat base vs straight fins\n{FLOW_LPM} LPM PG25, 1 kW, 60 × 60 mm; features ≥ 0.1 mm", fontsize=11)
+    ax.set_title(f"Slot-jet arrays on a flat base vs straight fins\n{FLOW_LPM} LPM PG25, 1 kW, 60 × 60 mm; jet gap and slot ≥ 0.1 mm, fins and channels ≥ 0.15 mm", fontsize=11)
     ax.grid(True, which="both", alpha=0.25)
-    ax.legend(frameon=False, fontsize=8, loc="upper right")
+    ax.legend(frameon=False, fontsize=8.5, loc="upper left", bbox_to_anchor=(1.01, 1.0))
     fig.savefig(out, dpi=200)
     plt.close(fig)
     return out
