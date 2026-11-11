@@ -1,19 +1,37 @@
 # PROGRESS
 
 ## Resume here
-Next: Riccardo approves SPEC.md → start M1 (one design end to end).
+V1 (Level 1) is functionally complete on branch `feat/v1-study`:
+`uv run python run_study.py examples/gpu_coldplate.yaml` → `out/gpu_coldplate/` (pareto.png, parity.png,
+fields_recommended.png, report.md, results.json) in about 3 s. A committed copy is in `examples/output/gpu_coldplate/`.
+Next: (1) Level 2: thermal validation case (developing flow between parallel plates), then slot-jet impingement;
+(2) Riccardo decides the ΔP budget (ASSUMPTIONS.md R5: 30 kPa looks high; 5–10 kPa core-only is more representative);
+(3) blog post on the fidelity ladder; (4) pick the final repo name and make it public.
 
 ## Done
-- 2026-11-10 (Tue): interview complete; SPEC/PLAN/DECISIONS drafted; repo created as a uv project.
-- 2026-11-10: toolchain proven. `uv run python validation/duct_fully_developed.py` → f·Re and Nu_H1
-  within 0.007% of Shah & London at α = 1, 0.5, 0.25, 0.125 (results in `validation/duct_fully_developed.json`).
+- 2026-11-10: M0 spec frozen, toolchain validated (0.007% vs Shah & London).
+- 2026-11-10: M1 one design end to end (`tools/mesh.py`, `tools/run_cfd.py`).
+- 2026-11-10: M2 1D straight-fin screen (`tools/screen_1d.py`), Pareto tools (`tools/pareto.py`).
+- 2026-11-10: M3/M4 batch study, confidence checks, plots, report (`run_study.py`, `tools/check_confidence.py`,
+  `tools/report.py`). `uv run pytest` → 16 passed.
+- 2026-11-10: Level 2 prototype (`prototypes/level2_wavy_channel.py`), findings in `docs/build-log.md`.
+
+## Result of the example study
+1008 designs screened (530 feasible), 10 solved. 1D vs CFD on R_th: mean |diff| 0.9%, max 2.9%. All confidence checks pass.
+Knee design: 0.44 mm channels, 0.47 mm fins, 4.0 mm tall, 1.5 LPM → 15.7 mK/W at 1.2 kPa.
+Lowest R_th in budget: 0.15 / 0.15 / 1.5 mm, 1.5 LPM → 9.3 mK/W at 26.4 kPa.
 
 ## Open items
-- SPEC.md approval.
-- PG25 properties at 40 °C must be confirmed against a datasheet (thermal-mcp-server has only water and EG50).
-- No GitHub remote yet (local commits only).
-- thermal-mcp-server not yet installed as a dependency (add in M2).
+- Merge policy (Riccardo agreed 11/10): branch per milestone, pull request into `main`, merge when CI passes.
+- README, ASSUMPTIONS.md, AGENTS.md and CI (`.github/workflows/ci.yml`) added 11/10.
+- CLIs exist for screen_1d, mesh, postprocess and run_study; run_cfd, check_confidence, pareto and report are functions only.
+- The energy-balance check passes at 1e-12 because the base temperature field is linear near the chip interface;
+  it is a real check but a weak one.
+- Dow lists cp about 4% above CoolProp for PG25; unresolved, low impact.
+- Blog post format: Riccardo wants depth balanced with demo value, modelled on Anthropic/OpenAI engineering posts,
+  linking to the detailed report. Draft after Level 2.
 
 ## Notes for a fresh session
-- Run everything with `uv run`. In Claude Code's sandbox, `uv` and `git` writes need the sandbox disabled.
-- Fable usage: 3% used at the start of the session on 11/10.
+- Run everything with `uv run`. In Claude Code's sandbox, `uv`, `git` and `gh` writes may need the sandbox disabled.
+- Fable usage: 7% used after M1 on 11/10.
+- GitHub: private repo riccardovietri/coldplate-design-loop; `main` pushed once with Riccardo's OK, work goes on branches.
