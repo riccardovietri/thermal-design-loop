@@ -34,3 +34,16 @@ Change a row and DECISIONS.md together.
 | P6 | Losses outside the channels | None (inlet, outlet, manifolds, fittings) | assumed | ΔP budget is defined as core-only | System ΔP is higher than reported |
 | P7 | R_th definition | (average interface temperature − inlet) / Q; excludes TIM and junction-to-case | chosen | Isolates what the plate controls | — |
 | P8 | Numerics | P2 triangles, 8 cells across the half channel, direct solve | checked per study | Mesh change < 0.01% at 2× refinement | — |
+
+## Level 2 (2D planar Navier-Stokes, slot-jet arrays)
+| ID | Assumption | Value | Status | Basis | Effect if wrong |
+|---|---|---|---|---|---|
+| L1 | Flow is two-dimensional, steady and laminar | Slot length (60 mm) much greater than slot width; Re on slot width 5–40 | assumed | Re is far below reported transition for confined slot jets; no stability analysis done | End effects and any unsteadiness are missed |
+| L2 | Slot-width Reynolds number depends only on slot count | Re = ρQ / (μ N L) | derived | Continuity | — |
+| L3 | Heated surface | Flat, uniform flux applied directly to the fluid boundary | assumed | Simplest case; no fins under the jets | A conducting base would flatten the stagnation peak and lower the peak temperature; average changes little |
+| L4 | Base conduction | Added as t/(kA) in series | assumed | Same 2 mm copper base as Level 1 | See L3 |
+| L5 | Jet inlet profile | Parabolic (developed slot flow), temperature uniform at inlet value | assumed | Nozzle plate thicker than a few slot widths | Flat profile would lower stagnation h slightly |
+| L6 | Pressure drop | Inlet-slot face to return-slot face; nozzle-plate and manifold losses excluded | assumed | Same core-only convention as Level 1 | System ΔP is higher |
+| L7 | Return path | One return slot midway between jets, same width as the jet | chosen | Makes the unit cell periodic | Other return layouts change the wall-jet length |
+| L8 | Gap below 0.15 mm | Allowed in the sweep, flagged on the plot | **open** | A gap is set by a spacer or etch depth, not by fin skiving; tolerance and fouling risk not assessed | The competitive slot-jet designs all need gaps of 0.05–0.1 mm |
+| L9 | Numerics | Taylor-Hood P2–P1, P2 temperature, no stabilisation, 20 cells across min(slot, gap) | checked | Validated on thermally developing channel flow: ≤ 0.64% on local Nu, 0.03% energy balance | — |

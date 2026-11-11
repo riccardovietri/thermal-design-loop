@@ -1,0 +1,25 @@
+{
+  "design": {
+    "slot_width_m": 0.0003,
+    "gap_m": 0.0006,
+    "pitch_m": 0.006,
+    "flow_lpm": 1.5
+  },
+  "result": {
+    "design_id": "jet_b0300_g0600_p06000_q150",
+    "n_slots": 10,
+    "reynolds_slot": 30.20855262638698,
+    "jet_velocity_m_s": 0.1388888888888889,
+    "dp_pa": 15.316418069863879,
+    "r_th_k_per_w": 0.07095540328055933,
+    "r_conv_k_per_w": 0.0695309018560579,
+    "r_base_k_per_w": 0.0014245014245014246,
+    "h_stagnation_w_m2k": 14458.075969927535,
+    "h_mean_w_m2k": 3995.0262453495898,
+    "base_avg_temp_c": 110.95540328055932,
+    "base_max_temp_c": 188.0363904271182,
+    "energy_balance_error": -3.745565606816381e-05,
+    "newton_iterations": 5,
+    "n_unknowns": 176419
+  }
+}
