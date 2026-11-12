@@ -100,3 +100,34 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
   compete for this requirement; the earlier competitive cases needed 0.05 mm gaps.
 - Slot-jet mesh study (0.2 mm slot, 0.1 mm gap, 2 mm pitch): 10/20/40 cells → R_th 24.3773/24.3780/24.3784 mK/W,
   ΔP 104.93/105.27/105.53 Pa; 20 → 40 changes R_th by +0.002% and ΔP by +0.25%.
+
+## 2026-11-11 (Wed) — plan-view Level 2: fin planforms against the rated-flow requirements
+- Riccardo asked for more ambitious fin topologies than straight fins (SPEC Amendment 2). Method: steady laminar 2D Navier-Stokes +
+  energy in the plane of the fin layer (tall-fin limit), streamwise-periodic cell, developed dp/dx and h, put into the Level 1
+  resistance network. New code: `level2/planforms.py` (gmsh builders), `level2/planview.py` (solve + network + figures),
+  `level2/planview_sweep.py`, `validation/level2_planview_straight.py`; `level2/planar.py` gained the periodic solvers.
+- Validation (gates): G1 straight channel f·Re = 24.0000 (exact to 1e-6) and Nu on 2w = 8.2353 (+0.004% vs 8.235);
+  G2 energy balance 2e-15 on the straight cell; G3 Level 1 recommended design 0.422 / 0.444 / 4.0 mm: plan view ΔP 1.20 kPa vs
+  Level 1 CFD 1.29 kPa (−7.1%), R_th 14.08 vs 14.93 mK/W (−5.7%). Both low, as expected without floor and cover.
+- Why a periodic cell: a developing strip from a uniform inlet shows how slowly the thermal field settles at Pr 11.5. Periods
+  needed to bring h within 2% of the periodic value: pins 3–4 (4–5 mm), offset strips 5 (10 mm), sinusoidal and zigzag 10 (20 mm),
+  straight 20–25 mm. The last two developing periods agree within 0.2% on h and dp/dx and sit within 1% of the periodic cell
+  (diamond +1.0%, others ≤ 0.5%). For straight fins over 60 mm the length-mean h is 8% above the developed value, so the
+  developed values are conservative, as in Level 1.
+- Mesh study (10 vs 20 cells across the reference gap, one design per topology): dp/dx ≤ 0.43%, h ≤ 0.55%. Energy balance ≤ 0.75%
+  on every run (sharp-cornered diamonds worst). Thermal undershoot ≤ 0.3% of the wall-to-bulk difference, so no oscillation problem.
+- Sweep at 1.5 LPM, 63 designs (12 straight, 10 sinusoidal, 10 zigzag, 10 offset strip, 11 circular pins, 10 diamond pins),
+  all inside the limits, all converged, 231 s of solver time (Stage 2 checks 347 s).
+- Best R_th within 6 kPa: circular pins 9.79 mK/W at 5.62 kPa (d 0.4, S_T 0.6, S_L 0.7, H 4); straight 10.48 at 4.35 (w 0.25);
+  offset strips 11.36 at 5.66; zigzag 11.45 at 3.06; sinusoidal 11.54 at 3.24; diamond pins 10.38 at 5.30. Every topology meets 15 mK/W.
+- At equal ΔP against the straight plan-view front (log-log interpolation): circular pins 1–7% lower R_th (−3.1% at 0.80 kPa,
+  −3.8% at 1.86, −7.4% at 3.21, −3.3% at 5.62); zigzag +3%, sinusoidal +5%, diamond pins +2 to +8%, offset strips +2 to +12%.
+  Nothing beats straight fins by more than 7.4%, so no "too good" alarm; the pin advantage is inside the plan view's own
+  uncertainty (the tall-fin bias was measured on straight fins only).
+- Why the others lose: in 2D, wavy channels at Re_Dh 90–150 have no Dean vortices and almost no separation, so they add length and
+  pressure drop for Nu slightly below 8.235 (7.5); offset strips are held back by the 0.15 mm gap between rows, which forces in-row
+  channels of 0.7 mm or more, half the fin density of straight fins at the same gap; pins win on h (8–16 kW/m²K) despite fin
+  efficiencies of 0.38–0.55 at H = 4 mm.
+- Recommendation (`tools.pareto.recommend`, rule `meets_target_lowest_dp`): circular pins d 0.4, S_T 1.0, S_L 0.9 mm, H 4 mm →
+  14.90 mK/W at 0.80 kPa (Re_Dh 216, Re_d,max 50). Margin to target 0.7%; with the −5.7% tall-fin bias seen on straight fins it
+  would miss. Straight fins in the same model: w 0.4 / t 0.4 → 13.36 mK/W at 1.31 kPa.

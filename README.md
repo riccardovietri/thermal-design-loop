@@ -58,6 +58,21 @@ Level 2 (`level2/`, 2D planar Navier-Stokes) tests confined slot-jet arrays on a
 of at least 0.1 mm: the best reaches 23.8 mK/W at 0.49 kPa, so none meets the target
 ([comparison](examples/output/level2_slot_jet/pareto_compare.png)).
 
+## More topologies
+
+Level 2 also has a plan-view model (`level2/planview.py`): 2D Navier-Stokes and energy in the plane of the fin layer for
+sinusoidal and zigzag channels, offset strip fins and staggered circular and diamond pins, solved as developed-periodic cells and put
+into the same resistance network as Level 1, at the same 1.5 LPM, footprint and 0.15 mm manufacturing limits.
+
+![Fin planforms at equal flow](examples/output/level2_planview/pareto_topologies.png)
+
+The honest headline: staggered circular pins are the best planform in this model, but only by 1–7% at equal pressure drop,
+and the recommended pin design (14.9 mK/W at 0.80 kPa) meets the target with a 0.7% margin in a model that reads 6% low on straight
+fins because it has no floor or cover. Wavy fins and offset strips do not beat straight fins here: in 2D a wavy channel at these
+Reynolds numbers adds pressure drop without new flow structure (the Dean vortices that help real wavy fins are 3D), and the 0.15 mm
+gap between strip rows halves the fin density. Straight fins remain a sound choice; pins are worth a 3D check.
+Field plots and all numbers: [`examples/output/level2_planview/`](examples/output/level2_planview/).
+
 ## Why trust the solver
 
 `uv run python validation/duct_fully_developed.py` solves laminar flow and heat transfer in rectangular ducts at four aspect ratios

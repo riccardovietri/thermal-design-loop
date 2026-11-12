@@ -1,13 +1,21 @@
 # PROGRESS
 
 ## Resume here
-Levels 1 and 2 are merged to `main` (pull requests #1 and #2). The requirements amendment (SPEC Amendment 1: 1.5 LPM rated flow,
-6 kPa core budget, 15 mK/W target, target-based recommendation rule, 0.1 mm jet features, region-of-interest plots) is on
-`feat/rated-flow-requirements` as a pull request awaiting Riccardo's review.
-Next: (1) Riccardo reviews and merges the amendment; (2) blog post on the fidelity ladder (levels 1 and 2), format modelled on
-Anthropic/OpenAI engineering posts, linking to the reports; (3) final repo name, make public; (4) LinkedIn post.
+Levels 1 and 2 and SPEC Amendment 1 are merged to `main`. Plan-view Level 2 for fin planforms (SPEC Amendment 2: sinusoidal,
+zigzag, offset strips, circular and diamond pins) is on `feat/planview-topologies` as a pull request awaiting Riccardo's review.
+Headline: in the plan view (tall-fin limit), staggered circular pins beat straight fins by 1–7% at equal ΔP; wavy fins and offset
+strips do not beat straight fins in 2D; every topology meets 15 mK/W within 6 kPa.
+Next: (1) Riccardo reviews the plan-view pull request and the open questions below; (2) blog post on the fidelity ladder;
+(3) final repo name, make public; (4) LinkedIn post.
 
 ## Open questions for Riccardo
+- Plan view: the recommended pick (circular pins d 0.4, S_T 1.0, S_L 0.9, H 4 → 14.90 mK/W at 0.80 kPa) has a 0.7% margin and the
+  plan view reads R_th 5.7% low on straight fins (no floor or cover). Treat the pin advantage (1–7%) as unconfirmed until a 3D or
+  end-wall check? A margin on the target would move the pick to straight 0.4/0.4 mm (13.4 mK/W at 1.31 kPa) or pins S_T 0.8.
+- Plan view: apply Level 1's H/w ≤ 10 to plan-view designs too? Not applied now (brief lists H/t ≤ 10 only); it affects
+  straight w ≤ 0.3 mm at H = 4 and the sinusoidal/zigzag w = 0.2–0.3 designs.
+- Plan view: wavy fins are understated in 2D (no Dean vortices); worth a 3D check before ruling them out?
+- Pins at Re_d,max 50–136 may shed vortices; steady symmetric solutions were computed. Accept, or add an unsteady check?
 - Next topology: manifold microchannels (jets feeding short fin channels) via a depth-averaged 2D model, validated against Level 1
   in the long-channel limit? Supported by docs/literature.md; needs Riccardo's OK as new scope.
 - The recommended design meets 15 mK/W with a 0.5% margin (14.93 mK/W) and misses it at 1.0 LPM (17.4 mK/W). Is a margin
@@ -25,6 +33,10 @@ Anthropic/OpenAI engineering posts, linking to the reports; (3) final repo name,
 - 2026-11-10: Level 2 prototype (`prototypes/level2_wavy_channel.py`), findings in `docs/build-log.md`.
 - 2026-11-10: SPEC Amendment 1: rated flow, 6 kPa budget, 15 mK/W target, `tools.pareto.recommend`, flow sensitivity,
   region-of-interest plots, 18-case slot-jet sweep at rated flow with a mesh study. `uv run pytest` → 21 passed.
+
+- 2026-11-11: SPEC Amendment 2, plan-view Level 2 for fin planforms (`level2/planforms.py`, `level2/planview.py`,
+  `level2/planview_sweep.py`, `validation/level2_planview_straight.py`); gates G1–G3 pass; 63 designs, all converged.
+  `uv run pytest` → 30 passed.
 
 ## Result of the example study
 Rated flow 1.5 LPM, 672 designs screened (273 feasible within 6 kPa), 9 solved. 1D vs CFD on R_th: mean |diff| 1.1%, max 2.9%.
