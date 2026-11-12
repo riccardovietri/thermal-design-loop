@@ -4328,6 +4328,468 @@
       }
     },
     {
+      "topology": "offset_strip",
+      "params_mm": {
+        "l": 0.5,
+        "t": 0.3,
+        "p_t": 1.2,
+        "g": 0.0,
+        "h_fin": 3.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "offset_strip_l0500_t0300_p_t1200_g0000_h_fin3000",
+      "result": {
+        "design_id": "offset_strip_l0500_t0300_p_t1200_g0000_h_fin3000",
+        "topology": "offset_strip",
+        "params_mm": {
+          "l": 0.5,
+          "t": 0.3,
+          "p_t": 1.2,
+          "g": 0.0,
+          "h_fin": 3.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 100.69517542128995,
+        "reynolds_dh": 151.0427631319349,
+        "reynolds_pin_max": null,
+        "dh_mm": 1.1249999999999998,
+        "dpdx_pa_per_m": 38211.75996457712,
+        "h_w_m2k": 6322.985253419967,
+        "nu_dh": 14.798105546728866,
+        "dp_pa": 2292.705597874627,
+        "r_th_k_per_w": 0.013527569639487612,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.0071026516770802605,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.6794018981412717,
+        "a_floor_m2": 0.0027,
+        "a_fin_m2": 0.028800000000000006,
+        "energy_balance_error": -0.0007405863817139258,
+        "undershoot_rel": 0.0,
+        "newton_iterations": 4,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          100.69517542128995
+        ],
+        "n_unknowns": 13932,
+        "n_triangles": 2043,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 1.9600858439418223,
+            "theta_wall": 0.022574233980566395,
+            "theta_bulk": -0.05344901078191482,
+            "wall_length": 1.6,
+            "flow_rate": 0.5999935009672157,
+            "nusselt_b": 13.15387159709233,
+            "dpdx_pa_per_m": 38211.75996457712,
+            "h_w_m2k": 6322.985253419967
+          }
+        ],
+        "seconds": 1.983293707948178,
+        "geometry": {
+          "topology": "offset_strip",
+          "params_mm": {
+            "l": 0.5,
+            "t": 0.3,
+            "p_t": 1.2,
+            "g": 0.0,
+            "h_fin": 3.0
+          },
+          "kind": "strip",
+          "period_mm": 1.0,
+          "lateral_unit_mm": 0.6,
+          "wetted_perimeter_mm": 1.6,
+          "fluid_area_mm2": 0.44999999999999996,
+          "fin_section_perimeter_mm": 1.6,
+          "fin_section_area_mm2": 0.15,
+          "perimeter_density_per_mm": 2.666666666666667,
+          "porosity": 0.75,
+          "dh_mm": 1.1249999999999998,
+          "min_solid_mm": 0.3,
+          "min_gap_mm": 0.3,
+          "min_fin_thickness_mm": 0.3,
+          "violations": [],
+          "notes": [
+            "in-row channel width 0.900 mm, lateral gap between rows 0.300 mm"
+          ]
+        }
+      }
+    },
+    {
+      "topology": "offset_strip",
+      "params_mm": {
+        "l": 1.0,
+        "t": 0.3,
+        "p_t": 1.2,
+        "g": 0.0,
+        "h_fin": 3.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+      "result": {
+        "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+        "topology": "offset_strip",
+        "params_mm": {
+          "l": 1.0,
+          "t": 0.3,
+          "p_t": 1.2,
+          "g": 0.0,
+          "h_fin": 3.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 100.69517542128995,
+        "reynolds_dh": 185.89878539315066,
+        "reynolds_pin_max": null,
+        "dh_mm": 1.3846153846153844,
+        "dpdx_pa_per_m": 26105.028326954307,
+        "h_w_m2k": 6264.806792338158,
+        "nu_dh": 18.045472739367234,
+        "dp_pa": 1566.3016996172585,
+        "r_th_k_per_w": 0.014578277582908895,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.008153359620501541,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.7212577697234832,
+        "a_floor_m2": 0.0027,
+        "a_fin_m2": 0.023400000000000004,
+        "energy_balance_error": -0.0011151992331390748,
+        "undershoot_rel": -0.00018578025996190674,
+        "newton_iterations": 5,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          100.69517542128995
+        ],
+        "n_unknowns": 24825,
+        "n_triangles": 3665,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 1.3390667304200856,
+            "theta_wall": 0.031084717471493262,
+            "theta_bulk": -0.045644521192050654,
+            "wall_length": 2.5999999999999996,
+            "flow_rate": 0.6000035645175912,
+            "nusselt_b": 13.03284142287634,
+            "dpdx_pa_per_m": 26105.028326954307,
+            "h_w_m2k": 6264.806792338158
+          }
+        ],
+        "seconds": 4.3437747079879045,
+        "geometry": {
+          "topology": "offset_strip",
+          "params_mm": {
+            "l": 1.0,
+            "t": 0.3,
+            "p_t": 1.2,
+            "g": 0.0,
+            "h_fin": 3.0
+          },
+          "kind": "strip",
+          "period_mm": 2.0,
+          "lateral_unit_mm": 0.6,
+          "wetted_perimeter_mm": 2.6,
+          "fluid_area_mm2": 0.8999999999999999,
+          "fin_section_perimeter_mm": 2.6,
+          "fin_section_area_mm2": 0.3,
+          "perimeter_density_per_mm": 2.166666666666667,
+          "porosity": 0.75,
+          "dh_mm": 1.3846153846153844,
+          "min_solid_mm": 0.3,
+          "min_gap_mm": 0.3,
+          "min_fin_thickness_mm": 0.3,
+          "violations": [],
+          "notes": [
+            "in-row channel width 0.900 mm, lateral gap between rows 0.300 mm"
+          ]
+        }
+      }
+    },
+    {
+      "topology": "offset_strip",
+      "params_mm": {
+        "l": 2.0,
+        "t": 0.3,
+        "p_t": 1.2,
+        "g": 0.0,
+        "h_fin": 3.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "offset_strip_l2000_t0300_p_t1200_g0000_h_fin3000",
+      "result": {
+        "design_id": "offset_strip_l2000_t0300_p_t1200_g0000_h_fin3000",
+        "topology": "offset_strip",
+        "params_mm": {
+          "l": 2.0,
+          "t": 0.3,
+          "p_t": 1.2,
+          "g": 0.0,
+          "h_fin": 3.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 100.69517542128995,
+        "reynolds_dh": 210.14645305312686,
+        "reynolds_pin_max": null,
+        "dh_mm": 1.565217391304348,
+        "dpdx_pa_per_m": 16439.121076823125,
+        "h_w_m2k": 5760.677395111964,
+        "nu_dh": 18.757702725782934,
+        "dp_pa": 986.3472646093875,
+        "r_th_k_per_w": 0.015860482577034152,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.0094355646146268,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.7583328022542123,
+        "a_floor_m2": 0.0027,
+        "a_fin_m2": 0.0207,
+        "energy_balance_error": -0.0008045256305846404,
+        "undershoot_rel": 0.0,
+        "newton_iterations": 4,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          100.69517542128995
+        ],
+        "n_unknowns": 46250,
+        "n_triangles": 6854,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 0.8432505736296108,
+            "theta_wall": 0.05247677916947974,
+            "theta_bulk": -0.03096720190784683,
+            "wall_length": 4.6,
+            "flow_rate": 0.59999987391762,
+            "nusselt_b": 11.98408785258354,
+            "dpdx_pa_per_m": 16439.121076823125,
+            "h_w_m2k": 5760.677395111964
+          }
+        ],
+        "seconds": 10.944768707966432,
+        "geometry": {
+          "topology": "offset_strip",
+          "params_mm": {
+            "l": 2.0,
+            "t": 0.3,
+            "p_t": 1.2,
+            "g": 0.0,
+            "h_fin": 3.0
+          },
+          "kind": "strip",
+          "period_mm": 4.0,
+          "lateral_unit_mm": 0.6,
+          "wetted_perimeter_mm": 4.6,
+          "fluid_area_mm2": 1.7999999999999998,
+          "fin_section_perimeter_mm": 4.6,
+          "fin_section_area_mm2": 0.6,
+          "perimeter_density_per_mm": 1.9166666666666665,
+          "porosity": 0.75,
+          "dh_mm": 1.565217391304348,
+          "min_solid_mm": 0.3,
+          "min_gap_mm": 0.3,
+          "min_fin_thickness_mm": 0.3,
+          "violations": [],
+          "notes": [
+            "in-row channel width 0.900 mm, lateral gap between rows 0.300 mm"
+          ]
+        }
+      }
+    },
+    {
+      "topology": "offset_strip",
+      "params_mm": {
+        "l": 0.5,
+        "t": 0.2,
+        "p_t": 0.8,
+        "g": 0.0,
+        "h_fin": 2.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "offset_strip_l0500_t0200_p_t0800_g0000_h_fin2000",
+      "result": {
+        "design_id": "offset_strip_l0500_t0200_p_t0800_g0000_h_fin2000",
+        "topology": "offset_strip",
+        "params_mm": {
+          "l": 0.5,
+          "t": 0.2,
+          "p_t": 0.8,
+          "g": 0.0,
+          "h_fin": 2.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 151.04276313193492,
+        "reynolds_dh": 172.62030072221137,
+        "reynolds_pin_max": null,
+        "dh_mm": 0.8571428571428573,
+        "dpdx_pa_per_m": 105693.88171514875,
+        "h_w_m2k": 9690.44784034585,
+        "nu_dh": 17.27939322078275,
+        "dp_pa": 6341.632902908925,
+        "r_th_k_per_w": 0.01148984243718617,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.005064924474778818,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.701362007171798,
+        "a_floor_m2": 0.0027,
+        "a_fin_m2": 0.025199999999999997,
+        "energy_balance_error": 0.000919161971399518,
+        "undershoot_rel": 0.0,
+        "newton_iterations": 4,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          100.0,
+          151.04276313193492
+        ],
+        "n_unknowns": 19287,
+        "n_triangles": 2841,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 2.409602367126692,
+            "theta_wall": 0.014260681081146137,
+            "theta_bulk": -0.03534423537575414,
+            "wall_length": 1.4,
+            "flow_rate": 0.4000062435638692,
+            "nusselt_b": 20.159292090913205,
+            "dpdx_pa_per_m": 105693.88171514875,
+            "h_w_m2k": 9690.44784034585
+          }
+        ],
+        "seconds": 3.074800666887313,
+        "geometry": {
+          "topology": "offset_strip",
+          "params_mm": {
+            "l": 0.5,
+            "t": 0.2,
+            "p_t": 0.8,
+            "g": 0.0,
+            "h_fin": 2.0
+          },
+          "kind": "strip",
+          "period_mm": 1.0,
+          "lateral_unit_mm": 0.4,
+          "wetted_perimeter_mm": 1.4,
+          "fluid_area_mm2": 0.30000000000000004,
+          "fin_section_perimeter_mm": 1.4,
+          "fin_section_area_mm2": 0.1,
+          "perimeter_density_per_mm": 3.4999999999999996,
+          "porosity": 0.7500000000000001,
+          "dh_mm": 0.8571428571428573,
+          "min_solid_mm": 0.2,
+          "min_gap_mm": 0.2,
+          "min_fin_thickness_mm": 0.2,
+          "violations": [],
+          "notes": [
+            "in-row channel width 0.600 mm, lateral gap between rows 0.200 mm"
+          ]
+        }
+      }
+    },
+    {
+      "topology": "offset_strip",
+      "params_mm": {
+        "l": 1.0,
+        "t": 0.2,
+        "p_t": 0.8,
+        "g": 0.0,
+        "h_fin": 2.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000",
+      "result": {
+        "design_id": "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000",
+        "topology": "offset_strip",
+        "params_mm": {
+          "l": 1.0,
+          "t": 0.2,
+          "p_t": 0.8,
+          "g": 0.0,
+          "h_fin": 2.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 151.04276313193492,
+        "reynolds_dh": 201.3903508425799,
+        "reynolds_pin_max": null,
+        "dh_mm": 1.0000000000000002,
+        "dpdx_pa_per_m": 67313.29391584005,
+        "h_w_m2k": 8908.456224651809,
+        "nu_dh": 18.53249448019941,
+        "dp_pa": 4038.7976349504033,
+        "r_th_k_per_w": 0.012394520714865333,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.005969602752457981,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.7455593146330672,
+        "a_floor_m2": 0.0027,
+        "a_fin_m2": 0.021599999999999998,
+        "energy_balance_error": -0.0009091052680147982,
+        "undershoot_rel": -0.0004189188146929201,
+        "newton_iterations": 4,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          100.0,
+          151.04276313193492
+        ],
+        "n_unknowns": 35246,
+        "n_triangles": 5216,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 1.5346041769554544,
+            "theta_wall": 0.029603326660465955,
+            "theta_bulk": -0.024355950169127914,
+            "wall_length": 2.3999999999999995,
+            "flow_rate": 0.39999835946504025,
+            "nusselt_b": 18.532494480199407,
+            "dpdx_pa_per_m": 67313.29391584005,
+            "h_w_m2k": 8908.456224651809
+          }
+        ],
+        "seconds": 7.643326125107706,
+        "geometry": {
+          "topology": "offset_strip",
+          "params_mm": {
+            "l": 1.0,
+            "t": 0.2,
+            "p_t": 0.8,
+            "g": 0.0,
+            "h_fin": 2.0
+          },
+          "kind": "strip",
+          "period_mm": 2.0,
+          "lateral_unit_mm": 0.4,
+          "wetted_perimeter_mm": 2.4,
+          "fluid_area_mm2": 0.6000000000000001,
+          "fin_section_perimeter_mm": 2.4,
+          "fin_section_area_mm2": 0.2,
+          "perimeter_density_per_mm": 2.9999999999999996,
+          "porosity": 0.7500000000000001,
+          "dh_mm": 1.0000000000000002,
+          "min_solid_mm": 0.2,
+          "min_gap_mm": 0.2,
+          "min_fin_thickness_mm": 0.2,
+          "violations": [],
+          "notes": [
+            "in-row channel width 0.600 mm, lateral gap between rows 0.200 mm"
+          ]
+        }
+      }
+    },
+    {
       "topology": "pin_circle",
       "params_mm": {
         "d": 0.4,
@@ -5307,6 +5769,362 @@
       }
     },
     {
+      "topology": "pin_circle",
+      "params_mm": {
+        "d": 0.4,
+        "s_t": 0.9,
+        "s_l": 0.7,
+        "h_fin": 4.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
+      "result": {
+        "design_id": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
+        "topology": "pin_circle",
+        "params_mm": {
+          "d": 0.4,
+          "s_t": 0.9,
+          "s_l": 0.7,
+          "h_fin": 4.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 75.52138156596746,
+        "reynolds_dh": 151.4469749354461,
+        "reynolds_pin_max": 54.37539472749658,
+        "dh_mm": 1.605352282957881,
+        "dpdx_pa_per_m": 22833.5413190524,
+        "h_w_m2k": 8938.68795366975,
+        "nu_dh": 29.852145908218528,
+        "dp_pa": 1370.012479143144,
+        "r_th_k_per_w": 0.012912709951259569,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.006487791988852218,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.500005784855015,
+        "a_floor_m2": 0.002881921679179475,
+        "a_fin_m2": 0.028723132832820963,
+        "energy_balance_error": 2.764882650563294e-05,
+        "undershoot_rel": 0.0,
+        "newton_iterations": 4,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          75.52138156596746
+        ],
+        "n_unknowns": 7880,
+        "n_triangles": 1141,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 2.0822304685735844,
+            "theta_wall": -0.04375258398669509,
+            "theta_bulk": -0.0975293639841396,
+            "wall_length": 1.256062949829411,
+            "flow_rate": 0.4500055688195429,
+            "nusselt_b": 18.595386336770638,
+            "dpdx_pa_per_m": 22833.5413190524,
+            "h_w_m2k": 8938.68795366975
+          }
+        ],
+        "seconds": 1.7682814998552203,
+        "geometry": {
+          "topology": "pin_circle",
+          "params_mm": {
+            "d": 0.4,
+            "s_t": 0.9,
+            "s_l": 0.7,
+            "h_fin": 4.0
+          },
+          "kind": "strip",
+          "period_mm": 1.4,
+          "lateral_unit_mm": 0.45,
+          "wetted_perimeter_mm": 1.2566370614359172,
+          "fluid_area_mm2": 0.5043362938564082,
+          "fin_section_perimeter_mm": 1.2566370614359172,
+          "fin_section_area_mm2": 0.12566370614359174,
+          "perimeter_density_per_mm": 1.9946620022792336,
+          "porosity": 0.8005337997720765,
+          "dh_mm": 1.605352282957881,
+          "min_solid_mm": 0.4,
+          "min_gap_mm": 0.4321658488546618,
+          "min_fin_thickness_mm": 0.4,
+          "violations": [],
+          "notes": [
+            "gaps: transverse 0.500, diagonal 0.432, streamwise 1.000 mm"
+          ]
+        }
+      }
+    },
+    {
+      "topology": "pin_circle",
+      "params_mm": {
+        "d": 0.4,
+        "s_t": 0.9,
+        "s_l": 0.9,
+        "h_fin": 4.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+      "result": {
+        "design_id": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+        "topology": "pin_circle",
+        "params_mm": {
+          "d": 0.4,
+          "s_t": 0.9,
+          "s_l": 0.9,
+          "h_fin": 4.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 75.52138156596746,
+        "reynolds_dh": 194.7175392027164,
+        "reynolds_pin_max": 54.37539472749658,
+        "dh_mm": 2.178310078088705,
+        "dpdx_pa_per_m": 17131.50105563488,
+        "h_w_m2k": 9897.917684591674,
+        "nu_dh": 44.853358526406396,
+        "dp_pa": 1027.8900633380927,
+        "r_th_k_per_w": 0.013777632137071016,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.007352714174663662,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.47892079981797026,
+        "a_floor_m2": 0.003041494639361815,
+        "a_fin_m2": 0.02234021442552742,
+        "energy_balance_error": 0.0010292277988190879,
+        "undershoot_rel": 0.0,
+        "newton_iterations": 4,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          75.52138156596746
+        ],
+        "n_unknowns": 7623,
+        "n_triangles": 1102,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 1.5622514690999258,
+            "theta_wall": -0.030296911934707838,
+            "theta_bulk": -0.07886206178421742,
+            "wall_length": 1.2558727463824553,
+            "flow_rate": 0.45010006829951943,
+            "nusselt_b": 20.59089703416406,
+            "dpdx_pa_per_m": 17131.50105563488,
+            "h_w_m2k": 9897.917684591674
+          }
+        ],
+        "seconds": 5.446517332922667,
+        "geometry": {
+          "topology": "pin_circle",
+          "params_mm": {
+            "d": 0.4,
+            "s_t": 0.9,
+            "s_l": 0.9,
+            "h_fin": 4.0
+          },
+          "kind": "strip",
+          "period_mm": 1.8,
+          "lateral_unit_mm": 0.45,
+          "wetted_perimeter_mm": 1.2566370614359172,
+          "fluid_area_mm2": 0.6843362938564084,
+          "fin_section_perimeter_mm": 1.2566370614359172,
+          "fin_section_area_mm2": 0.12566370614359174,
+          "perimeter_density_per_mm": 1.5514037795505151,
+          "porosity": 0.8448596220449486,
+          "dh_mm": 2.178310078088705,
+          "min_solid_mm": 0.4,
+          "min_gap_mm": 0.5,
+          "min_fin_thickness_mm": 0.4,
+          "violations": [],
+          "notes": [
+            "gaps: transverse 0.500, diagonal 0.606, streamwise 1.400 mm"
+          ]
+        }
+      }
+    },
+    {
+      "topology": "pin_circle",
+      "params_mm": {
+        "d": 0.3,
+        "s_t": 0.6,
+        "s_l": 0.55,
+        "h_fin": 3.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+      "result": {
+        "design_id": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+        "topology": "pin_circle",
+        "params_mm": {
+          "d": 0.3,
+          "s_t": 0.6,
+          "s_l": 0.55,
+          "h_fin": 3.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 100.69517542128995,
+        "reynolds_dh": 141.02998724147363,
+        "reynolds_pin_max": 60.41710525277397,
+        "dh_mm": 1.100563499208679,
+        "dpdx_pa_per_m": 69909.9987712161,
+        "h_w_m2k": 13796.34070159817,
+        "nu_dh": 31.587150165344674,
+        "dp_pa": 4194.599926272966,
+        "r_th_k_per_w": 0.010609545662924413,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.004184627700517061,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.46984916192753606,
+        "a_floor_m2": 0.002828881803209778,
+        "a_fin_m2": 0.030844727871608878,
+        "energy_balance_error": 0.0003489291652127857,
+        "undershoot_rel": -0.0004083576849045811,
+        "newton_iterations": 5,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          100.69517542128995
+        ],
+        "n_unknowns": 8448,
+        "n_triangles": 1223,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 3.5860582990283456,
+            "theta_wall": -0.02465979933500899,
+            "theta_bulk": -0.05950192638501885,
+            "wall_length": 0.9420993470850925,
+            "flow_rate": 0.3000232023954014,
+            "nusselt_b": 28.700888397676543,
+            "dpdx_pa_per_m": 69909.9987712161,
+            "h_w_m2k": 13796.34070159817
+          }
+        ],
+        "seconds": 1.0597994159907103,
+        "geometry": {
+          "topology": "pin_circle",
+          "params_mm": {
+            "d": 0.3,
+            "s_t": 0.6,
+            "s_l": 0.55,
+            "h_fin": 3.0
+          },
+          "kind": "strip",
+          "period_mm": 1.1,
+          "lateral_unit_mm": 0.3,
+          "wetted_perimeter_mm": 0.9424777960769379,
+          "fluid_area_mm2": 0.2593141652942297,
+          "fin_section_perimeter_mm": 0.9424777960769379,
+          "fin_section_area_mm2": 0.07068583470577035,
+          "perimeter_density_per_mm": 2.855993321445266,
+          "porosity": 0.785800500891605,
+          "dh_mm": 1.100563499208679,
+          "min_solid_mm": 0.3,
+          "min_gap_mm": 0.3,
+          "min_fin_thickness_mm": 0.3,
+          "violations": [],
+          "notes": [
+            "gaps: transverse 0.300, diagonal 0.326, streamwise 0.800 mm"
+          ]
+        }
+      }
+    },
+    {
+      "topology": "pin_circle",
+      "params_mm": {
+        "d": 0.3,
+        "s_t": 0.6,
+        "s_l": 0.7,
+        "h_fin": 3.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
+      "result": {
+        "design_id": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
+        "topology": "pin_circle",
+        "params_mm": {
+          "d": 0.3,
+          "s_t": 0.6,
+          "s_l": 0.7,
+          "h_fin": 3.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 100.69517542128995,
+        "reynolds_dh": 179.49271103460282,
+        "reynolds_pin_max": 60.41710525277397,
+        "dh_mm": 1.482535362629228,
+        "dpdx_pa_per_m": 54008.635808094405,
+        "h_w_m2k": 15014.850759693278,
+        "nu_dh": 46.30815842312353,
+        "dp_pa": 3240.5181484856644,
+        "r_th_k_per_w": 0.01119330101371789,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.004768383051310538,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.4527734766230798,
+        "a_floor_m2": 0.0029941214168076827,
+        "a_fin_m2": 0.02423514332769269,
+        "energy_balance_error": 0.0003604505021899129,
+        "undershoot_rel": -0.001344425185006266,
+        "newton_iterations": 5,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          100.69517542128995
+        ],
+        "n_unknowns": 10065,
+        "n_triangles": 1461,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 2.7703922194683135,
+            "theta_wall": -0.018808666893307426,
+            "theta_bulk": -0.05082322789318813,
+            "wall_length": 0.9420993470850926,
+            "flow_rate": 0.3000079105829639,
+            "nusselt_b": 31.235786741030942,
+            "dpdx_pa_per_m": 54008.635808094405,
+            "h_w_m2k": 15014.850759693278
+          }
+        ],
+        "seconds": 0.9512259589973837,
+        "geometry": {
+          "topology": "pin_circle",
+          "params_mm": {
+            "d": 0.3,
+            "s_t": 0.6,
+            "s_l": 0.7,
+            "h_fin": 3.0
+          },
+          "kind": "strip",
+          "period_mm": 1.4,
+          "lateral_unit_mm": 0.3,
+          "wetted_perimeter_mm": 0.9424777960769379,
+          "fluid_area_mm2": 0.34931416529422965,
+          "fin_section_perimeter_mm": 0.9424777960769379,
+          "fin_section_area_mm2": 0.07068583470577035,
+          "perimeter_density_per_mm": 2.243994752564138,
+          "porosity": 0.8317003935576897,
+          "dh_mm": 1.482535362629228,
+          "min_solid_mm": 0.3,
+          "min_gap_mm": 0.3,
+          "min_fin_thickness_mm": 0.3,
+          "violations": [],
+          "notes": [
+            "gaps: transverse 0.300, diagonal 0.462, streamwise 1.100 mm"
+          ]
+        }
+      }
+    },
+    {
       "topology": "pin_diamond",
       "params_mm": {
         "s": 0.4,
@@ -6195,42 +7013,1636 @@
           ]
         }
       }
+    },
+    {
+      "topology": "pin_diamond",
+      "params_mm": {
+        "s": 0.4,
+        "s_t": 1.0,
+        "s_l": 0.7,
+        "h_fin": 4.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+      "result": {
+        "design_id": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+        "topology": "pin_diamond",
+        "params_mm": {
+          "s": 0.4,
+          "s_t": 1.0,
+          "s_l": 0.7,
+          "h_fin": 4.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 75.52138156596746,
+        "reynolds_dh": 132.16241774044306,
+        "reynolds_pin_max": 69.55454493521492,
+        "dh_mm": 1.3499999999999996,
+        "dpdx_pa_per_m": 41887.29324860615,
+        "h_w_m2k": 8840.025688549087,
+        "nu_dh": 24.826684472342592,
+        "dp_pa": 2513.237594916369,
+        "r_th_k_per_w": 0.012282915682749852,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.005857997720342499,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.5023206117489621,
+        "a_floor_m2": 0.002777142857142857,
+        "a_fin_m2": 0.032914285714285715,
+        "energy_balance_error": 0.004295588391085792,
+        "undershoot_rel": 0.0,
+        "newton_iterations": 5,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          75.52138156596746
+        ],
+        "n_unknowns": 8834,
+        "n_triangles": 1284,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 3.819775348449714,
+            "theta_wall": 0.0014587057581916369,
+            "theta_bulk": -0.052918269206142635,
+            "wall_length": 1.5999999999999996,
+            "flow_rate": 0.5029503163784163,
+            "nusselt_b": 18.390136646179702,
+            "dpdx_pa_per_m": 41887.29324860615,
+            "h_w_m2k": 8840.025688549087
+          }
+        ],
+        "seconds": 0.9044626660179347,
+        "geometry": {
+          "topology": "pin_diamond",
+          "params_mm": {
+            "s": 0.4,
+            "s_t": 1.0,
+            "s_l": 0.7,
+            "h_fin": 4.0
+          },
+          "kind": "strip",
+          "period_mm": 1.4,
+          "lateral_unit_mm": 0.5,
+          "wetted_perimeter_mm": 1.6,
+          "fluid_area_mm2": 0.5399999999999999,
+          "fin_section_perimeter_mm": 1.6,
+          "fin_section_area_mm2": 0.16000000000000003,
+          "perimeter_density_per_mm": 2.285714285714286,
+          "porosity": 0.7714285714285714,
+          "dh_mm": 1.3499999999999996,
+          "min_solid_mm": 0.4,
+          "min_gap_mm": 0.434314575050762,
+          "min_fin_thickness_mm": 0.4,
+          "violations": [],
+          "notes": [
+            "gaps: transverse 0.434, diagonal 0.449, streamwise 0.834 mm"
+          ]
+        }
+      }
+    },
+    {
+      "topology": "pin_diamond",
+      "params_mm": {
+        "s": 0.4,
+        "s_t": 1.0,
+        "s_l": 0.9,
+        "h_fin": 4.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "pin_diamond_s0400_s_t1000_s_l0900_h_fin4000",
+      "result": {
+        "design_id": "pin_diamond_s0400_s_t1000_s_l0900_h_fin4000",
+        "topology": "pin_diamond",
+        "params_mm": {
+          "s": 0.4,
+          "s_t": 1.0,
+          "s_l": 0.9,
+          "h_fin": 4.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 75.52138156596746,
+        "reynolds_dh": 169.9231085234268,
+        "reynolds_pin_max": 69.55454493521492,
+        "dh_mm": 1.8499999999999999,
+        "dpdx_pa_per_m": 31813.809384245866,
+        "h_w_m2k": 9623.495044295221,
+        "nu_dh": 37.037015610620784,
+        "dp_pa": 1908.8285630547518,
+        "r_th_k_per_w": 0.013186350139345826,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.006761432176938474,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.4847028780974273,
+        "a_floor_m2": 0.00296,
+        "a_fin_m2": 0.0256,
+        "energy_balance_error": 0.0049290489227999945,
+        "undershoot_rel": -0.0013926796592995051,
+        "newton_iterations": 5,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          75.52138156596746
+        ],
+        "n_unknowns": 10714,
+        "n_triangles": 1563,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 2.9011567805294822,
+            "theta_wall": 0.001937030319011801,
+            "theta_bulk": -0.04801299857774119,
+            "wall_length": 1.6,
+            "flow_rate": 0.5033356441065117,
+            "nusselt_b": 20.0200084381734,
+            "dpdx_pa_per_m": 31813.809384245866,
+            "h_w_m2k": 9623.495044295221
+          }
+        ],
+        "seconds": 1.0626499999780208,
+        "geometry": {
+          "topology": "pin_diamond",
+          "params_mm": {
+            "s": 0.4,
+            "s_t": 1.0,
+            "s_l": 0.9,
+            "h_fin": 4.0
+          },
+          "kind": "strip",
+          "period_mm": 1.8,
+          "lateral_unit_mm": 0.5,
+          "wetted_perimeter_mm": 1.6,
+          "fluid_area_mm2": 0.74,
+          "fin_section_perimeter_mm": 1.6,
+          "fin_section_area_mm2": 0.16000000000000003,
+          "perimeter_density_per_mm": 1.777777777777778,
+          "porosity": 0.8222222222222222,
+          "dh_mm": 1.8499999999999999,
+          "min_solid_mm": 0.4,
+          "min_gap_mm": 0.434314575050762,
+          "min_fin_thickness_mm": 0.4,
+          "violations": [],
+          "notes": [
+            "gaps: transverse 0.434, diagonal 0.590, streamwise 1.234 mm"
+          ]
+        }
+      }
+    },
+    {
+      "topology": "pin_diamond",
+      "params_mm": {
+        "s": 0.4,
+        "s_t": 1.2,
+        "s_l": 0.6,
+        "h_fin": 4.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "pin_diamond_s0400_s_t1200_s_l0600_h_fin4000",
+      "result": {
+        "design_id": "pin_diamond_s0400_s_t1200_s_l0600_h_fin4000",
+        "topology": "pin_diamond",
+        "params_mm": {
+          "s": 0.4,
+          "s_t": 1.2,
+          "s_l": 0.6,
+          "h_fin": 4.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 75.52138156596746,
+        "reynolds_dh": 135.93848681874144,
+        "reynolds_pin_max": 57.148715444168076,
+        "dh_mm": 1.3999999999999997,
+        "dpdx_pa_per_m": 42120.22251008053,
+        "h_w_m2k": 7569.151819543334,
+        "nu_dh": 22.044826296415366,
+        "dp_pa": 2527.2133506048317,
+        "r_th_k_per_w": 0.013057340571151044,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.006632422608743691,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.5349874705432492,
+        "a_floor_m2": 0.0027999999999999995,
+        "a_fin_m2": 0.032,
+        "energy_balance_error": 0.0009720042325989109,
+        "undershoot_rel": -0.0016345142373897317,
+        "newton_iterations": 5,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          75.52138156596746
+        ],
+        "n_unknowns": 8415,
+        "n_triangles": 1226,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 3.8410165741749416,
+            "theta_wall": 0.011477020722031873,
+            "theta_bulk": -0.05202994373192027,
+            "wall_length": 1.5999999999999996,
+            "flow_rate": 0.6031618634701106,
+            "nusselt_b": 15.746304497439548,
+            "dpdx_pa_per_m": 42120.22251008053,
+            "h_w_m2k": 7569.151819543334
+          }
+        ],
+        "seconds": 0.870420292019844,
+        "geometry": {
+          "topology": "pin_diamond",
+          "params_mm": {
+            "s": 0.4,
+            "s_t": 1.2,
+            "s_l": 0.6,
+            "h_fin": 4.0
+          },
+          "kind": "strip",
+          "period_mm": 1.2,
+          "lateral_unit_mm": 0.6,
+          "wetted_perimeter_mm": 1.6,
+          "fluid_area_mm2": 0.5599999999999999,
+          "fin_section_perimeter_mm": 1.6,
+          "fin_section_area_mm2": 0.16000000000000003,
+          "perimeter_density_per_mm": 2.2222222222222223,
+          "porosity": 0.7777777777777777,
+          "dh_mm": 1.3999999999999997,
+          "min_solid_mm": 0.4,
+          "min_gap_mm": 0.44852813742385694,
+          "min_fin_thickness_mm": 0.4,
+          "violations": [],
+          "notes": [
+            "gaps: transverse 0.634, diagonal 0.449, streamwise 0.634 mm"
+          ]
+        }
+      }
+    },
+    {
+      "topology": "pin_diamond",
+      "params_mm": {
+        "s": 0.3,
+        "s_t": 0.75,
+        "s_l": 0.5,
+        "h_fin": 3.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "pin_diamond_s0300_s_t0750_s_l0500_h_fin3000",
+      "result": {
+        "design_id": "pin_diamond_s0300_s_t0750_s_l0500_h_fin3000",
+        "topology": "pin_diamond",
+        "params_mm": {
+          "s": 0.3,
+          "s_t": 0.75,
+          "s_l": 0.5,
+          "h_fin": 3.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 100.69517542128995,
+        "reynolds_dh": 125.86896927661243,
+        "reynolds_pin_max": 69.55454493521489,
+        "dh_mm": 0.9500000000000002,
+        "dpdx_pa_per_m": 105162.22748346429,
+        "h_w_m2k": 11462.624971512065,
+        "nu_dh": 22.65369860089018,
+        "dp_pa": 6309.733649007857,
+        "r_th_k_per_w": 0.010722953869878855,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.004298035907471503,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.5081497537019375,
+        "a_floor_m2": 0.002736,
+        "a_fin_m2": 0.034559999999999994,
+        "energy_balance_error": 0.0049324244671538064,
+        "undershoot_rel": -0.00027407137545240606,
+        "newton_iterations": 5,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          100.69517542128995
+        ],
+        "n_unknowns": 8853,
+        "n_triangles": 1288,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 5.3943339327686255,
+            "theta_wall": -0.0005290802738422249,
+            "theta_bulk": -0.04246483728804872,
+            "wall_length": 1.2,
+            "flow_rate": 0.37735808558139394,
+            "nusselt_b": 23.845998527252817,
+            "dpdx_pa_per_m": 105162.22748346429,
+            "h_w_m2k": 11462.624971512065
+          }
+        ],
+        "seconds": 0.825759292114526,
+        "geometry": {
+          "topology": "pin_diamond",
+          "params_mm": {
+            "s": 0.3,
+            "s_t": 0.75,
+            "s_l": 0.5,
+            "h_fin": 3.0
+          },
+          "kind": "strip",
+          "period_mm": 1.0,
+          "lateral_unit_mm": 0.375,
+          "wetted_perimeter_mm": 1.2,
+          "fluid_area_mm2": 0.28500000000000003,
+          "fin_section_perimeter_mm": 1.2,
+          "fin_section_area_mm2": 0.09,
+          "perimeter_density_per_mm": 3.1999999999999997,
+          "porosity": 0.7600000000000001,
+          "dh_mm": 0.9500000000000002,
+          "min_solid_mm": 0.3,
+          "min_gap_mm": 0.31871843353822915,
+          "min_fin_thickness_mm": 0.3,
+          "violations": [],
+          "notes": [
+            "gaps: transverse 0.326, diagonal 0.319, streamwise 0.576 mm"
+          ]
+        }
+      }
+    },
+    {
+      "topology": "pin_diamond",
+      "params_mm": {
+        "s": 0.3,
+        "s_t": 0.75,
+        "s_l": 0.7,
+        "h_fin": 3.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "pin_diamond_s0300_s_t0750_s_l0700_h_fin3000",
+      "result": {
+        "design_id": "pin_diamond_s0300_s_t0750_s_l0700_h_fin3000",
+        "topology": "pin_diamond",
+        "params_mm": {
+          "s": 0.3,
+          "s_t": 0.75,
+          "s_l": 0.7,
+          "h_fin": 3.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 100.69517542128995,
+        "reynolds_dh": 176.21655698725738,
+        "reynolds_pin_max": 69.55454493521489,
+        "dh_mm": 1.45,
+        "dpdx_pa_per_m": 72664.71687885937,
+        "h_w_m2k": 12951.665771204402,
+        "nu_dh": 39.06834911951777,
+        "dp_pa": 4359.883012731562,
+        "r_th_k_per_w": 0.01160658756000123,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.005181669597593877,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.48278018288578306,
+        "a_floor_m2": 0.002982857142857143,
+        "a_fin_m2": 0.02468571428571429,
+        "energy_balance_error": 0.004813662698697874,
+        "undershoot_rel": 0.0,
+        "newton_iterations": 5,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          100.69517542128995
+        ],
+        "n_unknowns": 10880,
+        "n_triangles": 1588,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 3.727362545989155,
+            "theta_wall": 0.0018858581626062963,
+            "theta_bulk": -0.03522858441504562,
+            "wall_length": 1.1999999999999997,
+            "flow_rate": 0.37780749724831614,
+            "nusselt_b": 26.943689047943288,
+            "dpdx_pa_per_m": 72664.71687885937,
+            "h_w_m2k": 12951.665771204402
+          }
+        ],
+        "seconds": 1.2328424169681966,
+        "geometry": {
+          "topology": "pin_diamond",
+          "params_mm": {
+            "s": 0.3,
+            "s_t": 0.75,
+            "s_l": 0.7,
+            "h_fin": 3.0
+          },
+          "kind": "strip",
+          "period_mm": 1.4,
+          "lateral_unit_mm": 0.375,
+          "wetted_perimeter_mm": 1.2,
+          "fluid_area_mm2": 0.43499999999999994,
+          "fin_section_perimeter_mm": 1.2,
+          "fin_section_area_mm2": 0.09,
+          "perimeter_density_per_mm": 2.285714285714286,
+          "porosity": 0.8285714285714286,
+          "dh_mm": 1.45,
+          "min_solid_mm": 0.3,
+          "min_gap_mm": 0.3257359312880715,
+          "min_fin_thickness_mm": 0.3,
+          "violations": [],
+          "notes": [
+            "gaps: transverse 0.326, diagonal 0.460, streamwise 0.976 mm"
+          ]
+        }
+      }
+    },
+    {
+      "topology": "pin_diamond",
+      "params_mm": {
+        "s": 0.3,
+        "s_t": 0.85,
+        "s_l": 0.5,
+        "h_fin": 3.0
+      },
+      "flow_lpm": 1.5,
+      "status": "converged",
+      "design_id": "pin_diamond_s0300_s_t0850_s_l0500_h_fin3000",
+      "result": {
+        "design_id": "pin_diamond_s0300_s_t0850_s_l0500_h_fin3000",
+        "topology": "pin_diamond",
+        "params_mm": {
+          "s": 0.3,
+          "s_t": 0.85,
+          "s_l": 0.5,
+          "h_fin": 3.0
+        },
+        "flow_lpm": 1.5,
+        "reynolds_b": 100.69517542128995,
+        "reynolds_dh": 142.65149851349412,
+        "reynolds_pin_max": 60.312667654670136,
+        "dh_mm": 1.1166666666666667,
+        "dpdx_pa_per_m": 82440.9001673966,
+        "h_w_m2k": 10499.406477225866,
+        "nu_dh": 24.39044538957133,
+        "dp_pa": 4946.454010043795,
+        "r_th_k_per_w": 0.011465216097840104,
+        "r_base": 0.0014245014245014246,
+        "r_conv": 0.005040298135432752,
+        "r_caloric": 0.005000416537905928,
+        "fin_efficiency": 0.526617985825617,
+        "a_floor_m2": 0.0028376470588235294,
+        "a_fin_m2": 0.03049411764705882,
+        "energy_balance_error": 0.0020028657089306012,
+        "undershoot_rel": -0.0018163847959782019,
+        "newton_iterations": 5,
+        "reynolds_path": [
+          10.0,
+          50.0,
+          100.69517542128995
+        ],
+        "n_unknowns": 8308,
+        "n_triangles": 1209,
+        "cells": 10.0,
+        "n_periods": 1,
+        "windows": [
+          {
+            "beta": 4.2288353514659525,
+            "theta_wall": 0.005565457167360896,
+            "theta_bulk": -0.04021749795424266,
+            "wall_length": 1.2,
+            "flow_rate": 0.4276368854529027,
+            "nusselt_b": 21.842189901108654,
+            "dpdx_pa_per_m": 82440.9001673966,
+            "h_w_m2k": 10499.406477225866
+          }
+        ],
+        "seconds": 0.8866642920766026,
+        "geometry": {
+          "topology": "pin_diamond",
+          "params_mm": {
+            "s": 0.3,
+            "s_t": 0.85,
+            "s_l": 0.5,
+            "h_fin": 3.0
+          },
+          "kind": "strip",
+          "period_mm": 1.0,
+          "lateral_unit_mm": 0.425,
+          "wetted_perimeter_mm": 1.2,
+          "fluid_area_mm2": 0.33499999999999996,
+          "fin_section_perimeter_mm": 1.2,
+          "fin_section_area_mm2": 0.09,
+          "perimeter_density_per_mm": 2.823529411764706,
+          "porosity": 0.788235294117647,
+          "dh_mm": 1.1166666666666667,
+          "min_solid_mm": 0.3,
+          "min_gap_mm": 0.35407377259755646,
+          "min_fin_thickness_mm": 0.3,
+          "violations": [],
+          "notes": [
+            "gaps: transverse 0.426, diagonal 0.354, streamwise 0.576 mm"
+          ]
+        }
+      }
     }
   ],
   "wall_seconds_last_run": 232.14504908397794,
   "summary": {
+    "requirements": {
+      "dp_budget_pa": 5000.0,
+      "r_th_threshold_k_per_w": 0.02,
+      "r_th_objective_k_per_w": 0.015,
+      "marginal_return_cutoff": 0.25,
+      "max_h_over_gap": 10.0
+    },
+    "recommended": {
+      "design_id": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+      "topology": "pin_circle",
+      "r_th_k_per_w": 0.012649269866607395,
+      "dp_pa": 1420.4764333627315,
+      "rule": "marginal_return",
+      "meets_threshold": true,
+      "meets_objective": true,
+      "front": [
+        "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+        "straight_w0500_t0400_h_fin4000",
+        "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+        "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+        "straight_w0400_t0400_h_fin4000",
+        "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
+        "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+        "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+        "straight_w0300_t0300_h_fin3000",
+        "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
+        "pin_circle_d0300_s_t0600_s_l0550_h_fin3000"
+      ],
+      "steps": [
+        {
+          "from": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+          "to": "straight_w0500_t0400_h_fin4000",
+          "returns": [
+            {
+              "to": "straight_w0500_t0400_h_fin4000",
+              "return": 0.40429917099531487
+            },
+            {
+              "to": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+              "return": 0.45709648274948184
+            },
+            {
+              "to": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+              "return": 0.404151096480859
+            },
+            {
+              "to": "straight_w0400_t0400_h_fin4000",
+              "return": 0.3342165378977644
+            },
+            {
+              "to": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
+              "return": 0.35278151927428686
+            },
+            {
+              "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+              "return": 0.36037138367024785
+            },
+            {
+              "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+              "return": 0.3331486141843
+            },
+            {
+              "to": "straight_w0300_t0300_h_fin3000",
+              "return": 0.25185983897841224
+            },
+            {
+              "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
+              "return": 0.266284469193794
+            },
+            {
+              "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+              "return": 0.2591256644893806
+            }
+          ]
+        },
+        {
+          "from": "straight_w0500_t0400_h_fin4000",
+          "to": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+          "returns": [
+            {
+              "to": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+              "return": 0.8220265736106805
+            },
+            {
+              "to": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+              "return": 0.40396124995939636
+            },
+            {
+              "to": "straight_w0400_t0400_h_fin4000",
+              "return": 0.2834698915934402
+            },
+            {
+              "to": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
+              "return": 0.31841909626864184
+            },
+            {
+              "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+              "return": 0.33274037517625915
+            },
+            {
+              "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+              "return": 0.3018160676155725
+            },
+            {
+              "to": "straight_w0300_t0300_h_fin3000",
+              "return": 0.208817758104599
+            },
+            {
+              "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
+              "return": 0.2285188794224264
+            },
+            {
+              "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+              "return": 0.225368819995221
+            }
+          ]
+        },
+        {
+          "from": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+          "to": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+          "returns": [
+            {
+              "to": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+              "return": 0.30875332719981335
+            },
+            {
+              "to": "straight_w0400_t0400_h_fin4000",
+              "return": 0.22044800060490974
+            },
+            {
+              "to": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
+              "return": 0.2646300132615669
+            },
+            {
+              "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+              "return": 0.28375567627031095
+            },
+            {
+              "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+              "return": 0.26641722433920223
+            },
+            {
+              "to": "straight_w0300_t0300_h_fin3000",
+              "return": 0.18270092679127103
+            },
+            {
+              "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
+              "return": 0.20405404830733245
+            },
+            {
+              "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+              "return": 0.20459752025298325
+            }
+          ]
+        },
+        {
+          "from": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+          "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+          "returns": [
+            {
+              "to": "straight_w0400_t0400_h_fin4000",
+              "return": 0.12711352643868273
+            },
+            {
+              "to": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
+              "return": 0.22565854278585817
+            },
+            {
+              "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+              "return": 0.2641456525803173
+            },
+            {
+              "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+              "return": 0.24837665845188756
+            },
+            {
+              "to": "straight_w0300_t0300_h_fin3000",
+              "return": 0.15370391253318116
+            },
+            {
+              "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
+              "return": 0.18091483660055163
+            },
+            {
+              "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+              "return": 0.18580259717269487
+            }
+          ]
+        },
+        {
+          "from": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+          "to": null,
+          "returns": [
+            {
+              "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+              "return": 0.22962503096777437
+            },
+            {
+              "to": "straight_w0300_t0300_h_fin3000",
+              "return": 0.10788080538140647
+            },
+            {
+              "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
+              "return": 0.14826961867428523
+            },
+            {
+              "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+              "return": 0.1623979038794708
+            }
+          ]
+        }
+      ]
+    },
+    "per_topology": {
+      "straight": {
+        "n_designs": 12,
+        "n_converged": 12,
+        "n_rejected": 0,
+        "n_newton_failed": 0,
+        "n_excluded_h_over_gap": 6,
+        "n_eligible": 6,
+        "reynolds_dh_range": [
+          120.83421050554794,
+          166.14703944512846
+        ],
+        "recommended": {
+          "design_id": "straight_w0400_t0400_h_fin4000",
+          "topology": "straight",
+          "r_th_k_per_w": 0.013363505840162448,
+          "dp_pa": 1306.823870848576,
+          "rule": "marginal_return",
+          "meets_threshold": true,
+          "meets_objective": true,
+          "front": [
+            "straight_w0500_t0400_h_fin4000",
+            "straight_w0400_t0400_h_fin4000",
+            "straight_w0300_t0300_h_fin3000"
+          ],
+          "steps": [
+            {
+              "from": "straight_w0500_t0400_h_fin4000",
+              "to": "straight_w0400_t0400_h_fin4000",
+              "returns": [
+                {
+                  "to": "straight_w0400_t0400_h_fin4000",
+                  "return": 0.2834698915934402
+                },
+                {
+                  "to": "straight_w0300_t0300_h_fin3000",
+                  "return": 0.208817758104599
+                }
+              ]
+            },
+            {
+              "from": "straight_w0400_t0400_h_fin4000",
+              "to": null,
+              "returns": [
+                {
+                  "to": "straight_w0300_t0300_h_fin3000",
+                  "return": 0.16110111117310436
+                }
+              ]
+            }
+          ]
+        },
+        "best_in_budget": {
+          "design_id": "straight_w0300_t0300_h_fin3000",
+          "topology": "straight",
+          "r_th_k_per_w": 0.011628858870723926,
+          "dp_pa": 3097.656582752169
+        },
+        "lowest_dp_meeting_threshold": {
+          "design_id": "straight_w0500_t0400_h_fin4000",
+          "topology": "straight",
+          "r_th_k_per_w": 0.01562548191057071,
+          "dp_pa": 752.7305496087745
+        },
+        "lowest_dp_meeting_objective": {
+          "design_id": "straight_w0400_t0400_h_fin4000",
+          "topology": "straight",
+          "r_th_k_per_w": 0.013363505840162448,
+          "dp_pa": 1306.823870848576
+        }
+      },
+      "sinusoidal": {
+        "n_designs": 10,
+        "n_converged": 10,
+        "n_rejected": 0,
+        "n_newton_failed": 0,
+        "n_excluded_h_over_gap": 4,
+        "n_eligible": 6,
+        "reynolds_dh_range": [
+          125.87549941400465,
+          148.27810871943288
+        ],
+        "recommended": {
+          "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+          "topology": "sinusoidal",
+          "r_th_k_per_w": 0.013582293672575782,
+          "dp_pa": 1535.449877302684,
+          "rule": "marginal_return",
+          "meets_threshold": true,
+          "meets_objective": true,
+          "front": [
+            "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000"
+          ],
+          "steps": [
+            {
+              "from": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+              "to": null,
+              "returns": []
+            }
+          ]
+        },
+        "best_in_budget": {
+          "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+          "topology": "sinusoidal",
+          "r_th_k_per_w": 0.013582293672575782,
+          "dp_pa": 1535.449877302684
+        },
+        "lowest_dp_meeting_threshold": {
+          "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+          "topology": "sinusoidal",
+          "r_th_k_per_w": 0.013582293672575782,
+          "dp_pa": 1535.449877302684
+        },
+        "lowest_dp_meeting_objective": {
+          "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+          "topology": "sinusoidal",
+          "r_th_k_per_w": 0.013582293672575782,
+          "dp_pa": 1535.449877302684
+        }
+      },
+      "zigzag": {
+        "n_designs": 10,
+        "n_converged": 10,
+        "n_rejected": 0,
+        "n_newton_failed": 0,
+        "n_excluded_h_over_gap": 4,
+        "n_eligible": 6,
+        "reynolds_dh_range": [
+          121.08191100405278,
+          140.23730926704116
+        ],
+        "recommended": {
+          "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+          "topology": "zigzag",
+          "r_th_k_per_w": 0.013443246258400217,
+          "dp_pa": 1460.5359734058654,
+          "rule": "marginal_return",
+          "meets_threshold": true,
+          "meets_objective": true,
+          "front": [
+            "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "zigzag_w0300_t0300_amp0300_lam2000_h_fin3000"
+          ],
+          "steps": [
+            {
+              "from": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+              "to": null,
+              "returns": [
+                {
+                  "to": "zigzag_w0300_t0300_amp0300_lam2000_h_fin3000",
+                  "return": 0.10097353906008451
+                }
+              ]
+            }
+          ]
+        },
+        "best_in_budget": {
+          "design_id": "zigzag_w0300_t0300_amp0300_lam2000_h_fin3000",
+          "topology": "zigzag",
+          "r_th_k_per_w": 0.011915823764575138,
+          "dp_pa": 4822.39574847955
+        },
+        "lowest_dp_meeting_threshold": {
+          "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+          "topology": "zigzag",
+          "r_th_k_per_w": 0.013443246258400217,
+          "dp_pa": 1460.5359734058654
+        },
+        "lowest_dp_meeting_objective": {
+          "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+          "topology": "zigzag",
+          "r_th_k_per_w": 0.013443246258400217,
+          "dp_pa": 1460.5359734058654
+        }
+      },
+      "offset_strip": {
+        "n_designs": 15,
+        "n_converged": 15,
+        "n_rejected": 0,
+        "n_newton_failed": 0,
+        "n_excluded_h_over_gap": 7,
+        "n_eligible": 8,
+        "reynolds_dh_range": [
+          134.26023389505326,
+          210.14645305312686
+        ],
+        "recommended": {
+          "design_id": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+          "topology": "offset_strip",
+          "r_th_k_per_w": 0.01836412346732321,
+          "dp_pa": 504.84970436880093,
+          "rule": "marginal_return",
+          "meets_threshold": true,
+          "meets_objective": false,
+          "front": [
+            "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+            "offset_strip_l1000_t0400_p_t1600_g0000_h_fin4000",
+            "offset_strip_l2000_t0300_p_t1200_g0000_h_fin3000",
+            "offset_strip_l0500_t0400_p_t1600_g0000_h_fin4000",
+            "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+            "offset_strip_l0500_t0300_p_t1200_g0000_h_fin3000",
+            "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000"
+          ],
+          "steps": [
+            {
+              "from": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+              "to": null,
+              "returns": [
+                {
+                  "to": "offset_strip_l1000_t0400_p_t1600_g0000_h_fin4000",
+                  "return": 0.22989212727690597
+                },
+                {
+                  "to": "offset_strip_l2000_t0300_p_t1200_g0000_h_fin3000",
+                  "return": 0.21884106910250145
+                },
+                {
+                  "to": "offset_strip_l0500_t0400_p_t1600_g0000_h_fin4000",
+                  "return": 0.21031305499895714
+                },
+                {
+                  "to": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+                  "return": 0.20390741118527755
+                },
+                {
+                  "to": "offset_strip_l0500_t0300_p_t1200_g0000_h_fin3000",
+                  "return": 0.2019981987797285
+                },
+                {
+                  "to": "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000",
+                  "return": 0.18906251736269997
+                }
+              ]
+            }
+          ]
+        },
+        "best_in_budget": {
+          "design_id": "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000",
+          "topology": "offset_strip",
+          "r_th_k_per_w": 0.012394520714865333,
+          "dp_pa": 4038.7976349504033
+        },
+        "lowest_dp_meeting_threshold": {
+          "design_id": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+          "topology": "offset_strip",
+          "r_th_k_per_w": 0.01836412346732321,
+          "dp_pa": 504.84970436880093
+        },
+        "lowest_dp_meeting_objective": {
+          "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+          "topology": "offset_strip",
+          "r_th_k_per_w": 0.014578277582908895,
+          "dp_pa": 1566.3016996172585
+        }
+      },
+      "pin_circle": {
+        "n_designs": 15,
+        "n_converged": 15,
+        "n_rejected": 0,
+        "n_newton_failed": 0,
+        "n_excluded_h_over_gap": 7,
+        "n_eligible": 8,
+        "reynolds_dh_range": [
+          134.61953327595205,
+          216.3528213363516
+        ],
+        "recommended": {
+          "design_id": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+          "topology": "pin_circle",
+          "r_th_k_per_w": 0.012649269866607395,
+          "dp_pa": 1420.4764333627315,
+          "rule": "marginal_return",
+          "meets_threshold": true,
+          "meets_objective": true,
+          "front": [
+            "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+            "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
+            "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+            "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+            "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
+            "pin_circle_d0300_s_t0600_s_l0550_h_fin3000"
+          ],
+          "steps": [
+            {
+              "from": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+              "to": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+              "returns": [
+                {
+                  "to": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+                  "return": 0.30875332719981335
+                },
+                {
+                  "to": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
+                  "return": 0.2646300132615669
+                },
+                {
+                  "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+                  "return": 0.28375567627031095
+                },
+                {
+                  "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+                  "return": 0.26641722433920223
+                },
+                {
+                  "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
+                  "return": 0.20405404830733245
+                },
+                {
+                  "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+                  "return": 0.20459752025298325
+                }
+              ]
+            },
+            {
+              "from": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+              "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+              "returns": [
+                {
+                  "to": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
+                  "return": 0.22565854278585817
+                },
+                {
+                  "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+                  "return": 0.2641456525803173
+                },
+                {
+                  "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+                  "return": 0.24837665845188756
+                },
+                {
+                  "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
+                  "return": 0.18091483660055163
+                },
+                {
+                  "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+                  "return": 0.18580259717269487
+                }
+              ]
+            },
+            {
+              "from": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+              "to": null,
+              "returns": [
+                {
+                  "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+                  "return": 0.22962503096777437
+                },
+                {
+                  "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
+                  "return": 0.14826961867428523
+                },
+                {
+                  "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+                  "return": 0.1623979038794708
+                }
+              ]
+            }
+          ]
+        },
+        "best_in_budget": {
+          "design_id": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+          "topology": "pin_circle",
+          "r_th_k_per_w": 0.010609545662924413,
+          "dp_pa": 4194.599926272966
+        },
+        "lowest_dp_meeting_threshold": {
+          "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+          "topology": "pin_circle",
+          "r_th_k_per_w": 0.014900536709759105,
+          "dp_pa": 797.5132181107151
+        },
+        "lowest_dp_meeting_objective": {
+          "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+          "topology": "pin_circle",
+          "r_th_k_per_w": 0.014900536709759105,
+          "dp_pa": 797.5132181107151
+        }
+      },
+      "pin_diamond": {
+        "n_designs": 16,
+        "n_converged": 16,
+        "n_rejected": 0,
+        "n_newton_failed": 0,
+        "n_excluded_h_over_gap": 8,
+        "n_eligible": 8,
+        "reynolds_dh_range": [
+          125.86896927661243,
+          186.9154193757695
+        ],
+        "recommended": {
+          "design_id": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+          "topology": "pin_diamond",
+          "r_th_k_per_w": 0.012282915682749852,
+          "dp_pa": 2513.237594916369,
+          "rule": "marginal_return",
+          "meets_threshold": true,
+          "meets_objective": true,
+          "front": [
+            "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "pin_diamond_s0400_s_t1000_s_l0900_h_fin4000",
+            "pin_diamond_s0400_s_t1100_s_l0700_h_fin4000",
+            "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+            "pin_diamond_s0300_s_t0750_s_l0700_h_fin3000",
+            "pin_diamond_s0300_s_t0850_s_l0500_h_fin3000"
+          ],
+          "steps": [
+            {
+              "from": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+              "to": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+              "returns": [
+                {
+                  "to": "pin_diamond_s0400_s_t1000_s_l0900_h_fin4000",
+                  "return": 0.24697100001853953
+                },
+                {
+                  "to": "pin_diamond_s0400_s_t1100_s_l0700_h_fin4000",
+                  "return": 0.22771479360550215
+                },
+                {
+                  "to": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+                  "return": 0.2526785517962304
+                },
+                {
+                  "to": "pin_diamond_s0300_s_t0750_s_l0700_h_fin3000",
+                  "return": 0.17642919049724107
+                },
+                {
+                  "to": "pin_diamond_s0300_s_t0850_s_l0500_h_fin3000",
+                  "return": 0.16814530894485205
+                }
+              ]
+            },
+            {
+              "from": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+              "to": null,
+              "returns": [
+                {
+                  "to": "pin_diamond_s0300_s_t0750_s_l0700_h_fin3000",
+                  "return": 0.10281218048619166
+                },
+                {
+                  "to": "pin_diamond_s0300_s_t0850_s_l0500_h_fin3000",
+                  "return": 0.10174516180213102
+                }
+              ]
+            }
+          ]
+        },
+        "best_in_budget": {
+          "design_id": "pin_diamond_s0300_s_t0850_s_l0500_h_fin3000",
+          "topology": "pin_diamond",
+          "r_th_k_per_w": 0.011465216097840104,
+          "dp_pa": 4946.454010043795
+        },
+        "lowest_dp_meeting_threshold": {
+          "design_id": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+          "topology": "pin_diamond",
+          "r_th_k_per_w": 0.014049655080465184,
+          "dp_pa": 1476.5615974882583
+        },
+        "lowest_dp_meeting_objective": {
+          "design_id": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+          "topology": "pin_diamond",
+          "r_th_k_per_w": 0.014049655080465184,
+          "dp_pa": 1476.5615974882583
+        }
+      }
+    },
+    "excluded": [
+      {
+        "design_id": "straight_w0150_t0400_h_fin4000",
+        "topology": "straight",
+        "reason": "H / min gap = 4 / 0.150 = 26.7 > 10"
+      },
+      {
+        "design_id": "straight_w0200_t0400_h_fin4000",
+        "topology": "straight",
+        "reason": "H / min gap = 4 / 0.200 = 20.0 > 10"
+      },
+      {
+        "design_id": "straight_w0250_t0400_h_fin4000",
+        "topology": "straight",
+        "reason": "H / min gap = 4 / 0.250 = 16.0 > 10"
+      },
+      {
+        "design_id": "straight_w0300_t0400_h_fin4000",
+        "topology": "straight",
+        "reason": "H / min gap = 4 / 0.300 = 13.3 > 10"
+      },
+      {
+        "design_id": "straight_w0150_t0300_h_fin3000",
+        "topology": "straight",
+        "reason": "H / min gap = 3 / 0.150 = 20.0 > 10"
+      },
+      {
+        "design_id": "straight_w0200_t0300_h_fin3000",
+        "topology": "straight",
+        "reason": "H / min gap = 3 / 0.200 = 15.0 > 10"
+      },
+      {
+        "design_id": "sinusoidal_w0300_t0400_amp0150_lam2000_h_fin4000",
+        "topology": "sinusoidal",
+        "reason": "H / min gap = 4 / 0.300 = 13.3 > 10"
+      },
+      {
+        "design_id": "sinusoidal_w0300_t0400_amp0300_lam2000_h_fin4000",
+        "topology": "sinusoidal",
+        "reason": "H / min gap = 4 / 0.300 = 13.3 > 10"
+      },
+      {
+        "design_id": "sinusoidal_w0300_t0400_amp0600_lam4000_h_fin4000",
+        "topology": "sinusoidal",
+        "reason": "H / min gap = 4 / 0.300 = 13.3 > 10"
+      },
+      {
+        "design_id": "sinusoidal_w0200_t0400_amp0300_lam2000_h_fin4000",
+        "topology": "sinusoidal",
+        "reason": "H / min gap = 4 / 0.200 = 20.0 > 10"
+      },
+      {
+        "design_id": "zigzag_w0300_t0400_amp0150_lam2000_h_fin4000",
+        "topology": "zigzag",
+        "reason": "H / min gap = 4 / 0.300 = 13.3 > 10"
+      },
+      {
+        "design_id": "zigzag_w0300_t0400_amp0300_lam2000_h_fin4000",
+        "topology": "zigzag",
+        "reason": "H / min gap = 4 / 0.300 = 13.3 > 10"
+      },
+      {
+        "design_id": "zigzag_w0300_t0400_amp0600_lam4000_h_fin4000",
+        "topology": "zigzag",
+        "reason": "H / min gap = 4 / 0.300 = 13.3 > 10"
+      },
+      {
+        "design_id": "zigzag_w0200_t0400_amp0300_lam2000_h_fin4000",
+        "topology": "zigzag",
+        "reason": "H / min gap = 4 / 0.200 = 20.0 > 10"
+      },
+      {
+        "design_id": "offset_strip_l0500_t0400_p_t1100_g0000_h_fin4000",
+        "topology": "offset_strip",
+        "reason": "H / min gap = 4 / 0.150 = 26.7 > 10"
+      },
+      {
+        "design_id": "offset_strip_l1000_t0400_p_t1100_g0000_h_fin4000",
+        "topology": "offset_strip",
+        "reason": "H / min gap = 4 / 0.150 = 26.7 > 10"
+      },
+      {
+        "design_id": "offset_strip_l2000_t0400_p_t1100_g0000_h_fin4000",
+        "topology": "offset_strip",
+        "reason": "H / min gap = 4 / 0.150 = 26.7 > 10"
+      },
+      {
+        "design_id": "offset_strip_l0500_t0400_p_t1300_g0000_h_fin4000",
+        "topology": "offset_strip",
+        "reason": "H / min gap = 4 / 0.250 = 16.0 > 10"
+      },
+      {
+        "design_id": "offset_strip_l1000_t0400_p_t1300_g0000_h_fin4000",
+        "topology": "offset_strip",
+        "reason": "H / min gap = 4 / 0.250 = 16.0 > 10"
+      },
+      {
+        "design_id": "offset_strip_l2000_t0400_p_t1300_g0000_h_fin4000",
+        "topology": "offset_strip",
+        "reason": "H / min gap = 4 / 0.250 = 16.0 > 10"
+      },
+      {
+        "design_id": "offset_strip_l1000_t0300_p_t0900_g0000_h_fin3000",
+        "topology": "offset_strip",
+        "reason": "H / min gap = 3 / 0.150 = 20.0 > 10"
+      },
+      {
+        "design_id": "pin_circle_d0400_s_t0600_s_l0500_h_fin4000",
+        "topology": "pin_circle",
+        "reason": "H / min gap = 4 / 0.183 = 21.8 > 10"
+      },
+      {
+        "design_id": "pin_circle_d0400_s_t0600_s_l0700_h_fin4000",
+        "topology": "pin_circle",
+        "reason": "H / min gap = 4 / 0.200 = 20.0 > 10"
+      },
+      {
+        "design_id": "pin_circle_d0400_s_t0600_s_l0900_h_fin4000",
+        "topology": "pin_circle",
+        "reason": "H / min gap = 4 / 0.200 = 20.0 > 10"
+      },
+      {
+        "design_id": "pin_circle_d0400_s_t0800_s_l0500_h_fin4000",
+        "topology": "pin_circle",
+        "reason": "H / min gap = 4 / 0.240 = 16.6 > 10"
+      },
+      {
+        "design_id": "pin_circle_d0400_s_t1000_s_l0500_h_fin4000",
+        "topology": "pin_circle",
+        "reason": "H / min gap = 4 / 0.307 = 13.0 > 10"
+      },
+      {
+        "design_id": "pin_circle_d0600_s_t0900_s_l0700_h_fin4000",
+        "topology": "pin_circle",
+        "reason": "H / min gap = 4 / 0.232 = 17.2 > 10"
+      },
+      {
+        "design_id": "pin_circle_d0300_s_t0500_s_l0450_h_fin3000",
+        "topology": "pin_circle",
+        "reason": "H / min gap = 3 / 0.200 = 15.0 > 10"
+      },
+      {
+        "design_id": "pin_diamond_s0400_s_t0750_s_l0500_h_fin4000",
+        "topology": "pin_diamond",
+        "reason": "H / min gap = 4 / 0.184 = 21.7 > 10"
+      },
+      {
+        "design_id": "pin_diamond_s0400_s_t0750_s_l0700_h_fin4000",
+        "topology": "pin_diamond",
+        "reason": "H / min gap = 4 / 0.184 = 21.7 > 10"
+      },
+      {
+        "design_id": "pin_diamond_s0400_s_t0750_s_l0900_h_fin4000",
+        "topology": "pin_diamond",
+        "reason": "H / min gap = 4 / 0.184 = 21.7 > 10"
+      },
+      {
+        "design_id": "pin_diamond_s0400_s_t0900_s_l0500_h_fin4000",
+        "topology": "pin_diamond",
+        "reason": "H / min gap = 4 / 0.272 = 14.7 > 10"
+      },
+      {
+        "design_id": "pin_diamond_s0400_s_t0900_s_l0700_h_fin4000",
+        "topology": "pin_diamond",
+        "reason": "H / min gap = 4 / 0.334 = 12.0 > 10"
+      },
+      {
+        "design_id": "pin_diamond_s0400_s_t0900_s_l0900_h_fin4000",
+        "topology": "pin_diamond",
+        "reason": "H / min gap = 4 / 0.334 = 12.0 > 10"
+      },
+      {
+        "design_id": "pin_diamond_s0400_s_t1100_s_l0500_h_fin4000",
+        "topology": "pin_diamond",
+        "reason": "H / min gap = 4 / 0.342 = 11.7 > 10"
+      },
+      {
+        "design_id": "pin_diamond_s0300_s_t0600_s_l0450_h_fin3000",
+        "topology": "pin_diamond",
+        "reason": "H / min gap = 3 / 0.176 = 17.1 > 10"
+      }
+    ],
+    "ratios": {
+      "straight_w0400_t0400_h_fin4000": {
+        "capacity_kw": 1.4966132569712618,
+        "capacity_kw_per_kpa": 1.1452295067119087,
+        "kw_per_pumping_w": 30.608562402541903
+      },
+      "straight_w0500_t0400_h_fin4000": {
+        "capacity_kw": 1.2799605231036049,
+        "capacity_kw_per_kpa": 1.7004232441062128,
+        "kw_per_pumping_w": 53.139865282191174
+      },
+      "straight_w0700_t0400_h_fin4000": {
+        "capacity_kw": 0.9550354431101423,
+        "capacity_kw_per_kpa": 2.8484846168400937,
+        "kw_per_pumping_w": 119.30382845536273
+      },
+      "straight_w0300_t0300_h_fin3000": {
+        "capacity_kw": 1.7198592073682075,
+        "capacity_kw_per_kpa": 0.5552130009970853,
+        "kw_per_pumping_w": 12.912987263572411
+      },
+      "straight_w0400_t0300_h_fin3000": {
+        "capacity_kw": 1.4351759387881566,
+        "capacity_kw_per_kpa": 0.9413286917362287,
+        "kw_per_pumping_w": 26.235910630750237
+      },
+      "straight_w0500_t0300_h_fin3000": {
+        "capacity_kw": 1.205226289556777,
+        "capacity_kw_per_kpa": 1.3509610873931774,
+        "kw_per_pumping_w": 44.83676133184896
+      },
+      "sinusoidal_w0400_t0400_amp0150_lam2000_h_fin4000": {
+        "capacity_kw": 1.4614579330419812,
+        "capacity_kw_per_kpa": 0.8898679450618611,
+        "kw_per_pumping_w": 24.355622558622056
+      },
+      "sinusoidal_w0400_t0400_amp0300_lam2000_h_fin4000": {
+        "capacity_kw": 1.3959288961902017,
+        "capacity_kw_per_kpa": 0.5009987242887405,
+        "kw_per_pumping_w": 14.355995513985755
+      },
+      "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000": {
+        "capacity_kw": 1.4725053427744907,
+        "capacity_kw_per_kpa": 0.9590058031469139,
+        "kw_per_pumping_w": 26.050996904091573
+      },
+      "sinusoidal_w0400_t0400_amp0600_lam4000_h_fin4000": {
+        "capacity_kw": 1.4264845377242992,
+        "capacity_kw_per_kpa": 0.6492050417119768,
+        "kw_per_pumping_w": 18.204334489251938
+      },
+      "sinusoidal_w0500_t0400_amp0300_lam2000_h_fin4000": {
+        "capacity_kw": 1.1279324207951762,
+        "capacity_kw_per_kpa": 0.4406757118309037,
+        "kw_per_pumping_w": 15.627734559495458
+      },
+      "sinusoidal_w0300_t0300_amp0300_lam2000_h_fin3000": {
+        "capacity_kw": 1.641794696894738,
+        "capacity_kw_per_kpa": 0.2919487900708658,
+        "kw_per_pumping_w": 7.112918335600735
+      },
+      "zigzag_w0400_t0400_amp0150_lam2000_h_fin4000": {
+        "capacity_kw": 1.4774615595299534,
+        "capacity_kw_per_kpa": 0.9738634241350795,
+        "kw_per_pumping_w": 26.36585480964822
+      },
+      "zigzag_w0400_t0400_amp0300_lam2000_h_fin4000": {
+        "capacity_kw": 1.4337922069351914,
+        "capacity_kw_per_kpa": 0.6399583762064394,
+        "kw_per_pumping_w": 17.85358779636235
+      },
+      "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000": {
+        "capacity_kw": 1.4877358947064363,
+        "capacity_kw_per_kpa": 1.0186232463943647,
+        "kw_per_pumping_w": 27.387206291621055
+      },
+      "zigzag_w0400_t0400_amp0600_lam4000_h_fin4000": {
+        "capacity_kw": 1.4693689815070328,
+        "capacity_kw_per_kpa": 0.7568072589277287,
+        "kw_per_pumping_w": 20.60223860589523
+      },
+      "zigzag_w0500_t0400_amp0300_lam2000_h_fin4000": {
+        "capacity_kw": 1.164499537273222,
+        "capacity_kw_per_kpa": 0.715187387077835,
+        "kw_per_pumping_w": 24.56634336678258
+      },
+      "zigzag_w0300_t0300_amp0300_lam2000_h_fin3000": {
+        "capacity_kw": 1.6784403995180357,
+        "capacity_kw_per_kpa": 0.348051152800396,
+        "kw_per_pumping_w": 8.294632395653462
+      },
+      "offset_strip_l0500_t0400_p_t1600_g0000_h_fin4000": {
+        "capacity_kw": 1.27083524373899,
+        "capacity_kw_per_kpa": 1.2084101440998216,
+        "kw_per_pumping_w": 38.03514735850403
+      },
+      "offset_strip_l1000_t0400_p_t1600_g0000_h_fin4000": {
+        "capacity_kw": 1.2081112410918233,
+        "capacity_kw_per_kpa": 1.5240380634932806,
+        "kw_per_pumping_w": 50.460189812187835
+      },
+      "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000": {
+        "capacity_kw": 1.0890800225552633,
+        "capacity_kw_per_kpa": 2.1572361301407685,
+        "kw_per_pumping_w": 79.23150128415118
+      },
+      "offset_strip_l0500_t0300_p_t1200_g0000_h_fin3000": {
+        "capacity_kw": 1.4784621726595337,
+        "capacity_kw_per_kpa": 0.6448547838109222,
+        "kw_per_pumping_w": 17.446635990717958
+      },
+      "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000": {
+        "capacity_kw": 1.3719041832107353,
+        "capacity_kw_per_kpa": 0.8758875659433771,
+        "kw_per_pumping_w": 25.537864135481946
+      },
+      "offset_strip_l2000_t0300_p_t1200_g0000_h_fin3000": {
+        "capacity_kw": 1.2609956792209989,
+        "capacity_kw_per_kpa": 1.2784500190410903,
+        "kw_per_pumping_w": 40.553668505220394
+      },
+      "offset_strip_l0500_t0200_p_t0800_g0000_h_fin2000": {
+        "capacity_kw": 1.7406679081404308,
+        "capacity_kw_per_kpa": 0.2744826032648439,
+        "kw_per_pumping_w": 6.307523726523478
+      },
+      "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000": {
+        "capacity_kw": 1.6136162470577065,
+        "capacity_kw_per_kpa": 0.3995288679715001,
+        "kw_per_pumping_w": 9.903937660518908
+      },
+      "pin_circle_d0400_s_t0800_s_l0700_h_fin4000": {
+        "capacity_kw": 1.6830335419696807,
+        "capacity_kw_per_kpa": 0.9026456420821088,
+        "kw_per_pumping_w": 21.45282597340819
+      },
+      "pin_circle_d0400_s_t0800_s_l0900_h_fin4000": {
+        "capacity_kw": 1.5811189270929922,
+        "capacity_kw_per_kpa": 1.1130905729635847,
+        "kw_per_pumping_w": 28.159566086786064
+      },
+      "pin_circle_d0400_s_t1000_s_l0700_h_fin4000": {
+        "capacity_kw": 1.4370400899433693,
+        "capacity_kw_per_kpa": 1.3184808742414416,
+        "kw_per_pumping_w": 36.69990513050753
+      },
+      "pin_circle_d0400_s_t1000_s_l0900_h_fin4000": {
+        "capacity_kw": 1.3422335308835553,
+        "capacity_kw_per_kpa": 1.6830235542217926,
+        "kw_per_pumping_w": 50.155908506142126
+      },
+      "pin_circle_d0400_s_t0900_s_l0700_h_fin4000": {
+        "capacity_kw": 1.548861553886998,
+        "capacity_kw_per_kpa": 1.130545580764135,
+        "kw_per_pumping_w": 29.19681434217115
+      },
+      "pin_circle_d0400_s_t0900_s_l0900_h_fin4000": {
+        "capacity_kw": 1.451628247947386,
+        "capacity_kw_per_kpa": 1.4122407636018928,
+        "kw_per_pumping_w": 38.9146674597663
+      },
+      "pin_circle_d0300_s_t0600_s_l0550_h_fin3000": {
+        "capacity_kw": 1.885094860366264,
+        "capacity_kw_per_kpa": 0.44940993026746906,
+        "kw_per_pumping_w": 9.536070353088776
+      },
+      "pin_circle_d0300_s_t0600_s_l0700_h_fin3000": {
+        "capacity_kw": 1.786783003109548,
+        "capacity_kw_per_kpa": 0.5513880562417262,
+        "kw_per_pumping_w": 12.343704977764903
+      },
+      "pin_diamond_s0400_s_t1100_s_l0700_h_fin4000": {
+        "capacity_kw": 1.5305162324537318,
+        "capacity_kw_per_kpa": 0.7539999932865392,
+        "kw_per_pumping_w": 19.70576926394887
+      },
+      "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000": {
+        "capacity_kw": 1.4235224911541244,
+        "capacity_kw_per_kpa": 0.9640793134371385,
+        "kw_per_pumping_w": 27.089963648006957
+      },
+      "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000": {
+        "capacity_kw": 1.6282778874797648,
+        "capacity_kw_per_kpa": 0.6478806026033316,
+        "kw_per_pumping_w": 15.91572562853177
+      },
+      "pin_diamond_s0400_s_t1000_s_l0900_h_fin4000": {
+        "capacity_kw": 1.5167199254267791,
+        "capacity_kw_per_kpa": 0.7945815327697788,
+        "kw_per_pumping_w": 20.955260610720785
+      },
+      "pin_diamond_s0400_s_t1200_s_l0600_h_fin4000": {
+        "capacity_kw": 1.5317054718009044,
+        "capacity_kw_per_kpa": 0.6060847500011526,
+        "kw_per_pumping_w": 15.827709991491973
+      },
+      "pin_diamond_s0300_s_t0750_s_l0500_h_fin3000": {
+        "capacity_kw": 1.8651577021310037,
+        "capacity_kw_per_kpa": 0.29560006901785485,
+        "kw_per_pumping_w": 6.339411808022927
+      },
+      "pin_diamond_s0300_s_t0750_s_l0700_h_fin3000": {
+        "capacity_kw": 1.7231593607172064,
+        "capacity_kw_per_kpa": 0.39523064166751787,
+        "kw_per_pumping_w": 9.174558097819034
+      },
+      "pin_diamond_s0300_s_t0850_s_l0500_h_fin3000": {
+        "capacity_kw": 1.7444067193611585,
+        "capacity_kw_per_kpa": 0.35265802852288397,
+        "kw_per_pumping_w": 8.086601011306248
+      }
+    },
     "vs_straight_front": [
       {
         "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
         "topology": "sinusoidal",
         "dp_pa": 1535.449877302684,
         "r_th_k_per_w": 0.013582293672575782,
-        "straight_r_th_at_same_dp": 0.012896097900278517,
-        "difference_pct": 5.320956599456683
-      },
-      {
-        "design_id": "sinusoidal_w0300_t0400_amp0150_lam2000_h_fin4000",
-        "topology": "sinusoidal",
-        "dp_pa": 3241.452512415118,
-        "r_th_k_per_w": 0.011539723238875435,
-        "straight_r_th_at_same_dp": 0.011029718589110423,
-        "difference_pct": 4.623913526393464
+        "straight_r_th_at_same_dp": 0.013020879982890235,
+        "difference_pct": 4.311641689526802
       },
       {
         "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
         "topology": "zigzag",
         "dp_pa": 1460.5359734058654,
         "r_th_k_per_w": 0.013443246258400217,
-        "straight_r_th_at_same_dp": 0.013039335510566625,
-        "difference_pct": 3.097632908565595
-      },
-      {
-        "design_id": "zigzag_w0300_t0400_amp0150_lam2000_h_fin4000",
-        "topology": "zigzag",
-        "dp_pa": 3056.979339438254,
-        "r_th_k_per_w": 0.011452957730671239,
-        "straight_r_th_at_same_dp": 0.011141676487502902,
-        "difference_pct": 2.793845643584114
+        "straight_r_th_at_same_dp": 0.013126229629198427,
+        "difference_pct": 2.4151385291676375
       },
       {
         "design_id": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
@@ -6249,6 +8661,14 @@
         "difference_pct": 7.512673915263024
       },
       {
+        "design_id": "offset_strip_l2000_t0300_p_t1200_g0000_h_fin3000",
+        "topology": "offset_strip",
+        "dp_pa": 986.3472646093875,
+        "r_th_k_per_w": 0.015860482577034152,
+        "straight_r_th_at_same_dp": 0.014472941416863139,
+        "difference_pct": 9.587140030528406
+      },
+      {
         "design_id": "offset_strip_l0500_t0400_p_t1600_g0000_h_fin4000",
         "topology": "offset_strip",
         "dp_pa": 1051.658867598857,
@@ -6257,52 +8677,20 @@
         "difference_pct": 10.733027134264294
       },
       {
-        "design_id": "offset_strip_l2000_t0400_p_t1300_g0000_h_fin4000",
+        "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
         "topology": "offset_strip",
-        "dp_pa": 1158.2279151200182,
-        "r_th_k_per_w": 0.014822745626450858,
-        "straight_r_th_at_same_dp": 0.01382868100782135,
-        "difference_pct": 7.188426850451446
+        "dp_pa": 1566.3016996172585,
+        "r_th_k_per_w": 0.014578277582908895,
+        "straight_r_th_at_same_dp": 0.012979215955575085,
+        "difference_pct": 12.32017120916269
       },
       {
-        "design_id": "offset_strip_l1000_t0400_p_t1300_g0000_h_fin4000",
+        "design_id": "offset_strip_l0500_t0300_p_t1200_g0000_h_fin3000",
         "topology": "offset_strip",
-        "dp_pa": 1948.3367620876695,
-        "r_th_k_per_w": 0.013332415547435233,
-        "straight_r_th_at_same_dp": 0.01223540659629725,
-        "difference_pct": 8.965856120138804
-      },
-      {
-        "design_id": "offset_strip_l2000_t0400_p_t1100_g0000_h_fin4000",
-        "topology": "offset_strip",
-        "dp_pa": 2857.0752110490607,
-        "r_th_k_per_w": 0.012569165222622646,
-        "straight_r_th_at_same_dp": 0.011272310574341998,
-        "difference_pct": 11.50478102717063
-      },
-      {
-        "design_id": "offset_strip_l0500_t0400_p_t1300_g0000_h_fin4000",
-        "topology": "offset_strip",
-        "dp_pa": 2944.6783242470933,
-        "r_th_k_per_w": 0.012387373829633386,
-        "straight_r_th_at_same_dp": 0.011213784858119618,
-        "difference_pct": 10.465592004505076
-      },
-      {
-        "design_id": "offset_strip_l1000_t0400_p_t1100_g0000_h_fin4000",
-        "topology": "offset_strip",
-        "dp_pa": 5187.10363311738,
-        "r_th_k_per_w": 0.011420059108618784,
-        "straight_r_th_at_same_dp": 0.010232115898941102,
-        "difference_pct": 11.60994677357612
-      },
-      {
-        "design_id": "offset_strip_l1000_t0300_p_t0900_g0000_h_fin3000",
-        "topology": "offset_strip",
-        "dp_pa": 5660.532312029124,
-        "r_th_k_per_w": 0.011360576522580414,
-        "straight_r_th_at_same_dp": 0.010109124357836258,
-        "difference_pct": 12.37943189188362
+        "dp_pa": 2292.705597874627,
+        "r_th_k_per_w": 0.013527569639487612,
+        "straight_r_th_at_same_dp": 0.012206484246200262,
+        "difference_pct": 10.822816518184485
       },
       {
         "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
@@ -6313,239 +8701,82 @@
         "difference_pct": -3.0644414257173014
       },
       {
-        "design_id": "pin_circle_d0400_s_t1000_s_l0700_h_fin4000",
+        "design_id": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
         "topology": "pin_circle",
-        "dp_pa": 1089.9210735765416,
-        "r_th_k_per_w": 0.013917496206238864,
-        "straight_r_th_at_same_dp": 0.014069027358537024,
-        "difference_pct": -1.0770549266592488
+        "dp_pa": 1027.8900633380927,
+        "r_th_k_per_w": 0.013777632137071016,
+        "straight_r_th_at_same_dp": 0.014304672664680038,
+        "difference_pct": -3.684394183380013
+      },
+      {
+        "design_id": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
+        "topology": "pin_circle",
+        "dp_pa": 1370.012479143144,
+        "r_th_k_per_w": 0.012912709951259569,
+        "straight_r_th_at_same_dp": 0.013262232355236608,
+        "difference_pct": -2.6354718769425745
       },
       {
         "design_id": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
         "topology": "pin_circle",
         "dp_pa": 1420.4764333627315,
         "r_th_k_per_w": 0.012649269866607395,
-        "straight_r_th_at_same_dp": 0.013119662840357846,
-        "difference_pct": -3.58540443816483
+        "straight_r_th_at_same_dp": 0.013185172410013088,
+        "difference_pct": -4.064433340277884
       },
       {
         "design_id": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
         "topology": "pin_circle",
         "dp_pa": 1864.5562150917517,
         "r_th_k_per_w": 0.011883304462603689,
-        "straight_r_th_at_same_dp": 0.012354742465495288,
-        "difference_pct": -3.8158464590277497
-      },
-      {
-        "design_id": "pin_circle_d0400_s_t0800_s_l0500_h_fin4000",
-        "topology": "pin_circle",
-        "dp_pa": 3205.1893874624984,
-        "r_th_k_per_w": 0.010234202296254692,
-        "straight_r_th_at_same_dp": 0.01105112738432658,
-        "difference_pct": -7.392233024392636
-      },
-      {
-        "design_id": "pin_circle_d0600_s_t0900_s_l0700_h_fin4000",
-        "topology": "pin_circle",
-        "dp_pa": 4807.97141834507,
-        "r_th_k_per_w": 0.00981880067588773,
-        "straight_r_th_at_same_dp": 0.010340209532367209,
-        "difference_pct": -5.042536660861174
-      },
-      {
-        "design_id": "pin_circle_d0400_s_t0600_s_l0700_h_fin4000",
-        "topology": "pin_circle",
-        "dp_pa": 5622.793735188891,
-        "r_th_k_per_w": 0.00978863133681359,
-        "straight_r_th_at_same_dp": 0.010118491397089579,
-        "difference_pct": -3.2599727304296278
+        "straight_r_th_at_same_dp": 0.012619818078545102,
+        "difference_pct": -5.836166665457387
       },
       {
         "design_id": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
         "topology": "pin_diamond",
         "dp_pa": 1476.5615974882583,
         "r_th_k_per_w": 0.014049655080465184,
-        "straight_r_th_at_same_dp": 0.01300795081467869,
-        "difference_pct": 8.00821190537555
+        "straight_r_th_at_same_dp": 0.013103173429886752,
+        "difference_pct": 7.223300947994948
+      },
+      {
+        "design_id": "pin_diamond_s0400_s_t1000_s_l0900_h_fin4000",
+        "topology": "pin_diamond",
+        "dp_pa": 1908.8285630547518,
+        "r_th_k_per_w": 0.013186350139345826,
+        "straight_r_th_at_same_dp": 0.012572198850645304,
+        "difference_pct": 4.884995027492733
       },
       {
         "design_id": "pin_diamond_s0400_s_t1100_s_l0700_h_fin4000",
         "topology": "pin_diamond",
         "dp_pa": 2029.862395333068,
         "r_th_k_per_w": 0.01306748636565317,
-        "straight_r_th_at_same_dp": 0.01212514926926845,
-        "difference_pct": 7.77175666425074
+        "straight_r_th_at_same_dp": 0.012448295654204602,
+        "difference_pct": 4.974100299742057
       },
       {
-        "design_id": "pin_diamond_s0400_s_t0900_s_l0900_h_fin4000",
+        "design_id": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
         "topology": "pin_diamond",
-        "dp_pa": 2715.6075806842805,
-        "r_th_k_per_w": 0.012280418690232959,
-        "straight_r_th_at_same_dp": 0.011371410079536222,
-        "difference_pct": 7.993807314473456
-      },
-      {
-        "design_id": "pin_diamond_s0400_s_t0900_s_l0700_h_fin4000",
-        "topology": "pin_diamond",
-        "dp_pa": 3518.5797303279287,
-        "r_th_k_per_w": 0.011440900118712979,
-        "straight_r_th_at_same_dp": 0.010874857647060063,
-        "difference_pct": 5.205056378884554
-      },
-      {
-        "design_id": "pin_diamond_s0400_s_t0900_s_l0500_h_fin4000",
-        "topology": "pin_diamond",
-        "dp_pa": 5299.313585296797,
-        "r_th_k_per_w": 0.010382284941154195,
-        "straight_r_th_at_same_dp": 0.01020184114268557,
-        "difference_pct": 1.768737583195934
+        "dp_pa": 2513.237594916369,
+        "r_th_k_per_w": 0.012282915682749852,
+        "straight_r_th_at_same_dp": 0.012027213928643343,
+        "difference_pct": 2.126026489788657
       }
     ],
-    "recommended": {
-      "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
-      "topology": "pin_circle",
-      "rule": "meets_target_lowest_dp",
-      "dp_pa": 797.5132181107151,
-      "r_th_k_per_w": 0.014900536709759105
-    },
-    "per_topology": {
-      "straight": {
-        "n_designs": 12,
-        "n_converged": 12,
-        "n_rejected": 0,
-        "n_newton_failed": 0,
-        "reynolds_dh_range": [
-          83.07351972256421,
-          166.14703944512846
-        ],
-        "best_in_budget": {
-          "design_id": "straight_w0250_t0400_h_fin4000",
-          "r_th_k_per_w": 0.010484811657391364,
-          "dp_pa": 4349.109842184026
-        },
-        "meets_target": true,
-        "lowest_dp_meeting_target": {
-          "design_id": "straight_w0400_t0400_h_fin4000",
-          "r_th_k_per_w": 0.013363505840162448,
-          "dp_pa": 1306.823870848576
-        }
-      },
-      "sinusoidal": {
-        "n_designs": 10,
-        "n_converged": 10,
-        "n_rejected": 0,
-        "n_newton_failed": 0,
-        "reynolds_dh_range": [
-          101.38373932490939,
-          148.27810871943288
-        ],
-        "best_in_budget": {
-          "design_id": "sinusoidal_w0300_t0400_amp0150_lam2000_h_fin4000",
-          "r_th_k_per_w": 0.011539723238875435,
-          "dp_pa": 3241.452512415118
-        },
-        "meets_target": true,
-        "lowest_dp_meeting_target": {
-          "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
-          "r_th_k_per_w": 0.013582293672575782,
-          "dp_pa": 1535.449877302684
-        }
-      },
-      "zigzag": {
-        "n_designs": 10,
-        "n_converged": 10,
-        "n_rejected": 0,
-        "n_newton_failed": 0,
-        "reynolds_dh_range": [
-          92.03629421299038,
-          140.23730926704116
-        ],
-        "best_in_budget": {
-          "design_id": "zigzag_w0300_t0400_amp0150_lam2000_h_fin4000",
-          "r_th_k_per_w": 0.011452957730671239,
-          "dp_pa": 3056.979339438254
-        },
-        "meets_target": true,
-        "lowest_dp_meeting_target": {
-          "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
-          "r_th_k_per_w": 0.013443246258400217,
-          "dp_pa": 1460.5359734058654
-        }
-      },
-      "offset_strip": {
-        "n_designs": 10,
-        "n_converged": 10,
-        "n_rejected": 0,
-        "n_newton_failed": 0,
-        "reynolds_dh_range": [
-          92.30391080284913,
-          201.3903508425799
-        ],
-        "best_in_budget": {
-          "design_id": "offset_strip_l1000_t0300_p_t0900_g0000_h_fin3000",
-          "r_th_k_per_w": 0.011360576522580414,
-          "dp_pa": 5660.532312029124
-        },
-        "meets_target": true,
-        "lowest_dp_meeting_target": {
-          "design_id": "offset_strip_l2000_t0400_p_t1300_g0000_h_fin4000",
-          "r_th_k_per_w": 0.014822745626450858,
-          "dp_pa": 1158.2279151200182
-        }
-      },
-      "pin_circle": {
-        "n_designs": 11,
-        "n_converged": 11,
-        "n_rejected": 0,
-        "n_newton_failed": 0,
-        "reynolds_dh_range": [
-          72.11760711211718,
-          216.3528213363516
-        ],
-        "best_in_budget": {
-          "design_id": "pin_circle_d0400_s_t0600_s_l0700_h_fin4000",
-          "r_th_k_per_w": 0.00978863133681359,
-          "dp_pa": 5622.793735188891
-        },
-        "meets_target": true,
-        "lowest_dp_meeting_target": {
-          "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
-          "r_th_k_per_w": 0.014900536709759105,
-          "dp_pa": 797.5132181107151
-        }
-      },
-      "pin_diamond": {
-        "n_designs": 10,
-        "n_converged": 10,
-        "n_rejected": 0,
-        "n_newton_failed": 0,
-        "reynolds_dh_range": [
-          70.80129521809448,
-          186.9154193757695
-        ],
-        "best_in_budget": {
-          "design_id": "pin_diamond_s0400_s_t0900_s_l0500_h_fin4000",
-          "r_th_k_per_w": 0.010382284941154195,
-          "dp_pa": 5299.313585296797
-        },
-        "meets_target": true,
-        "lowest_dp_meeting_target": {
-          "design_id": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
-          "r_th_k_per_w": 0.014049655080465184,
-          "dp_pa": 1476.5615974882583
-        }
-      }
-    },
     "equal_dp": [
       {
         "dp_max_pa": 1000.0,
         "best_straight": {
           "design_id": "straight_w0500_t0400_h_fin4000",
+          "topology": "straight",
           "r_th_k_per_w": 0.01562548191057071,
           "dp_pa": 752.7305496087745
         },
         "best_other": {
           "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+          "topology": "pin_circle",
           "r_th_k_per_w": 0.014900536709759105,
           "dp_pa": 797.5132181107151
         }
@@ -6554,11 +8785,28 @@
         "dp_max_pa": 2000.0,
         "best_straight": {
           "design_id": "straight_w0400_t0400_h_fin4000",
+          "topology": "straight",
           "r_th_k_per_w": 0.013363505840162448,
           "dp_pa": 1306.823870848576
         },
         "best_other": {
           "design_id": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+          "topology": "pin_circle",
+          "r_th_k_per_w": 0.011883304462603689,
+          "dp_pa": 1864.5562150917517
+        }
+      },
+      {
+        "dp_max_pa": 3000.0,
+        "best_straight": {
+          "design_id": "straight_w0400_t0400_h_fin4000",
+          "topology": "straight",
+          "r_th_k_per_w": 0.013363505840162448,
+          "dp_pa": 1306.823870848576
+        },
+        "best_other": {
+          "design_id": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+          "topology": "pin_circle",
           "r_th_k_per_w": 0.011883304462603689,
           "dp_pa": 1864.5562150917517
         }
@@ -6566,32 +8814,36 @@
       {
         "dp_max_pa": 4000.0,
         "best_straight": {
-          "design_id": "straight_w0300_t0400_h_fin4000",
-          "r_th_k_per_w": 0.011375137075666543,
-          "dp_pa": 2710.449509908148
+          "design_id": "straight_w0300_t0300_h_fin3000",
+          "topology": "straight",
+          "r_th_k_per_w": 0.011628858870723926,
+          "dp_pa": 3097.656582752169
         },
         "best_other": {
-          "design_id": "pin_circle_d0400_s_t0800_s_l0500_h_fin4000",
-          "r_th_k_per_w": 0.010234202296254692,
-          "dp_pa": 3205.1893874624984
+          "design_id": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
+          "topology": "pin_circle",
+          "r_th_k_per_w": 0.01119330101371789,
+          "dp_pa": 3240.5181484856644
         }
       },
       {
-        "dp_max_pa": 6000.0,
+        "dp_max_pa": 5000.0,
         "best_straight": {
-          "design_id": "straight_w0250_t0400_h_fin4000",
-          "r_th_k_per_w": 0.010484811657391364,
-          "dp_pa": 4349.109842184026
+          "design_id": "straight_w0300_t0300_h_fin3000",
+          "topology": "straight",
+          "r_th_k_per_w": 0.011628858870723926,
+          "dp_pa": 3097.656582752169
         },
         "best_other": {
-          "design_id": "pin_circle_d0400_s_t0600_s_l0700_h_fin4000",
-          "r_th_k_per_w": 0.00978863133681359,
-          "dp_pa": 5622.793735188891
+          "design_id": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+          "topology": "pin_circle",
+          "r_th_k_per_w": 0.010609545662924413,
+          "dp_pa": 4194.599926272966
         }
       }
     ],
     "max_energy_balance_error": 0.00750948759523129,
     "worst_undershoot_rel": -0.0030304658975585687,
-    "total_seconds": 231.0999724592548
+    "total_seconds": 274.0985595420934
   }
 }

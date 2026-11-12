@@ -1,12 +1,54 @@
 {
   "recommended": "w0422_t0444_h4000_q150",
-  "rule": "meets_target_lowest_dp",
-  "knee": "w0502_t0444_h4000_q150",
-  "dp_budget_pa": 6000.0,
-  "r_th_target_k_per_w": 0.015,
+  "rule": "marginal_return",
+  "meets_threshold": true,
+  "meets_objective": true,
+  "dp_budget_pa": 5000.0,
+  "r_th_threshold_k_per_w": 0.02,
+  "r_th_objective_k_per_w": 0.015,
+  "marginal_return_cutoff": 0.25,
+  "selection_steps": [
+    {
+      "from": "w0502_t0444_h4000_q150",
+      "to": "w0422_t0444_h4000_q150",
+      "returns": [
+        {
+          "to": "w0422_t0444_h4000_q150",
+          "return": 0.33139939745980335
+        },
+        {
+          "to": "w0355_t0444_h3500_q150",
+          "return": 0.22154187622079674
+        },
+        {
+          "to": "w0299_t0258_h2500_q150",
+          "return": 0.2067771404311029
+        }
+      ]
+    },
+    {
+      "from": "w0422_t0444_h4000_q150",
+      "to": null,
+      "returns": [
+        {
+          "to": "w0355_t0444_h3500_q150",
+          "return": 0.14123006494386076
+        },
+        {
+          "to": "w0299_t0258_h2500_q150",
+          "return": 0.15893553158811147
+        }
+      ]
+    }
+  ],
+  "references": {
+    "lowest_dp_meeting_threshold": "w0502_t0444_h4000_q150",
+    "lowest_dp_meeting_objective": "w0422_t0444_h4000_q150",
+    "lowest_r_th_within_budget": "w0299_t0258_h2500_q150"
+  },
   "parity": {
-    "mean_pct": 0.2673861561295874,
-    "mean_abs_pct": 1.065768565386845,
+    "mean_pct": 0.4234795709049666,
+    "mean_abs_pct": 1.0763194908010199,
     "max_abs_pct": 2.946223740499443
   },
   "confidence": {
@@ -25,7 +67,7 @@
       },
       {
         "check": "Linear solver residual, worst run",
-        "value": "6.2e-12",
+        "value": "4.8e-12",
         "limit": "< 1e-08",
         "pass": true
       },
@@ -147,6 +189,11 @@
         "n_dofs": 7401,
         "linear_residual_rel": 1.6479127367613234e-12,
         "base_flux_error_rel": -1.6368424204937781e-07
+      },
+      "ratios": {
+        "capacity_kw": 0.5558761169491895,
+        "capacity_kw_per_kpa": 3.0608468760255674,
+        "kw_per_pumping_w": 220.25388626691785
       }
     },
     {
@@ -188,6 +235,11 @@
         "n_dofs": 7223,
         "linear_residual_rel": 1.708192399966848e-12,
         "base_flux_error_rel": -1.911948743771319e-08
+      },
+      "ratios": {
+        "capacity_kw": 0.6874633966949776,
+        "capacity_kw_per_kpa": 2.6065399401652947,
+        "kw_per_pumping_w": 151.6613075079427
       }
     },
     {
@@ -229,6 +281,11 @@
         "n_dofs": 8945,
         "linear_residual_rel": 1.9527431460907596e-12,
         "base_flux_error_rel": 2.3815516447811547e-08
+      },
+      "ratios": {
+        "capacity_kw": 0.8441996221050267,
+        "capacity_kw_per_kpa": 2.2089973596088273,
+        "kw_per_pumping_w": 104.66706223348706
       }
     },
     {
@@ -270,6 +327,11 @@
         "n_dofs": 11189,
         "linear_residual_rel": 2.4388026661674595e-12,
         "base_flux_error_rel": -1.8407450008695037e-09
+      },
+      "ratios": {
+        "capacity_kw": 0.9973401915140825,
+        "capacity_kw_per_kpa": 1.7390806428984706,
+        "kw_per_pumping_w": 69.74874401715775
       }
     },
     {
@@ -311,6 +373,11 @@
         "n_dofs": 14397,
         "linear_residual_rel": 3.4228049473813154e-12,
         "base_flux_error_rel": 6.10661521349698e-10
+      },
+      "ratios": {
+        "capacity_kw": 1.1684122057485211,
+        "capacity_kw_per_kpa": 1.3642973785954293,
+        "kw_per_pumping_w": 46.70602966600877
       }
     },
     {
@@ -352,6 +419,11 @@
         "n_dofs": 18559,
         "linear_residual_rel": 4.510889493924955e-12,
         "base_flux_error_rel": -1.5616885562508287e-10
+      },
+      "ratios": {
+        "capacity_kw": 1.339755751768655,
+        "capacity_kw_per_kpa": 1.0351648621812746,
+        "kw_per_pumping_w": 30.906077046199503
       }
     },
     {
@@ -393,6 +465,11 @@
         "n_dofs": 21923,
         "linear_residual_rel": 4.827735523962269e-12,
         "base_flux_error_rel": -8.960210351460773e-11
+      },
+      "ratios": {
+        "capacity_kw": 1.4510074616849526,
+        "capacity_kw_per_kpa": 0.6373111993892119,
+        "kw_per_pumping_w": 17.568791786891218
       }
     },
     {
@@ -434,47 +511,11 @@
         "n_dofs": 17683,
         "linear_residual_rel": 4.389423667731075e-12,
         "base_flux_error_rel": -2.227551476607914e-12
-      }
-    },
-    {
-      "one_d": {
-        "design": {
-          "w_ch_m": 0.00025164809259792384,
-          "t_fin_m": 0.0002579251884157727,
-          "h_fin_m": 0.0025,
-          "flow_lpm": 1.5
-        },
-        "n_channels": 117,
-        "reynolds": 112.5984495699311,
-        "dp_pa": 5749.35537354473,
-        "r_th_k_per_w": 0.011237985236623983,
-        "r_th_max_k_per_w": 0.01623840177452991,
-        "r_base": 0.0014335789929431884,
-        "r_conv": 0.004803989705774867,
-        "r_caloric": 0.005000416537905927,
-        "fin_efficiency": 0.7817766352382132,
-        "nusselt": 6.779758348941144,
-        "f_re_fanning": 21.159877142312336,
-        "feasible": true,
-        "violations": []
       },
-      "cfd": {
-        "design_id": "w0252_t0258_h2500_q150",
-        "n_channels": 117,
-        "reynolds": 112.5984495699311,
-        "dp_pa": 5747.464983082475,
-        "pump_power_w": 0.14368662457706188,
-        "f_re_fanning": 21.152919765818197,
-        "nu_eff": 5.203553848842696,
-        "r_th_k_per_w": 0.011349363481978668,
-        "r_th_max_k_per_w": 0.016349780019887364,
-        "base_avg_temp_c": 51.34936348197867,
-        "base_max_temp_c": 56.34978001988736,
-        "coolant_rise_k": 10.000833075811855,
-        "energy_residual_rel": 3.881596124521991e-12,
-        "n_dofs": 23077,
-        "linear_residual_rel": 6.18382063351086e-12,
-        "base_flux_error_rel": -2.346123295637881e-12
+      "ratios": {
+        "capacity_kw": 1.5895334014409055,
+        "capacity_kw_per_kpa": 0.4189098500584101,
+        "kw_per_pumping_w": 10.54170613033158
       }
     }
   ]
