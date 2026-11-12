@@ -23,7 +23,8 @@ from level2.planview import run_design, run_developing, superficial_velocity  # 
 from tools.fluids import fluid_props  # noqa: E402
 from tools.types import Requirements  # noqa: E402
 
-REQ = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 6e3, "PG25", r_th_target_k_per_w=15e-3)
+REQ = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 5e3, "PG25", r_th_threshold_k_per_w=20e-3,
+                   r_th_objective_k_per_w=15e-3)
 FLOW_LPM, CELLS = 1.5, 10.0
 G1_DP, G1_NU, G2_ENERGY, G3_LIMIT = 0.005, 0.01, 0.01, 0.15
 

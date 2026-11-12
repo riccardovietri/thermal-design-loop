@@ -22,7 +22,9 @@ class Requirements:
     inlet_temp_c: float
     dp_budget_pa: float
     coolant: str
-    r_th_target_k_per_w: float | None = None
+    r_th_threshold_k_per_w: float | None = None  # must meet (SPEC Amendment 3)
+    r_th_objective_k_per_w: float | None = None  # want
+    marginal_return_cutoff: float = 0.25
 
 
 @dataclass(frozen=True)

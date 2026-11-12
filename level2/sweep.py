@@ -19,12 +19,13 @@ import matplotlib.pyplot as plt
 
 from tools.fluids import fluid_props
 from tools.pareto import pareto_indices
-from tools.report import plain_log_ticks
+from tools.report import draw_requirements, plain_log_ticks
 from tools.types import Requirements
 
 from .slot_jet import SlotJetDesign, run_slot_jet
 
-REQ = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 6e3, "PG25", r_th_target_k_per_w=15e-3)
+REQ = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 5e3, "PG25", r_th_threshold_k_per_w=20e-3,
+                   r_th_objective_k_per_w=15e-3)
 # Minimum jet gap and slot width 0.1 mm (ASSUMPTIONS.md L8); rated flow 1.5 LPM (R4).
 SLOTS_MM, GAPS_MM, PITCHES_MM, FLOW_LPM = (0.1, 0.2), (0.1, 0.15, 0.2), (1.0, 2.0, 4.0), 1.5
 MESH_CASE_MM, MESH_LEVELS, PRODUCTION_CELLS = (0.2, 0.1, 2.0), (10, 20, 40), 20
@@ -72,13 +73,14 @@ def plot_compare(rows: list[dict], out: Path) -> Path:
     level1 = json.loads(Path("examples/output/gpu_coldplate/results.json").read_text())["designs"]
     fins = sorted(((d["cfd"]["dp_pa"] / 1e3, d["cfd"]["r_th_k_per_w"] * 1e3) for d in level1))
     jets = [(r["result"]["dp_pa"] / 1e3, r["result"]["r_th_k_per_w"] * 1e3) for r in rows]
-    budget, target = REQ.dp_budget_pa / 1e3, REQ.r_th_target_k_per_w * 1e3
+    budget = REQ.dp_budget_pa / 1e3
+    threshold, objective = REQ.r_th_threshold_k_per_w * 1e3, REQ.r_th_objective_k_per_w * 1e3
     xs, ys = [p[0] for p in fins + jets], [p[1] for p in fins + jets]
     x_lo, x_hi = 0.7 * min(xs), 1.5 * max(max(xs), budget)
-    y_lo, y_hi = 0.7 * min(ys + [target]), 1.3 * max(ys)
+    y_lo, y_hi = 0.7 * min(ys + [objective]), 1.3 * max(ys)
 
     fig, ax = plt.subplots(figsize=(10.5, 5.6), constrained_layout=True)
-    ax.fill_between([x_lo, budget], y_lo, target, color="#16a34a", alpha=0.08, lw=0, zorder=0, label="Meets budget and target")
+    draw_requirements(ax, x_lo, y_lo, budget, threshold, objective, y_hi)
     ax.plot([p[0] for p in fins], [p[1] for p in fins], "o-", color="#1d4ed8", label=f"Straight fins (Level 1 CFD, {FLOW_LPM} LPM)")
     for gap, colour in zip(GAPS_MM, ("#7c2d12", "#c2410c", "#f59e0b")):
         for slot, marker in zip(SLOTS_MM, ("D", "s")):
@@ -95,10 +97,6 @@ def plot_compare(rows: list[dict], out: Path) -> Path:
     ax.set_ylim(y_lo, y_hi)
     plain_log_ticks(ax, x_lo, x_hi, "x")
     plain_log_ticks(ax, y_lo, y_hi, "y")
-    ax.axvline(budget, color="#c2410c", ls="--", lw=1)
-    ax.text(budget * 0.95, y_hi * 0.97, f"ΔP budget {budget:g} kPa", color="#c2410c", ha="right", va="top", fontsize=9)
-    ax.axhline(target, color="#15803d", ls="--", lw=1)
-    ax.text(x_lo * 1.05, target * 0.98, f"R_th target {target:g} mK/W", color="#15803d", ha="left", va="top", fontsize=9)
     ax.set_xlabel("Pressure drop ΔP (kPa)")
     ax.set_ylabel("Thermal resistance R_th (mK/W)")
     ax.set_title(f"Slot-jet arrays on a flat base vs straight fins\n{FLOW_LPM} LPM PG25, 1 kW, 60 × 60 mm; jet gap and slot ≥ 0.1 mm, fins and channels ≥ 0.15 mm", fontsize=11)

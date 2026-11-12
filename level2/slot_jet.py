@@ -184,7 +184,8 @@ def main() -> None:
     ap.add_argument("--flow_lpm", type=float, required=True)
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args()
-    req = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 6e3, "PG25", r_th_target_k_per_w=15e-3)
+    req = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 5e3, "PG25", r_th_threshold_k_per_w=20e-3,
+                   r_th_objective_k_per_w=15e-3)
     d = SlotJetDesign(a.slot_mm / 1e3, a.gap_mm / 1e3, a.pitch_mm / 1e3, a.flow_lpm)
     r = run_slot_jet(d, req, fluid_props("PG25", 40.0), a.out or Path("runs/level2") / d.design_id)
     print(json.dumps(asdict(r), indent=2))
