@@ -83,3 +83,15 @@ Supersedes the flow-rate, ΔP-budget and recommendation items above where they c
   the point on the CFD-verified front farthest from the chord between its end points in log-log space) is still computed and
   reported as secondary information.
 - **Plots** show the region of interest only.
+
+## Amendment 2 (2026-11-11, requested by Riccardo)
+Adds to scope; everything above stands.
+- **Scope now includes** a plan-view Level 2 evaluation of sinusoidal, zigzag, offset-strip and pin-fin (circular and diamond)
+  planforms, with straight fins computed the same way as the reference, against the Amendment 1 requirements: 1 kW uniform over
+  60 × 60 mm, PG25 at 40 °C, rated flow 1.5 LPM, channel-core ΔP ≤ 6 kPa, R_th ≤ 15 mK/W, copper k = 390 W/m·K, 2 mm base.
+- **Manufacturing limits for these planforms:** minimum solid feature 0.15 mm, minimum fluid gap 0.15 mm, fin height ≤ 4 mm,
+  fin height / minimum fin thickness ≤ 10.
+- **Method:** steady laminar 2D Navier-Stokes + energy in the plane of the fin layer (tall-fin limit), developed-periodic
+  pressure gradient and heat-transfer coefficient, put into the Level 1 resistance network (base + convection with fin efficiency
+  + coolant heating). Entrance effects excluded, as in Level 1.
+- **Level 1 pipeline unchanged** (`run_study.py`, `tools/`).
