@@ -3,6 +3,7 @@
     uv run python -m level2.planview_sweep              # checks + sweeps + plot (about 10-20 minutes)
     uv run python -m level2.planview_sweep --checks     # Stage 2 only: mesh, periodicity, developing strip, field figures
     uv run python -m level2.planview_sweep --sweep      # Stage 3 only (keeps saved checks)
+    uv run python -m level2.planview_sweep --extend     # solve only designs not yet in results.json, then summarise
     uv run python -m level2.planview_sweep --plot-only  # redraw from results.json
 
 All designs at 1.5 LPM PG25, 1 kW over 60 x 60 mm; compared at equal total flow and footprint, never at equal Re.
@@ -23,15 +24,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from tools.fluids import fluid_props
-from tools.pareto import pareto_indices, recommend
-from tools.report import plain_log_ticks
+from tools.pareto import capacity_ratios, pareto_indices, recommend_marginal_return
+from tools.report import draw_requirements, plain_log_ticks
 from tools.types import Requirements
 
 from .planar import NewtonDivergence
 from .planforms import GeometryRejected, build
 from .planview import design_id, reynolds_b, run_design, run_developing
 
-REQ = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 6e3, "PG25", r_th_target_k_per_w=15e-3)
+REQ = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 5e3, "PG25", r_th_threshold_k_per_w=20e-3,
+                   r_th_objective_k_per_w=15e-3)
 FLOW_LPM = 1.5
 CELLS, CELLS_FINE, CELLS_DEVELOPING = 10.0, 20.0, 8.0
 OUT = Path("examples/output/level2_planview")
@@ -79,7 +81,25 @@ def sweep_designs() -> dict[str, list[dict]]:
         for s_l in (0.5, 0.7, 0.9):
             d["pin_diamond"].append({"s": 0.4, "s_t": s_t, "s_l": s_l, "h_fin": 4.0})
     d["pin_diamond"].append({"s": 0.3, "s_t": 0.6, "s_l": 0.45, "h_fin": 3.0})
+    # Added 2026-11-11 (SPEC Amendment 3, item 6): H / min gap <= 10 left these topologies with fewer than 5 eligible designs.
+    d["offset_strip"] += [{"l": l, "t": 0.3, "p_t": 1.2, "g": 0.0, "h_fin": 3.0} for l in (0.5, 1.0, 2.0)]
+    d["offset_strip"] += [{"l": l, "t": 0.2, "p_t": 0.8, "g": 0.0, "h_fin": 2.0} for l in (0.5, 1.0)]
+    d["pin_circle"] += [{"d": 0.4, "s_t": 0.9, "s_l": s_l, "h_fin": 4.0} for s_l in (0.7, 0.9)]
+    d["pin_circle"] += [{"d": 0.3, "s_t": 0.6, "s_l": s_l, "h_fin": 3.0} for s_l in (0.55, 0.7)]
+    d["pin_diamond"] += [{"s": 0.4, "s_t": 1.0, "s_l": s_l, "h_fin": 4.0} for s_l in (0.7, 0.9)]
+    d["pin_diamond"] += [{"s": 0.4, "s_t": 1.2, "s_l": 0.6, "h_fin": 4.0}]
+    d["pin_diamond"] += [{"s": 0.3, "s_t": 0.75, "s_l": s_l, "h_fin": 3.0} for s_l in (0.5, 0.7)]
+    d["pin_diamond"] += [{"s": 0.3, "s_t": 0.85, "s_l": 0.5, "h_fin": 3.0}]
     return d
+
+
+MAX_H_OVER_GAP = 10.0  # Level 1 skiving limit H / gap <= 10, applied to plan-view results (SPEC Amendment 3, item 6)
+
+
+def aspect_exclusion(row: dict) -> str | None:
+    """Reason a converged design is excluded by H / minimum fluid gap > 10, else None."""
+    h, gap = row["params_mm"]["h_fin"], row["result"]["geometry"]["min_gap_mm"]
+    return f"H / min gap = {h:g} / {gap:.3f} = {h / gap:.1f} > {MAX_H_OVER_GAP:g}" if h / gap > MAX_H_OVER_GAP + 1e-9 else None
 
 
 def _load() -> dict:
@@ -143,11 +163,17 @@ def run_checks(fluid, data: dict) -> dict:
     return checks
 
 
-def run_sweep(fluid, data: dict) -> list[dict]:
+def run_sweep(fluid, data: dict, extend: bool = False) -> list[dict]:
+    """Solve every sweep design; with extend, keep converged entries already in results.json and solve only new ones."""
+    done = {r["design_id"]: r for r in data.get("designs", []) if r["status"] == "converged"} if extend else {}
     rows = []
     for topo, designs in sweep_designs().items():
         for params in designs:
             entry = {"topology": topo, "params_mm": params, "flow_lpm": FLOW_LPM}
+            prev = next((r for r in done.values() if r["topology"] == topo and r["params_mm"] == params), None)
+            if prev is not None:
+                rows.append(prev)
+                continue
             try:
                 pf = build(topo, params)
             except GeometryRejected as err:
@@ -178,42 +204,57 @@ def _converged(rows):
     return [r for r in rows if r["status"] == "converged"]
 
 
+def _brief(r: dict) -> dict:
+    return {"design_id": r["design_id"], "topology": r["topology"], "r_th_k_per_w": r["result"]["r_th_k_per_w"],
+            "dp_pa": r["result"]["dp_pa"]}
+
+
+def _select(rows: list[dict]) -> dict:
+    """Marginal-return rule (tools.pareto.recommend_marginal_return) over eligible converged designs, with design ids."""
+    sel = recommend_marginal_return([(r["result"]["dp_pa"], r["result"]["r_th_k_per_w"]) for r in rows], REQ.dp_budget_pa,
+                                    REQ.r_th_threshold_k_per_w, REQ.r_th_objective_k_per_w, REQ.marginal_return_cutoff)
+    rid = lambda i: rows[i]["design_id"]
+    return {**_brief(rows[sel["index"]]), "rule": sel["rule"], "meets_threshold": sel["meets_threshold"],
+            "meets_objective": sel["meets_objective"], "front": [rid(i) for i in sel["front"]],
+            "steps": [{"from": rid(st["from"]), "to": rid(st["to"]) if st["to"] is not None else None,
+                       "returns": [{"to": rid(e["to"]), "return": e["return"]} for e in st["returns"]]} for st in sel["steps"]]}
+
+
 def summarise(data: dict) -> dict:
     rows = data["designs"]
-    ok = _converged(rows)
-    budget, target = REQ.dp_budget_pa, REQ.r_th_target_k_per_w
-    pick = recommend([(r["result"]["dp_pa"], r["result"]["r_th_k_per_w"]) for r in ok], budget, target)
-    rec = ok[pick["index"]]
+    conv_all = _converged(rows)
+    excluded = [{"design_id": r["design_id"], "topology": r["topology"], "reason": aspect_exclusion(r)}
+                for r in conv_all if aspect_exclusion(r)]
+    ok = [r for r in conv_all if not aspect_exclusion(r)]  # eligible: converged and H / gap <= 10
+    budget, threshold, objective = REQ.dp_budget_pa, REQ.r_th_threshold_k_per_w, REQ.r_th_objective_k_per_w
+    flow_m3_s = FLOW_LPM / 6e4
+    ratios = {r["design_id"]: capacity_ratios(r["result"]["dp_pa"], r["result"]["r_th_k_per_w"], REQ.heat_load_w, flow_m3_s, threshold)
+              for r in ok}
     per_topo = {}
     for topo in TOPOLOGIES:
         sel = [r for r in rows if r["topology"] == topo]
-        conv = _converged(sel)
+        conv = [r for r in ok if r["topology"] == topo]
         inb = [r for r in conv if r["result"]["dp_pa"] <= budget]
         best = min(inb, key=lambda r: r["result"]["r_th_k_per_w"]) if inb else None
-        meets = [r for r in inb if r["result"]["r_th_k_per_w"] <= target]
-        low = min(meets, key=lambda r: r["result"]["dp_pa"]) if meets else None
+        low = lambda lim: min((r for r in inb if r["result"]["r_th_k_per_w"] <= lim), key=lambda r: r["result"]["dp_pa"], default=None)
         per_topo[topo] = {
-            "n_designs": len(sel), "n_converged": len(conv), "n_rejected": sum(r["status"] == "rejected" for r in sel),
+            "n_designs": len(sel), "n_converged": len(_converged(sel)), "n_rejected": sum(r["status"] == "rejected" for r in sel),
             "n_newton_failed": sum(r["status"] == "newton_failed" for r in sel),
+            "n_excluded_h_over_gap": sum(e["topology"] == topo for e in excluded), "n_eligible": len(conv),
             "reynolds_dh_range": [min(r["result"]["reynolds_dh"] for r in conv), max(r["result"]["reynolds_dh"] for r in conv)] if conv else None,
-            "best_in_budget": {"design_id": best["design_id"], "r_th_k_per_w": best["result"]["r_th_k_per_w"],
-                               "dp_pa": best["result"]["dp_pa"]} if best else None,
-            "meets_target": bool(meets),
-            "lowest_dp_meeting_target": {"design_id": low["design_id"], "r_th_k_per_w": low["result"]["r_th_k_per_w"],
-                                         "dp_pa": low["result"]["dp_pa"]} if low else None,
+            "recommended": _select(conv) if inb else None,
+            "best_in_budget": _brief(best) if best else None,
+            "lowest_dp_meeting_threshold": _brief(low(threshold)) if low(threshold) else None,
+            "lowest_dp_meeting_objective": _brief(low(objective)) if low(objective) else None,
         }
     equal_dp = []
-    for level in (1e3, 2e3, 4e3, 6e3):
+    for level in (1e3, 2e3, 3e3, 4e3, 5e3):
         def best_at(cond):
             c = [r for r in ok if cond(r) and r["result"]["dp_pa"] <= level]
             return min(c, key=lambda r: r["result"]["r_th_k_per_w"]) if c else None
         s, n = best_at(lambda r: r["topology"] == "straight"), best_at(lambda r: r["topology"] != "straight")
-        equal_dp.append({"dp_max_pa": level,
-                         "best_straight": {"design_id": s["design_id"], "r_th_k_per_w": s["result"]["r_th_k_per_w"],
-                                           "dp_pa": s["result"]["dp_pa"]} if s else None,
-                         "best_other": {"design_id": n["design_id"], "r_th_k_per_w": n["result"]["r_th_k_per_w"],
-                                        "dp_pa": n["result"]["dp_pa"]} if n else None})
-    # every non-straight design on its topology's front within budget vs the straight front interpolated (log-log) at its dP
+        equal_dp.append({"dp_max_pa": level, "best_straight": _brief(s) if s else None, "best_other": _brief(n) if n else None})
+    # every eligible non-straight design on its topology's front within budget vs the eligible straight front (log-log interpolation)
     st = [r for r in ok if r["topology"] == "straight"]
     sf = [st[i] for i in pareto_indices([r["result"]["dp_pa"] for r in st], [r["result"]["r_th_k_per_w"] for r in st])]
     lx = np.log([r["result"]["dp_pa"] for r in sf])
@@ -229,30 +270,36 @@ def summarise(data: dict) -> dict:
                 vs_straight.append({"design_id": r["design_id"], "topology": topo, "dp_pa": dp,
                                     "r_th_k_per_w": r["result"]["r_th_k_per_w"], "straight_r_th_at_same_dp": r_st,
                                     "difference_pct": 100 * (r["result"]["r_th_k_per_w"] / r_st - 1)})
-    return {"vs_straight_front": vs_straight, "recommended": {"design_id": rec["design_id"], "topology": rec["topology"], "rule": pick["rule"],
-                            "dp_pa": rec["result"]["dp_pa"], "r_th_k_per_w": rec["result"]["r_th_k_per_w"]},
-            "per_topology": per_topo, "equal_dp": equal_dp,
-            "max_energy_balance_error": max(abs(r["result"]["energy_balance_error"]) for r in ok),
-            "worst_undershoot_rel": min(r["result"]["undershoot_rel"] for r in ok),
-            "total_seconds": sum(r["result"]["seconds"] for r in ok)}
+    return {"requirements": {"dp_budget_pa": budget, "r_th_threshold_k_per_w": threshold, "r_th_objective_k_per_w": objective,
+                             "marginal_return_cutoff": REQ.marginal_return_cutoff, "max_h_over_gap": MAX_H_OVER_GAP},
+            "recommended": _select(ok), "per_topology": per_topo, "excluded": excluded, "ratios": ratios,
+            "vs_straight_front": vs_straight, "equal_dp": equal_dp,
+            "max_energy_balance_error": max(abs(r["result"]["energy_balance_error"]) for r in conv_all),
+            "worst_undershoot_rel": min(r["result"]["undershoot_rel"] for r in conv_all),
+            "total_seconds": sum(r["result"]["seconds"] for r in conv_all)}
 
 
-X_LIM, Y_LIM = (0.3, 9.0), (8.0, 30.0)
+X_LIM, Y_LIM = (0.3, 1.5 * REQ.dp_budget_pa / 1e3), (8.0, 1.5 * REQ.r_th_threshold_k_per_w * 1e3)
 
 
 def plot(data: dict, out: Path) -> tuple[Path, list[str]]:
-    rows = _converged(data["designs"])
+    conv = _converged(data["designs"])
+    rows = [r for r in conv if not aspect_exclusion(r)]
+    excl = [r for r in conv if aspect_exclusion(r)]
     level1 = json.loads(Path("examples/output/gpu_coldplate/results.json").read_text())["designs"]
     l1 = [(d["cfd"]["dp_pa"] / 1e3, d["cfd"]["r_th_k_per_w"] * 1e3) for d in level1]
     f1 = pareto_indices([p[0] for p in l1], [p[1] for p in l1])
-    budget, target = REQ.dp_budget_pa / 1e3, REQ.r_th_target_k_per_w * 1e3
-    rec = data["summary"]["recommended"]
+    budget = REQ.dp_budget_pa / 1e3
+    summ = data["summary"]
+    rec = summ["recommended"]
     outside = []
-    fig, ax = plt.subplots(figsize=(10.5, 6.0), constrained_layout=True)
-    ax.fill_between([X_LIM[0], budget], Y_LIM[0], target, color="#16a34a", alpha=0.08, lw=0, zorder=0,
-                    label="Meets budget and target")
+    fig, ax = plt.subplots(figsize=(10.5, 6.2), constrained_layout=True)
+    draw_requirements(ax, X_LIM[0], Y_LIM[0], budget, REQ.r_th_threshold_k_per_w * 1e3, REQ.r_th_objective_k_per_w * 1e3, Y_LIM[1],
+                      labels_right=True)
     ax.plot([l1[i][0] for i in f1], [l1[i][1] for i in f1], color="#111827", lw=0.8, ls=":", zorder=1,
             label="Straight fins, Level 1 CFD front (floor + cover)")
+    ax.scatter([r["result"]["dp_pa"] / 1e3 for r in excl], [r["result"]["r_th_k_per_w"] * 1e3 for r in excl], s=22,
+               facecolors="none", edgecolors="#9ca3af", linewidths=0.8, zorder=2, label=f"Excluded: H / gap > 10 ({len(excl)} designs)")
     for topo in TOPOLOGIES:
         sel = [r for r in rows if r["topology"] == topo]
         if not sel:
@@ -261,32 +308,33 @@ def plot(data: dict, out: Path) -> tuple[Path, list[str]]:
         y = [r["result"]["r_th_k_per_w"] * 1e3 for r in sel]
         n_out = sum(not (X_LIM[0] <= a <= X_LIM[1] and Y_LIM[0] <= b <= Y_LIM[1]) for a, b in zip(x, y))
         if n_out:
-            outside.append(f"{LABELS[topo]}: {n_out} of {len(sel)} outside the plotted window")
+            outside.append(f"{LABELS[topo]}: {n_out} of {len(sel)} eligible outside the window")
         ax.scatter(x, y, s=34, color=COLOURS[topo], marker=MARKERS[topo], edgecolors="white", linewidths=0.5, zorder=3, alpha=0.9)
         front = pareto_indices(x, y)
         ax.plot([x[i] for i in front], [y[i] for i in front], color=COLOURS[topo], lw=1.6, zorder=2,
-                label=f"{LABELS[topo]} (plan view, {len(sel)} designs)")
+                label=f"{LABELS[topo]} ({len(sel)} eligible)")
+    picks = {summ["per_topology"][t]["recommended"]["design_id"] for t in TOPOLOGIES if summ["per_topology"][t]["recommended"]}
+    pk = [r for r in rows if r["design_id"] in picks and r["design_id"] != rec["design_id"]]
+    ax.scatter([r["result"]["dp_pa"] / 1e3 for r in pk], [r["result"]["r_th_k_per_w"] * 1e3 for r in pk], s=110,
+               facecolors="none", edgecolors="#6b7280", linewidths=1.1, zorder=4, label="Per-topology pick (marginal return)")
     r = next(r for r in rows if r["design_id"] == rec["design_id"])
-    ax.scatter([r["result"]["dp_pa"] / 1e3], [r["result"]["r_th_k_per_w"] * 1e3], s=170, facecolors="none",
-               edgecolors="#111827", linewidths=1.4, zorder=4, label=f"Recommended ({rec['rule']})")
+    ax.scatter([r["result"]["dp_pa"] / 1e3], [r["result"]["r_th_k_per_w"] * 1e3], s=190, facecolors="none",
+               edgecolors="#111827", linewidths=1.8, zorder=5, label="Cross-topology pick (marginal return)")
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlim(*X_LIM)
     ax.set_ylim(*Y_LIM)
     plain_log_ticks(ax, *X_LIM, "x")
     plain_log_ticks(ax, *Y_LIM, "y")
-    ax.axvline(budget, color="#c2410c", ls="--", lw=1)
-    ax.text(budget * 0.97, Y_LIM[1] * 0.97, f"ΔP budget {budget:g} kPa", color="#c2410c", ha="right", va="top", fontsize=9)
-    ax.axhline(target, color="#15803d", ls="--", lw=1)
-    ax.text(X_LIM[0] * 1.04, target * 0.98, f"R_th target {target:g} mK/W", color="#15803d", ha="left", va="top", fontsize=9)
     ax.set_xlabel("Channel-core pressure drop ΔP (kPa)")
     ax.set_ylabel("Thermal resistance R_th (mK/W)")
     fig.suptitle("Fin planforms at equal flow: 2D plan-view Navier-Stokes (tall-fin limit, developed periodic) + resistance network\n"
-                 f"{FLOW_LPM} LPM PG25 at 40 °C, 1 kW over 60 × 60 mm, copper, 2 mm base; features and gaps ≥ 0.15 mm, H/t ≤ 10",
+                 f"{FLOW_LPM} LPM PG25 at 40 °C, 1 kW over 60 × 60 mm, copper, 2 mm base; features and gaps ≥ 0.15 mm, H/t ≤ 10, H/gap ≤ 10",
                  fontsize=10.5, x=0.02, ha="left")
     ax.grid(True, which="both", alpha=0.25)
     ax.legend(frameon=False, fontsize=8.5, loc="upper left", bbox_to_anchor=(1.01, 1.0))
-    note = "Lines: each topology's own Pareto front.\nPlan view ignores floor and cover:\nfor straight fins it reads ΔP 7% and\nR_th 6% below Level 1 CFD."
+    note = ("Lines: each topology's own Pareto front\n(eligible designs only).\nPlan view ignores floor and cover:\n"
+            "for straight fins it reads ΔP 7% and\nR_th 6% below Level 1 CFD.")
     if outside:
         note += "\n" + "\n".join(outside)
     ax.text(1.02, 0.02, note, transform=ax.transAxes, fontsize=8, va="bottom", ha="left", color="#374151")
@@ -295,16 +343,74 @@ def plot(data: dict, out: Path) -> tuple[Path, list[str]]:
     return out, outside
 
 
+def write_summary(data: dict, out: Path) -> Path:
+    """Short markdown summary of the plan-view selection: per-topology and cross-topology picks with the rule's steps."""
+    summ, rows = data["summary"], {r["design_id"]: r for r in _converged(data["designs"])}
+    req = summ["requirements"]
+    cutoff = req["marginal_return_cutoff"]
+    pt = lambda did: f"{did} ({rows[did]['result']['r_th_k_per_w']*1e3:.2f} mK/W at {rows[did]['result']['dp_pa']/1e3:.2f} kPa)"
+
+    def steps(sel):
+        out = []
+        for k, st in enumerate(sel["steps"], 1):
+            rets = "; ".join((f"**{e['return']:.3f}**" if e["return"] >= cutoff else f"{e['return']:.3f}") + f" to `{e['to']}`"
+                             for e in st["returns"]) or "none"
+            out.append(f"{k}. From {pt(st['from'])}: returns {rets} → " + (f"move to `{st['to']}`." if st["to"] else "stop."))
+        return out
+
+    lines = ["# Plan-view topology comparison: selection", "",
+             f"Requirements (SPEC Amendment 3): ΔP ≤ {req['dp_budget_pa']/1e3:g} kPa, threshold R_th ≤ {req['r_th_threshold_k_per_w']*1e3:g} mK/W "
+             f"(must meet), objective ≤ {req['r_th_objective_k_per_w']*1e3:g} mK/W (want), marginal-return cut-off {cutoff:g}, "
+             f"H / min gap ≤ {req['max_h_over_gap']:g}. All numbers are plan-view (tall-fin limit), which reads R_th about 6% low on "
+             "straight fins.", "",
+             "Rule: from the lowest-ΔP point of the eligible front (within budget and threshold), move to the nearest further point "
+             "whose return e = −ln(R_j/R_i) / ln(ΔP_j/ΔP_i) is at least the cut-off; stop when none is. "
+             "Capacity = threshold × heat load / R_th; kW per pumping W = heat load / (ΔP × flow). Both ratios always favour the lowest "
+             "ΔP inside the window, which is why they are reported and not used to choose.", "",
+             "## Per topology", "",
+             "| Topology | Eligible / converged | Excluded (H/gap > 10) | Pick | R_th (mK/W) | ΔP (kPa) | Objective met | Capacity (kW) | kW per kPa | kW per pumping W |",
+             "|---|---|---|---|---|---|---|---|---|---|"]
+    for t in TOPOLOGIES:
+        p = summ["per_topology"][t]
+        sel = p["recommended"]
+        if sel is None:
+            lines.append(f"| {LABELS[t]} | {p['n_eligible']} / {p['n_converged']} | {p['n_excluded_h_over_gap']} | none in budget | | | | | | |")
+            continue
+        rt = summ["ratios"][sel["design_id"]]
+        lines.append(f"| {LABELS[t]} | {p['n_eligible']} / {p['n_converged']} | {p['n_excluded_h_over_gap']} | `{sel['design_id']}` "
+                     f"(`{sel['rule']}`) | {sel['r_th_k_per_w']*1e3:.2f} | {sel['dp_pa']/1e3:.2f} | {'yes' if sel['meets_objective'] else 'no'} | "
+                     f"{rt['capacity_kw']:.2f} | {rt['capacity_kw_per_kpa']:.2f} | {rt['kw_per_pumping_w']:.1f} |")
+    for t in TOPOLOGIES:
+        sel = summ["per_topology"][t]["recommended"]
+        if sel:
+            lines += ["", f"### {LABELS[t]}", ""] + steps(sel)
+    rec = summ["recommended"]
+    lines += ["", "## Across all topologies", "",
+              f"Pick: `{rec['design_id']}` ({LABELS[rec['topology']]}), {rec['r_th_k_per_w']*1e3:.2f} mK/W at {rec['dp_pa']/1e3:.2f} kPa, "
+              f"rule `{rec['rule']}`; meets the objective: {'yes' if rec['meets_objective'] else 'no'}.", ""] + steps(rec)
+    lines += ["", "## Against the straight-fin front at equal ΔP (eligible designs)", "",
+              "| Design | ΔP (kPa) | R_th (mK/W) | Straight at same ΔP | Difference |", "|---|---|---|---|---|"]
+    lines += [f"| `{v['design_id']}` | {v['dp_pa']/1e3:.2f} | {v['r_th_k_per_w']*1e3:.2f} | {v['straight_r_th_at_same_dp']*1e3:.2f} | "
+              f"{v['difference_pct']:+.1f}% |" for v in summ["vs_straight_front"]]
+    lines += ["", "## Excluded by H / min gap > 10 (solved, kept in results.json, not in fronts or selection)", "",
+              "| Design | Reason |", "|---|---|"] + [f"| `{e['design_id']}` | {e['reason']} |" for e in summ["excluded"]]
+    out.write_text("\n".join(lines) + "\n")
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Level 2 plan-view checks, sweeps and topology comparison.")
     ap.add_argument("--checks", action="store_true")
     ap.add_argument("--sweep", action="store_true")
+    ap.add_argument("--extend", action="store_true", help="solve only sweep designs not already converged in results.json")
     ap.add_argument("--plot-only", action="store_true")
     a = ap.parse_args()
     fluid = fluid_props(REQ.coolant, REQ.inlet_temp_c)
     data = _load()
     t0 = time.perf_counter()
-    if not a.plot_only:
+    if a.extend:
+        run_sweep(fluid, data, extend=True)
+    elif not a.plot_only:
         data.setdefault("settings", {})
         data["settings"] = {"flow_lpm": FLOW_LPM, "cells": CELLS, "cells_fine": CELLS_FINE, "cells_developing": CELLS_DEVELOPING,
                             "reference_length_mm": 1.0, "velocity_scale": "superficial velocity Q / (W H)",
@@ -318,8 +424,9 @@ def main() -> int:
         data["summary"] = summarise(data)
         _save(data)
         out, outside = plot(data, OUT / "pareto_topologies.png")
-        print(out)
-        print(json.dumps(data["summary"]["recommended"], indent=2))
+        print(out, write_summary(data, OUT / "summary.md"))
+        rec = data["summary"]["recommended"]
+        print(f"cross-topology pick {rec['design_id']} ({rec['rule']}): {rec['r_th_k_per_w']*1e3:.2f} mK/W at {rec['dp_pa']/1e3:.2f} kPa")
         for o in outside:
             print("outside window:", o)
     return 0

@@ -131,3 +131,39 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
 - Recommendation (`tools.pareto.recommend`, rule `meets_target_lowest_dp`): circular pins d 0.4, S_T 1.0, S_L 0.9 mm, H 4 mm →
   14.90 mK/W at 0.80 kPa (Re_Dh 216, Re_d,max 50). Margin to target 0.7%; with the −5.7% tall-fin bias seen on straight fins it
   would miss. Straight fins in the same model: w 0.4 / t 0.4 → 13.36 mK/W at 1.31 kPa.
+
+## 2026-11-11 (Wed, late) — requirements amendment 3: threshold and objective, 5 kPa, marginal-return rule
+- Riccardo's changes (SPEC Amendment 3): threshold R_th ≤ 20 mK/W (must meet) and objective ≤ 15 mK/W (want) replace the single
+  15 mK/W target; channel-core ΔP ≤ 5 kPa (one third of a 15 kPa plate allocation); recommendation by marginal return with cut-off
+  0.25 replaces "lowest ΔP meeting the target" and the knee; capacity and pumping ratios reported; H / gap ≤ 10 applied to the plan view.
+  Basis for the numbers in docs/literature.md (second pass, full-text OCP and Ortega et al. sources).
+- New code: `tools.pareto.recommend_marginal_return` (pure function; returns index, rule, steps with returns, front, and whether the
+  threshold and objective are met) and `tools.pareto.capacity_ratios`; `recommend` and `knee_index` kept but unused in reports.
+  `tools.report.draw_requirements` draws the budget, threshold and objective lines with the two windows, used by all three comparison plots.
+- Level 1 at 5 kPa: 672 designs screened, 258 feasible; the 1D front within budget has 8 points, so 8 designs were solved with CFD.
+  1D vs CFD on R_th: mean |difference| 1.1%, max 2.9%, mean signed +0.4%. All confidence checks pass.
+- Rule steps on the Level 1 CFD front (eligible front: 0.50, 0.42, 0.36, 0.30 mm channels):
+  from 0.50 / 0.44 / 4.0 mm (17.12 mK/W at 0.86 kPa): returns 0.331 to 0.42 mm, 0.222 to 0.36 mm, 0.207 to 0.30 mm → move to 0.42 mm;
+  from 0.42 / 0.44 / 4.0 mm (14.93 mK/W at 1.29 kPa): returns 0.141 to 0.36 mm, 0.159 to 0.30 mm → stop.
+  Recommended: 0.42 / 0.44 / 4.0 mm, 14.93 mK/W at 1.29 kPa (the same design as under Amendment 1), meets the objective,
+  interface 54.9 °C average. Capacity at the 20 K rise 1.34 kW, 1.04 kW per kPa, 30.9 kW per pumping W.
+- Reference designs: lowest ΔP meeting the threshold 0.50 / 0.44 / 4.0 mm (17.12 mK/W, 0.86 kPa); lowest ΔP meeting the objective is the
+  recommended design; lowest R_th within 5 kPa 0.30 / 0.26 / 2.5 mm (12.58 mK/W, 3.79 kPa). The 0.60 mm design (20.05 mK/W at 0.57 kPa)
+  misses the threshold by 0.3%; had it qualified, its return to 0.50 mm is 0.39, so the walk would end at the same design.
+- Slot jets (plot redrawn, no re-solve): best 23.76 mK/W at 0.49 kPa; no case meets the 20 mK/W threshold.
+- Plan view, H / min gap ≤ 10 (gap = true minimum distance between solids): of the 63 original designs, 36 break it (straight 6,
+  sinusoidal 4, zigzag 4, offset strip 7, circular pins 7, diamond pins 8). Offset strips (3 eligible), circular pins (4) and diamond
+  pins (2) fell below 5, so 15 designs were added at H = 2–4 mm with gaps ≥ H/10 (`--extend` solved only those, all converged, 1–11 s
+  each, energy balance ≤ 0.49%). Eligible now: 6, 6, 6, 8, 8, 8 of 78 converged.
+- Per-topology picks (marginal return, plan-view numbers): straight w 0.4 / t 0.4 / H 4 → 13.36 mK/W at 1.31 kPa (one step from w 0.5,
+  return 0.283); sinusoidal w 0.4, amp 0.3, λ 4 → 13.58 at 1.54 (single-point eligible front); zigzag w 0.4, amp 0.3, λ 4 → 13.44 at 1.46;
+  offset strip l 2.0 / t 0.4 / p_t 1.6 → 18.36 at 0.50 (stops at its first point: every return 0.19–0.23; misses the objective);
+  circular pins d 0.4 / S_T 0.8 / S_L 0.9 → 12.65 at 1.42 (two steps); diamond pins s 0.4 / S_T 1.0 / S_L 0.7 → 12.28 at 2.51.
+- Cross-topology pick: circular pins d 0.4, S_T 0.8, S_L 0.9, H 4 → 12.65 mK/W at 1.42 kPa, meets the objective; path
+  offset strip (0.50 kPa) → straight w 0.5 (0.75 kPa, e 0.404) → pins S_T 1.0 / S_L 0.9 (0.80 kPa, e 0.822) → S_T 0.9 / S_L 0.9
+  (1.03 kPa, e 0.309) → S_T 0.8 / S_L 0.9 (1.42 kPa, e 0.264) → stop (best further 0.230). The 0.822 step joins two points 6% apart in ΔP;
+  the nearest-qualifying rule would have taken that step at any return above 0.25, so it does not change the pick.
+- Circular pins against the eligible straight front at equal ΔP: −3.1% (0.80 kPa), −3.7% (1.03), −2.6% (1.37), −4.1% (1.42), −5.8% (1.86).
+  The eligible straight front ends at 3.10 kPa (w 0.3 / t 0.3 / H 3), so there is no comparison above that. Best within 5 kPa:
+  pins 10.61 mK/W (d 0.3, H 3, 4.19 kPa) vs straight 11.63 (3.10 kPa). Wavy fins +2.4 to +4.3%, diamond pins +2 to +7%, offset strips
+  +2 to +12%. The pin advantage remains inside the plan view's own 6% tall-fin bias.

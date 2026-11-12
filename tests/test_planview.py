@@ -8,7 +8,8 @@ from level2.planview import network, run_design, superficial_velocity
 from tools.fluids import fluid_props
 from tools.types import Requirements
 
-REQ = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 6e3, "PG25", r_th_target_k_per_w=15e-3)
+REQ = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 5e3, "PG25", r_th_threshold_k_per_w=20e-3,
+                   r_th_objective_k_per_w=15e-3)
 
 
 def test_straight_geometry():

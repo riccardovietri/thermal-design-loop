@@ -95,3 +95,31 @@ Adds to scope; everything above stands.
   pressure gradient and heat-transfer coefficient, put into the Level 1 resistance network (base + convection with fin efficiency
   + coolant heating). Entrance effects excluded, as in Level 1.
 - **Level 1 pipeline unchanged** (`run_study.py`, `tools/`).
+
+## Amendment 3 (2026-11-11, approved by Riccardo)
+Supersedes the ΔP-budget, thermal-target and recommendation items of Amendment 1 (and their use in Amendment 2); everything else stands.
+1. **Rated flow** stays 1.5 LPM.
+2. **Two-tier thermal requirement:** threshold R_th ≤ 20 mK/W (must meet) and objective R_th ≤ 15 mK/W (want). This replaces the
+   single 15 mK/W target.
+3. **Pressure budget:** channel-core ΔP ≤ 5 kPa at rated flow (replaces 6 kPa), one third of a 15 kPa whole-plate allocation.
+4. **Recommendation by marginal return** (replaces "lowest ΔP that meets the target" and the knee):
+   - Candidates are the CFD-verified designs with ΔP ≤ budget and R_th ≤ threshold. Take their non-dominated front, sorted by ΔP
+     ascending.
+   - Start at the lowest-ΔP front point. From the current point i, look at every front point j further along and compute the
+     return e(i→j) = −ln(R_j / R_i) / ln(ΔP_j / ΔP_i). If any j has e ≥ the cut-off, move to the nearest such j and repeat.
+     Stop when no further point gives e ≥ the cut-off relative to the current point, and recommend the point where the walk stopped.
+   - The cut-off is 0.25 (a doubling of ΔP must buy at least about 16% lower R_th); it is set in the requirements file as
+     `marginal_return_cutoff`.
+   - The report states whether the recommended design meets the objective.
+   - If no design meets the threshold within budget, the lowest R_th within budget is recommended and the report says clearly that
+     the threshold is not met. If no design is within budget, the study stops with an error.
+   - The rule is a pure function in `tools/pareto.py` that returns the index, the rule name and the steps taken with their returns.
+     The old `recommend` and `knee_index` functions stay in the code but are no longer used in the reports.
+5. **Extra columns for every CFD-verified design** in the reports and results JSON: capacity_kw = threshold × heat load / R_th / 1000
+   (the heat load the design could carry at the threshold base-to-inlet rise, 20 K at 1 kW); capacity_kw_per_kpa = capacity_kw / ΔP
+   in kPa; kw_per_pumping_w = heat load / (ΔP × volumetric flow) / 1000, using hydraulic power. The definitions are stated in the
+   report, with a note that both ratios always favour the lowest ΔP inside the window, which is why they are reported and not used
+   to choose.
+6. **Level 1 aspect-ratio limit H / gap ≤ 10 applies to the plan-view results** as well. Designs that break it are excluded from the
+   fronts and the recommendation and listed as excluded with the reason. Solves are not repeated for this; a topology left with
+   fewer than 5 eligible designs gets added designs to restore about 8.

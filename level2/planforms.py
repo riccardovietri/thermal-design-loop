@@ -104,7 +104,7 @@ def _check(pf: Planform, strict: bool) -> Planform:
 
 
 def _channel_aspect_note(w: float, h_fin: float) -> tuple:
-    return (f"channel aspect H/w = {h_fin / w:.1f} > 10 (Level 1 skiving limit, not applied here)",) if h_fin / w > 10 + 1e-9 else ()
+    return (f"channel aspect H/w = {h_fin / w:.1f} > 10 (Level 1 skiving limit; excluded from plan-view fronts)",) if h_fin / w > 10 + 1e-9 else ()
 
 
 # --------------------------------------------------------------------------------------------------------------------
