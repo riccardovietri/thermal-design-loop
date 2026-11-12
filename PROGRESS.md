@@ -1,26 +1,23 @@
 # PROGRESS
 
 ## Resume here
-Levels 1 and 2 and SPEC Amendment 1 are merged to `main`. Plan-view Level 2 for fin planforms (SPEC Amendment 2: sinusoidal,
-zigzag, offset strips, circular and diamond pins) is on `feat/planview-topologies` as a pull request awaiting Riccardo's review.
-Headline: in the plan view (tall-fin limit), staggered circular pins beat straight fins by 1–7% at equal ΔP; wavy fins and offset
-strips do not beat straight fins in 2D; every topology meets 15 mK/W within 6 kPa.
-Next: (1) Riccardo reviews the plan-view pull request and the open questions below; (2) blog post on the fidelity ladder;
+SPEC Amendment 3 (threshold 20 / objective 15 mK/W, 5 kPa budget, marginal-return rule with cut-off 0.25, capacity ratios,
+H / gap ≤ 10 in the plan view) is on `feat/threshold-objective-criteria` as a pull request awaiting Riccardo's review.
+Headline: Level 1 still recommends 0.42 / 0.44 / 4.0 mm (14.93 mK/W at 1.29 kPa, meets the objective); across plan-view topologies the
+rule picks circular pins d 0.4, S_T 0.8, S_L 0.9 mm (12.65 mK/W at 1.42 kPa), 2.6–5.8% below straight fins at equal ΔP, inside the
+plan view's 6% tall-fin bias. No slot-jet case meets the 20 mK/W threshold.
+Next: (1) Riccardo reviews the pull request and the open questions below; (2) blog post on the fidelity ladder;
 (3) final repo name, make public; (4) LinkedIn post.
 
 ## Open questions for Riccardo
-- Plan view: the recommended pick (circular pins d 0.4, S_T 1.0, S_L 0.9, H 4 → 14.90 mK/W at 0.80 kPa) has a 0.7% margin and the
-  plan view reads R_th 5.7% low on straight fins (no floor or cover). Treat the pin advantage (1–7%) as unconfirmed until a 3D or
-  end-wall check? A margin on the target would move the pick to straight 0.4/0.4 mm (13.4 mK/W at 1.31 kPa) or pins S_T 0.8.
-- Plan view: apply Level 1's H/w ≤ 10 to plan-view designs too? Not applied now (brief lists H/t ≤ 10 only); it affects
-  straight w ≤ 0.3 mm at H = 4 and the sinusoidal/zigzag w = 0.2–0.3 designs.
-- Plan view: wavy fins are understated in 2D (no Dean vortices); worth a 3D check before ruling them out?
+- Plan view: the pin advantage (2.6–5.8% at equal ΔP) is smaller than the plan view's tall-fin bias measured on straight fins (−5.7% on
+  R_th, no floor or cover). Treat it as unconfirmed until a 3D or end-wall check?
 - Pins at Re_d,max 50–136 may shed vortices; steady symmetric solutions were computed. Accept, or add an unsteady check?
-- Next topology: manifold microchannels (jets feeding short fin channels) via a depth-averaged 2D model, validated against Level 1
-  in the long-channel limit? Supported by docs/literature.md; needs Riccardo's OK as new scope.
-- The recommended design meets 15 mK/W with a 0.5% margin (14.93 mK/W) and misses it at 1.0 LPM (17.4 mK/W). Is a margin
-  needed on the target (e.g. for entrance effects, manifolds or tolerance), which would move the pick to 0.36 mm channels (13.8 mK/W at 2.3 kPa)?
-- Slot jets on a flat base cannot reach 15 mK/W at ≥ 0.1 mm gaps (best 23.8 mK/W). Drop them, or try jets onto a finned base?
+- Marginal-return rule on the offset strips stops at the first eligible point (all returns 0.19–0.23 < 0.25), so the per-topology
+  pick (18.4 mK/W) misses the objective while other offset designs meet it. Acceptable as stated, or should a pick that misses the
+  objective walk on to the lowest-ΔP point meeting it?
+- Non-straight planforms have no known volume process at 0.15 mm in copper (ASSUMPTIONS V11). Keep them as a modelling comparison only?
+- Next topology: manifold microchannels via a depth-averaged 2D model? Needs Riccardo's OK as new scope.
 
 ## Done
 - 2026-11-10: M0 spec frozen, toolchain validated (0.007% vs Shah & London).
@@ -37,13 +34,18 @@ Next: (1) Riccardo reviews the plan-view pull request and the open questions bel
 - 2026-11-11: SPEC Amendment 2, plan-view Level 2 for fin planforms (`level2/planforms.py`, `level2/planview.py`,
   `level2/planview_sweep.py`, `validation/level2_planview_straight.py`); gates G1–G3 pass; 63 designs, all converged.
   `uv run pytest` → 30 passed.
+- 2026-11-11: SPEC Amendment 3: two-tier R_th (20 / 15 mK/W), 5 kPa budget, `tools.pareto.recommend_marginal_return` (cut-off 0.25)
+  and `capacity_ratios`, new report columns and step table, plots with threshold and objective windows; plan view: H / gap ≤ 10
+  applied (36 designs excluded), 15 designs added (78 converged), per-topology and cross-topology picks in
+  `examples/output/level2_planview/summary.md`. `uv run pytest` → 38 passed.
 
 ## Result of the example study
-Rated flow 1.5 LPM, 672 designs screened (273 feasible within 6 kPa), 9 solved. 1D vs CFD on R_th: mean |diff| 1.1%, max 2.9%.
+Rated flow 1.5 LPM, 672 designs screened (258 feasible within 5 kPa), 8 solved. 1D vs CFD on R_th: mean |diff| 1.1%, max 2.9%.
 All confidence checks pass.
-Recommended (`meets_target_lowest_dp`): 0.42 mm channels, 0.44 mm fins, 4.0 mm tall → 14.9 mK/W at 1.29 kPa, interface 54.9 °C average.
-Knee (secondary): 0.50 / 0.44 / 4.0 mm → 17.1 mK/W at 0.86 kPa. Lowest R_th in budget: 0.25 / 0.26 / 2.5 mm → 11.3 mK/W at 5.75 kPa.
-Slot jets at 1.5 LPM with ≥ 0.1 mm features: best 23.8 mK/W at 0.49 kPa; none meets the target.
+Recommended (`marginal_return`, cut-off 0.25): 0.42 mm channels, 0.44 mm fins, 4.0 mm tall → 14.93 mK/W at 1.29 kPa, meets the
+objective, interface 54.9 °C average. Steps: from 0.50 mm (17.12 mK/W, 0.86 kPa) return 0.331 → 0.42 mm; further returns 0.141 and 0.159 → stop.
+Lowest ΔP meeting the threshold: 0.50 / 0.44 / 4.0 mm → 17.12 mK/W at 0.86 kPa. Lowest R_th in budget: 0.30 / 0.26 / 2.5 mm → 12.58 mK/W at 3.79 kPa.
+Slot jets at 1.5 LPM with ≥ 0.1 mm features: best 23.8 mK/W at 0.49 kPa; none meets the 20 mK/W threshold.
 
 ## Open items
 - Merge policy (Riccardo agreed 11/10): branch per milestone, pull request into `main`, merge when CI passes.

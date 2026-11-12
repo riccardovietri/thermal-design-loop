@@ -19,7 +19,8 @@ Instructions for any coding agent (or person) picking this project up cold.
 - `uv run python -m level2.slot_jet --slot_mm 0.3 --gap_mm 0.6 --pitch_mm 6 --flow_lpm 1.5` — one slot-jet case with a field plot.
 - `uv run python validation/level2_planview_straight.py` — plan-view gates G1–G3 on straight fins, about 3 s.
 - `uv run python -m level2.planview_sweep` — plan-view checks (mesh, periodicity, developing strip, field figures, about 6 min) and the
-  63-design topology sweep with the comparison plot (about 4 min); `--checks`, `--sweep`, `--plot-only` run parts.
+  78-design topology sweep with the comparison plot and `summary.md` (about 5 min); `--checks`, `--sweep`, `--plot-only` run parts;
+  `--extend` solves only designs not yet in `results.json`.
 - `uv run python -m level2.sweep` — slot-jet mesh study, the 18-case sweep at rated flow and the comparison plot with fins, 10–20 minutes.
 
 ## Rules

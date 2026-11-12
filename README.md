@@ -15,7 +15,8 @@ uv run python run_study.py examples/gpu_coldplate.yaml
 ## The problem
 
 A 1 kW chip on a 60 × 60 mm copper cold plate, cooled by 25% propylene glycol at 40 °C. At a rated flow of 1.5 LPM, with a channel-core
-pressure budget of 6 kPa and a target of 15 mK/W, which fin geometry meets the target for the least pressure drop, and how far can a hand-calculation-level model be trusted to answer that?
+pressure budget of 5 kPa, a thermal-resistance threshold of 20 mK/W that must be met and an objective of 15 mK/W, which fin geometry
+is worth its pressure drop, and how far can a hand-calculation-level model be trusted to answer that?
 
 ## How it works
 
@@ -31,17 +32,23 @@ flowchart LR
    combination of channel width, fin thickness and fin height at rated flow, and discards designs that break the pressure or manufacturing limits.
 2. **Verify.** Up to ten designs spread along the 1D Pareto front are solved with a 2D conjugate finite-element model of the channel cross-section
    (gmsh + scikit-fem): fluid velocity, and temperature in the fluid, fin and base together.
-3. **Decide.** Mesh independence, solver residual and energy balance are checked and reported. Among CFD-verified designs that meet both the pressure budget and the
-   thermal target, the one with the lowest pressure drop is recommended; if none meets the target, the lowest resistance within budget.
-   The knee of the front is reported as secondary information.
+3. **Decide.** Mesh independence, solver residual and energy balance are checked and reported. Among CFD-verified designs within the
+   pressure budget that meet the threshold, the rule starts at the lowest pressure drop and moves along the front while a further design
+   returns at least 0.25 in log-log terms (a doubling of pressure drop must buy at least about 16% lower resistance); it recommends the point
+   where that stops and says whether it meets the objective. If nothing meets the threshold, the lowest resistance within budget is
+   recommended and flagged.
 
 ## What it found
 
 | | Channel / fin / height | R_th | ΔP |
 |---|---|---|---|
-| Recommended (lowest ΔP meeting 15 mK/W) | 0.42 / 0.44 / 4.0 mm | 14.9 mK/W | 1.29 kPa |
-| Knee of the CFD front (secondary) | 0.50 / 0.44 / 4.0 mm | 17.1 mK/W | 0.86 kPa |
-| Lowest resistance in budget | 0.25 / 0.26 / 2.5 mm | 11.3 mK/W | 5.75 kPa |
+| Recommended (marginal return, meets the 15 mK/W objective) | 0.42 / 0.44 / 4.0 mm | 14.9 mK/W | 1.29 kPa |
+| Lowest ΔP meeting the 20 mK/W threshold | 0.50 / 0.44 / 4.0 mm | 17.1 mK/W | 0.86 kPa |
+| Lowest resistance within 5 kPa | 0.30 / 0.26 / 2.5 mm | 12.6 mK/W | 3.79 kPa |
+
+From the 0.50 mm design, moving to 0.42 mm channels returns 0.33 (14% lower resistance for 1.5× the pressure drop); going further
+returns 0.14–0.16, below the 0.25 cut-off, so the rule stops there. The report lists every step, and for each design the heat load it
+could carry at a 20 K rise (1.34 kW for the recommended one) and the heat moved per watt of pumping power.
 
 All at the 1.5 LPM rated flow. The recommended design averages 54.9 °C at the chip interface; at 1.0 LPM it rises to 17.4 mK/W
 (57.4 °C), at 2.0 LPM it falls to 13.7 mK/W (53.7 °C).
@@ -55,23 +62,27 @@ For straight fins in laminar flow, a correct 1D model is enough; the CFD is the 
 Full output: [`examples/output/gpu_coldplate/report.md`](examples/output/gpu_coldplate/report.md).
 
 Level 2 (`level2/`, 2D planar Navier-Stokes) tests confined slot-jet arrays on a flat base at the same flow, with jet gaps and slots
-of at least 0.1 mm: the best reaches 23.8 mK/W at 0.49 kPa, so none meets the target
+of at least 0.1 mm: the best reaches 23.8 mK/W at 0.49 kPa, so none meets the 20 mK/W threshold
 ([comparison](examples/output/level2_slot_jet/pareto_compare.png)).
 
 ## More topologies
 
 Level 2 also has a plan-view model (`level2/planview.py`): 2D Navier-Stokes and energy in the plane of the fin layer for
 sinusoidal and zigzag channels, offset strip fins and staggered circular and diamond pins, solved as developed-periodic cells and put
-into the same resistance network as Level 1, at the same 1.5 LPM, footprint and 0.15 mm manufacturing limits.
+into the same resistance network as Level 1, at the same 1.5 LPM, footprint and 0.15 mm manufacturing limits, with fin height at most
+10 times the narrowest gap.
 
 ![Fin planforms at equal flow](examples/output/level2_planview/pareto_topologies.png)
 
-The honest headline: staggered circular pins are the best planform in this model, but only by 1–7% at equal pressure drop,
-and the recommended pin design (14.9 mK/W at 0.80 kPa) meets the target with a 0.7% margin in a model that reads 6% low on straight
-fins because it has no floor or cover. Wavy fins and offset strips do not beat straight fins here: in 2D a wavy channel at these
+The honest headline: staggered circular pins are the best planform in this model, but only by 3–6% at equal pressure drop,
+which is inside the 6% this model reads low on straight fins because it has no floor or cover. The same marginal-return rule picks
+pins of 0.4 mm diameter at 0.8 × 0.9 mm pitch (12.7 mK/W at 1.42 kPa) across all topologies, and 0.4 mm straight fins and channels
+(13.4 mK/W at 1.31 kPa) among straight fins. Nobody has shown a volume process for 0.15 mm pin or wavy features in copper, so a
+non-straight pick carries manufacturing risk this model does not assess. Wavy fins and offset strips do not beat straight fins here: in 2D a wavy channel at these
 Reynolds numbers adds pressure drop without new flow structure (the Dean vortices that help real wavy fins are 3D), and the 0.15 mm
 gap between strip rows halves the fin density. Straight fins remain a sound choice; pins are worth a 3D check.
-Field plots and all numbers: [`examples/output/level2_planview/`](examples/output/level2_planview/).
+Picks, rule steps and excluded designs: [`summary.md`](examples/output/level2_planview/summary.md); field plots and all numbers:
+[`examples/output/level2_planview/`](examples/output/level2_planview/).
 
 ## Why trust the solver
 
