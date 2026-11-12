@@ -30,6 +30,14 @@ def test_run_study_end_to_end(tmp_path):
     rec = results["recommended"]
     assert (tmp_path / "runs" / rec / "results.json").exists()
     assert all(d["cfd"]["dp_pa"] <= cfg["requirements"]["dp_budget_kpa"] * 1e3 for d in results["designs"])
-    assert results["rule"] in ("meets_target_lowest_dp", "fallback_lowest_r_th")
+    assert results["rule"] in ("marginal_return", "fallback_lowest_r_th")
+    assert results["r_th_threshold_k_per_w"] == pytest.approx(cfg["requirements"]["r_th_threshold_mk_w"] / 1e3)
+    assert results["marginal_return_cutoff"] == cfg["requirements"]["marginal_return_cutoff"]
+    if results["rule"] == "marginal_return":
+        assert results["selection_steps"][-1]["from"] == rec and results["selection_steps"][-1]["to"] is None
+    for d in results["designs"]:
+        r = d["ratios"]
+        assert r["capacity_kw"] == pytest.approx(results["r_th_threshold_k_per_w"] / d["cfd"]["r_th_k_per_w"])
+        assert r["kw_per_pumping_w"] == pytest.approx(1.0 / (d["cfd"]["dp_pa"] * 1.5e-3 / 60))
     assert [r["flow_lpm"] for r in results["flow_sensitivity"]] == [1.0, 1.5, 2.0]
     assert f"`{results['rule']}`" in (tmp_path / "out" / "report.md").read_text()
