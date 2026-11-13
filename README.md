@@ -1,12 +1,20 @@
-# Cold-plate design loop
+# Thermal design loop
 
-An engineer's design loop for a liquid cold plate, automated end to end: a 1D physics model screens a thousand designs,
-a CFD model checks the ten that matter, and the output is a Pareto front, a recommendation and the evidence for trusting it.
+A design loop for a liquid cold plate, run the way a thermal engineer would: a 1D physics model screens 672 fin geometries,
+a conjugate CFD model checks the 8 along the Pareto front, and the output is a recommendation with the evidence for trusting it.
 
 ![Thermal resistance vs pressure drop](examples/output/gpu_coldplate/pareto.png)
 
-*Straight fins at the rated 1.5 LPM. Grey dots: the 1D screen; blue: designs checked with CFD; ring: the recommendation.
-Shading marks the 5 kPa budget with the 20 mK/W threshold (light) and the 15 mK/W objective (darker).*
+| | |
+|---|---|
+| **Operating point** | 1 kW over 60 × 60 mm, 25% propylene glycol at 40 °C inlet, 1.5 LPM |
+| **Requirement** | Channel pressure drop ≤ 5 kPa; thermal resistance ≤ 20 mK/W (must), ≤ 15 mK/W (objective) |
+| **Recommended design** | Straight copper fins: 0.42 mm channels, 0.44 mm fins, 4.0 mm tall. 14.9 mK/W at 1.29 kPa |
+| **1D screen vs CFD** | Thermal resistance agrees within 1.1% on average, 2.9% at worst |
+| **Main limitation** | Fully developed 2D flow: no entrance effects, manifolds or flow maldistribution, and no comparison with a measurement yet |
+
+*Grey dots: the 1D screen; blue: designs checked with CFD; ring: the recommendation. Shading marks the 5 kPa budget with the
+20 mK/W threshold (light) and the 15 mK/W objective (darker).*
 
 One command, about three seconds on a laptop, no LLM in the loop:
 
