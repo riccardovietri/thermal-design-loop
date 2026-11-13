@@ -3,6 +3,7 @@
 Instructions for any coding agent (or person) picking this project up cold.
 
 ## Read in this order
+0. `docs/work-plan.md` — scoped instructions and order for the open issues.
 1. `PROGRESS.md` — "Resume here" says what to do next. Update it at the end of every working session.
 2. `SPEC.md` — frozen scope. Do not change it without Riccardo's OK; propose scope changes in one line with the reason.
 3. `PLAN.md` — milestones and acceptance checks.
