@@ -3,12 +3,10 @@ import argparse
 import json
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.tri import Triangulation
+
+from . import plotstyle as ps
 
 
 def plot_fields(run_dir: Path, out_path: Path, n_channels_shown: int = 3) -> Path:
@@ -24,31 +22,28 @@ def plot_fields(run_dir: Path, out_path: Path, n_channels_shown: int = 3) -> Pat
     d = inp["design"]
     pitch = (d["w_ch_m"] + d["t_fin_m"]) * 1e3
 
-    fig, axes = plt.subplots(1, 2, figsize=(9, 6.5), constrained_layout=True)
-    panels = [(w, "viridis", "Axial velocity (m/s)", ~fluid), (temp, "inferno", "Temperature at mid-length (°C)", None)]
-    for ax, (val, cmap, label, mask) in zip(axes, panels):
-        levels = np.linspace(val.min(), val.max(), 25)
+    fig, axes = ps.figure(5.6, 1, 2, sharey=True)
+    panels = [(w, "viridis", "Axial velocity (m/s)", "Coolant velocity", ~fluid),
+              (temp, "inferno", "Temperature (°C)", "Temperature at mid-length", None)]
+    for ax, (val, cmap, label, title, mask) in zip(axes, panels):
+        lo, hi = float(val.min()), float(val.max())
         for k in range(n_channels_shown):
             for sign in (-1, 1):
                 tri = Triangulation(k * pitch + pitch / 2 + sign * (pitch / 2 - p[0]), p[1], t, mask=mask)
-                cs = ax.tricontourf(tri, val, levels=levels, cmap=cmap)
+                cs = ax.tricontourf(tri, val, levels=ps.field_levels(lo, hi), cmap=cmap)
         if mask is not None:
-            ax.set_facecolor("#b87333")
+            ax.set_facecolor(ps.COPPER)
         ax.set_aspect("equal")
         ax.set_xlim(0, n_channels_shown * pitch)
         ax.set_xlabel("x (mm)")
-        ax.set_ylabel("y from chip interface (mm)")
-        fig.colorbar(cs, ax=ax, label=label, shrink=0.8)
-    fig.suptitle(
-        f"{d['w_ch_m']*1e3:.2f} mm channels, {d['t_fin_m']*1e3:.2f} mm fins, {d['h_fin_m']*1e3:.1f} mm tall, "
-        f"{d['flow_lpm']:.1f} LPM {inp['fluid']['name']}\n"
-        f"Re = {res['reynolds']:.0f}, ΔP = {res['dp_pa']/1e3:.2f} kPa, R_th = {res['r_th_k_per_w']*1e3:.1f} mK/W",
-        fontsize=11,
-    )
+        ax.set_title(title, fontsize=11.5)
+        ps.no_grid(ax)
+        ps.colorbar(fig, cs, ax, label, lo, hi, shrink=0.9)
+    axes[0].set_ylabel("Height above chip interface (mm)")
+    fig.suptitle(f"Straight fins: {d['w_ch_m']*1e3:.2f} mm channels, {d['t_fin_m']*1e3:.2f} mm fins, {d['h_fin_m']*1e3:.1f} mm tall")
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=200)
-    plt.close(fig)
+    ps.save(fig, out_path)
     return out_path
 
 

@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from level2.planforms import GeometryRejected, mesh_planform, offset_strip, pin_circle, pin_diamond, sinusoidal, straight, zigzag
-from level2.planview import network, run_design, superficial_velocity
+from level2.planview import describe, network, run_design, superficial_velocity
 from tools.fluids import fluid_props
 from tools.types import Requirements
 
@@ -111,3 +111,8 @@ def test_periodic_mesh_heated_length():
     length = np.sum(np.linalg.norm(pm.mesh.p[:, f[0]] - pm.mesh.p[:, f[1]], axis=0))
     assert length == pytest.approx(2 * math.pi * 0.4, rel=2e-3)  # polygonal circle
     assert pm.cuts.tolist() == pytest.approx([0.0, 1.2, 2.4])
+
+
+def test_describe_uses_plain_words():
+    assert describe("pin_circle", {"d": 0.4, "s_t": 0.8, "s_l": 0.9, "h_fin": 4.0}) == "Circular pins, 0.4 mm diameter, 0.8 × 0.9 mm pitch"
+    assert describe("straight", {"w": 0.4, "t": 0.4, "h_fin": 4.0}) == "Straight fins, 0.4 mm channels, 0.4 mm fins"

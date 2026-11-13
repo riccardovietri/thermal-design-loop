@@ -3,7 +3,8 @@ import json
 import pytest
 import yaml
 
-from run_study import run_study
+from run_study import plot_only, run_study
+from tools.plotstyle import round_ticks
 from tools.report import parity_stats
 
 
@@ -41,3 +42,16 @@ def test_run_study_end_to_end(tmp_path):
         assert r["kw_per_pumping_w"] == pytest.approx(1.0 / (d["cfd"]["dp_pa"] * 1.5e-3 / 60))
     assert [r["flow_lpm"] for r in results["flow_sensitivity"]] == [1.0, 1.5, 2.0]
     assert f"`{results['rule']}`" in (tmp_path / "out" / "report.md").read_text()
+    before = (tmp_path / "out" / "results.json").read_bytes()
+    for name in ("pareto.png", "parity.png", "fields_recommended.png"):
+        (tmp_path / "out" / name).unlink()
+    plot_only(path, tmp_path / "out", tmp_path / "runs")
+    for name in ("pareto.png", "parity.png", "fields_recommended.png"):
+        assert (tmp_path / "out" / name).stat().st_size > 0
+    assert (tmp_path / "out" / "results.json").read_bytes() == before
+
+
+def test_round_ticks():
+    assert round_ticks(41.92, 54.93) == [42.5, 45.0, 47.5, 50.0, 52.5]
+    assert round_ticks(0.0, 0.194, min_ticks=3) == pytest.approx([0.0, 0.05, 0.1, 0.15])
+    assert all(40.0 <= t <= 188.0 for t in round_ticks(40.0, 188.0))
