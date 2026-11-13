@@ -4,6 +4,14 @@ Requirements (SPEC Amendment 3): ΔP ≤ 5 kPa, threshold R_th ≤ 20 mK/W (must
 
 Rule: from the lowest-ΔP point of the eligible front (within budget and threshold), move to the nearest further point whose return e = −ln(R_j/R_i) / ln(ΔP_j/ΔP_i) is at least the cut-off; stop when none is. Capacity = threshold × heat load / R_th; kW per pumping W = heat load / (ΔP × flow). Both ratios always favour the lowest ΔP inside the window, which is why they are reported and not used to choose.
 
+![Pareto front of each fin planform](pareto_topologies.png)
+
+Each line is one planform's Pareto front over its eligible designs, at 1.5 LPM PG25 at 40 °C, 1 kW over 60 × 60 mm, copper, 2 mm base, features and gaps ≥ 0.15 mm, H / t ≤ 10 and H / gap ≤ 10. The ring marks the design the rule picks across all planforms. Not drawn: designs off the fronts, and the 36 designs excluded because their fins are taller than 10 × the narrowest gap. Shading: within the budget and the threshold (light), within the budget and the objective (darker). The model is 2D Navier-Stokes in the plane of the fin layer (tall-fin limit, developed periodic flow) plus a resistance network. It has no floor or cover: on straight fins it reads ΔP 7% and R_th 6% below the Level 1 cross-section CFD, so a gap between planforms smaller than that is not resolved.
+
+![Each fin planform against straight fins](pareto_topologies_panels.png)
+
+One panel per planform: its eligible designs (markers) and Pareto front in colour, the straight-fin front in grey, and the planform's own pick (ring). Faint hollow markers are designs of that planform excluded by H / gap > 10. Same axes, budget, threshold and objective in every panel.
+
 ## Per topology
 
 | Topology | Eligible / converged | Excluded (H/gap > 10) | Pick | R_th (mK/W) | ΔP (kPa) | Objective met | Capacity (kW) | kW per kPa | kW per pumping W |
@@ -115,3 +123,31 @@ Pick: `pin_circle_d0400_s_t0800_s_l0900_h_fin4000` (Pins, circular), 12.65 mK/W 
 | `pin_diamond_s0400_s_t0900_s_l0900_h_fin4000` | H / min gap = 4 / 0.334 = 12.0 > 10 |
 | `pin_diamond_s0400_s_t1100_s_l0500_h_fin4000` | H / min gap = 4 / 0.342 = 11.7 > 10 |
 | `pin_diamond_s0300_s_t0600_s_l0450_h_fin3000` | H / min gap = 3 / 0.176 = 17.1 > 10 |
+
+## Field plots
+
+One design per planform, solved as a developed periodic cell and tiled over a few periods; fins are grey. Top: speed with streamlines. Bottom: temperature above the local mean bulk temperature (velocity-weighted) under a uniform wall heat flux, the periodic part only. All at 1.5 LPM PG25. Pin pitch is transverse × streamwise.
+
+![Straight fins, 0.4 mm channels, 0.4 mm fins](fields_straight.png)
+
+Straight fins, 0.4 mm channels, 0.4 mm fins, 4 mm tall: Re_Dh = 121 (Dh = 0.800 mm), dp/dx = 21.8 kPa/m, h = 4.9 kW/m²K, wall flux 3.4 W/cm² → ΔP 1.31 kPa, R_th 13.4 mK/W.
+
+![Sinusoidal fins, 0.4 mm channels, 0.4 mm fins, 0.3 mm amplitude, 2 mm wavelength](fields_sinusoidal.png)
+
+Sinusoidal fins, 0.4 mm channels, 0.4 mm fins, 0.3 mm amplitude, 2 mm wavelength, 4 mm tall: Re_Dh = 133 (Dh = 0.800 mm), dp/dx = 46.4 kPa/m, h = 4.5 kW/m²K, wall flux 3.6 W/cm² → ΔP 2.79 kPa, R_th 14.3 mK/W.
+
+![Zigzag fins, 0.4 mm channels, 0.4 mm fins, 0.3 mm amplitude, 2 mm wavelength](fields_zigzag.png)
+
+Zigzag fins, 0.4 mm channels, 0.4 mm fins, 0.3 mm amplitude, 2 mm wavelength, 4 mm tall: Re_Dh = 124 (Dh = 0.800 mm), dp/dx = 37.3 kPa/m, h = 4.6 kW/m²K, wall flux 3.4 W/cm² → ΔP 2.24 kPa, R_th 13.9 mK/W.
+
+![Offset strip fins, 1 mm long, 0.4 mm thick, 1.2 mm lateral pitch](fields_offset_strip.png)
+
+Offset strip fins, 1 mm long, 0.4 mm thick, 1.2 mm lateral pitch, 4 mm tall: Re_Dh = 129 (Dh = 1.143 mm), dp/dx = 49.9 kPa/m, h = 7.2 kW/m²K, wall flux 4.3 W/cm² → ΔP 2.99 kPa, R_th 12.4 mK/W.
+
+![Circular pins, 0.4 mm diameter, 0.7 × 0.6 mm pitch](fields_pin_circle.png)
+
+Circular pins, 0.4 mm diameter, 0.7 × 0.6 mm pitch, 4 mm tall: Re_Dh = 101 (Dh = 0.937 mm), dp/dx = 57.1 kPa/m, h = 11.3 kW/m²K, wall flux 4.5 W/cm² → ΔP 3.42 kPa, R_th 10.4 mK/W.
+
+![Diamond pins, 0.4 mm side, 0.9 × 0.7 mm pitch](fields_pin_diamond.png)
+
+Diamond pins, 0.4 mm side, 0.9 × 0.7 mm pitch, 4 mm tall: Re_Dh = 119 (Dh = 1.175 mm), dp/dx = 58.6 kPa/m, h = 9.9 kW/m²K, wall flux 4.9 W/cm² → ΔP 3.52 kPa, R_th 11.4 mK/W.
