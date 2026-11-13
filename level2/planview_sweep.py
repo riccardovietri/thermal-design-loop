@@ -5,6 +5,7 @@
     uv run python -m level2.planview_sweep --sweep      # Stage 3 only (keeps saved checks)
     uv run python -m level2.planview_sweep --extend     # solve only designs not yet in results.json, then summarise
     uv run python -m level2.planview_sweep --plot-only  # redraw from results.json
+    uv run python -m level2.planview_sweep --fields     # re-solve the six field-figure designs and redraw their figures
 
 All designs at 1.5 LPM PG25, 1 kW over 60 x 60 mm; compared at equal total flow and footprint, never at equal Re.
 Results: examples/output/level2_planview/results.json (written after every design); per-design records in
@@ -17,20 +18,18 @@ import time
 from dataclasses import asdict, replace
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.lines import Line2D
 
+from tools import plotstyle as ps
 from tools.fluids import fluid_props
 from tools.pareto import capacity_ratios, pareto_indices, recommend_marginal_return
-from tools.report import draw_requirements, plain_log_ticks
+from tools.report import draw_requirements
 from tools.types import Requirements
 
 from .planar import NewtonDivergence
 from .planforms import GeometryRejected, build
-from .planview import design_id, reynolds_b, run_design, run_developing
+from .planview import describe, design_id, reynolds_b, run_design, run_developing
 
 REQ = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 5e3, "PG25", r_th_threshold_k_per_w=20e-3,
                    r_th_objective_k_per_w=15e-3)
@@ -41,7 +40,7 @@ RUNS = Path("runs/level2_planview")
 TOPOLOGIES = ("straight", "sinusoidal", "zigzag", "offset_strip", "pin_circle", "pin_diamond")
 LABELS = {"straight": "Straight", "sinusoidal": "Sinusoidal", "zigzag": "Zigzag", "offset_strip": "Offset strip",
           "pin_circle": "Pins, circular", "pin_diamond": "Pins, diamond"}
-COLOURS = {"straight": "#1d4ed8", "sinusoidal": "#0d9488", "zigzag": "#65a30d", "offset_strip": "#c2410c",
+COLOURS = {"straight": "#374151", "sinusoidal": "#0d9488", "zigzag": "#65a30d", "offset_strip": "#2563eb",
            "pin_circle": "#7c3aed", "pin_diamond": "#db2777"}
 MARKERS = {"straight": "o", "sinusoidal": "s", "zigzag": "^", "offset_strip": "D", "pin_circle": "P", "pin_diamond": "X"}
 
@@ -112,13 +111,47 @@ def _save(data: dict) -> None:
     (OUT / "results.json").write_text(json.dumps(data, indent=2, default=float))
 
 
+def _field_record(prod) -> dict:
+    """Numbers quoted in the captions of the field figures (summary.md)."""
+    return {"design_id": prod.design_id, "params_mm": prod.params_mm, "reynolds_dh": prod.reynolds_dh, "dh_mm": prod.dh_mm,
+            "dpdx_pa_per_m": prod.dpdx_pa_per_m, "h_w_m2k": prod.h_w_m2k, "dp_pa": prod.dp_pa, "r_th_k_per_w": prod.r_th_k_per_w,
+            "wall_flux_w_m2": REQ.heat_load_w / (prod.a_floor_m2 + prod.fin_efficiency * prod.a_fin_m2), "n_unknowns": prod.n_unknowns}
+
+
+def _field_design(fluid, topo: str):
+    """Solve the representative design of one topology at production settings and draw its field figure."""
+    prod = run_design(build(topo, REPRESENTATIVE[topo][0]), REQ, fluid, FLOW_LPM, cells=CELLS, out_dir=OUT / "fields" / topo, plot=True)
+    (OUT / "fields" / topo / "fields.png").rename(OUT / f"fields_{topo}.png")
+    return prod
+
+
+def _clean_fields_dir() -> None:
+    for p in (OUT / "fields").glob("*/results.json"):
+        p.unlink()
+    for p in (OUT / "fields").glob("*"):
+        p.rmdir()
+    (OUT / "fields").rmdir()
+
+
+def run_fields(fluid) -> dict:
+    """Re-solve only the six field-figure designs (fields are not saved) and write fields.json for the captions."""
+    rec = {}
+    for topo in REPRESENTATIVE:
+        prod = _field_design(fluid, topo)
+        rec[topo] = _field_record(prod)
+        print(f"[fields] {topo:13s} dP {prod.dp_pa / 1e3:.2f} kPa R {prod.r_th_k_per_w * 1e3:.2f} mK/W -> fields_{topo}.png", flush=True)
+    _clean_fields_dir()
+    (OUT / "fields.json").write_text(json.dumps(rec, indent=2))
+    return rec
+
+
 def run_checks(fluid, data: dict) -> dict:
-    checks = {}
+    checks, fields = {}, {}
     for topo, (params, n_dev) in REPRESENTATIVE.items():
         pf = build(topo, params)
         t0 = time.perf_counter()
-        prod = run_design(pf, REQ, fluid, FLOW_LPM, cells=CELLS, out_dir=OUT / "fields" / topo, plot=True)
-        (OUT / "fields" / topo / "fields.png").rename(OUT / f"fields_{topo}.png")
+        prod = _field_design(fluid, topo)
+        fields[topo] = _field_record(prod)
         fine = run_design(pf, REQ, fluid, FLOW_LPM, cells=CELLS_FINE)
         two = run_design(pf, REQ, fluid, FLOW_LPM, cells=CELLS, n_periods=2)
         pf_dev = replace(pf, period_mm=5.0) if topo == "straight" else pf  # straight: 5 mm reporting windows
@@ -155,11 +188,8 @@ def run_checks(fluid, data: dict) -> dict:
               f"({pf_dev.period_mm:g} mm each); undershoot {prod.undershoot_rel:+.1e}  {c['seconds']:.0f}s", flush=True)
         data["checks"] = checks
         _save(data)
-    for p in (OUT / "fields").glob("*/results.json"):
-        p.unlink()
-    for p in (OUT / "fields").glob("*"):
-        p.rmdir()
-    (OUT / "fields").rmdir()
+    _clean_fields_dir()
+    (OUT / "fields.json").write_text(json.dumps(fields, indent=2))
     return checks
 
 
@@ -280,72 +310,159 @@ def summarise(data: dict) -> dict:
 
 
 X_LIM, Y_LIM = (0.3, 1.5 * REQ.dp_budget_pa / 1e3), (8.0, 1.5 * REQ.r_th_threshold_k_per_w * 1e3)
+VIEW_X, VIEW_Y = (0.3, 7.5), (9.5, 25.0)  # drawn window; every front point lies inside it
+# Overview labels placed in clear spots next to their lines (x kPa, y mK/W, ha, va); the rest go in the right margin.
+INLINE_LABELS = {"straight": (0.37, 21.3, "left", "bottom"), "offset_strip": (2.5, 14.0, "left", "bottom"),
+                 "pin_circle": (2.3, 10.6, "left", "top")}
+
+
+def _xy(rows):
+    return [r["result"]["dp_pa"] / 1e3 for r in rows], [r["result"]["r_th_k_per_w"] * 1e3 for r in rows]
+
+
+def _front(rows):
+    x, y = _xy(rows)
+    idx = sorted(pareto_indices(x, y), key=lambda i: x[i])
+    return [x[i] for i in idx], [y[i] for i in idx]
+
+
+def _log_axes(ax, x_ticks=None, y_ticks=None):
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlim(*VIEW_X)
+    ax.set_ylim(*VIEW_Y)
+    ps.plain_log_ticks(ax, *VIEW_X, "x", ticks=x_ticks)
+    ps.plain_log_ticks(ax, *VIEW_Y, "y", ticks=y_ticks)
+
+
+def _spread(values: list[float], min_gap: float) -> list[float]:
+    """Move sorted label positions apart to at least min_gap, keeping their mean."""
+    order = sorted(range(len(values)), key=lambda i: values[i])
+    pos = [values[i] for i in order]
+    for _ in range(200):
+        moved = False
+        for k in range(1, len(pos)):
+            if pos[k] - pos[k - 1] < min_gap:
+                d = (min_gap - (pos[k] - pos[k - 1])) / 2
+                pos[k - 1] -= d
+                pos[k] += d
+                moved = True
+        if not moved:
+            break
+    out = [0.0] * len(values)
+    for k, i in enumerate(order):
+        out[i] = pos[k]
+    return out
+
+
+def _eligible_and_excluded(data):
+    conv = _converged(data["designs"])
+    return [r for r in conv if not aspect_exclusion(r)], [r for r in conv if aspect_exclusion(r)]
+
+
+def _outside(rows) -> list[str]:
+    outside = []
+    for topo in TOPOLOGIES:
+        x, y = _xy([r for r in rows if r["topology"] == topo])
+        n_out = sum(not (X_LIM[0] <= a <= X_LIM[1] and Y_LIM[0] <= b <= Y_LIM[1]) for a, b in zip(x, y))
+        if n_out:
+            outside.append(f"{LABELS[topo]}: {n_out} of {len(x)} eligible outside the window")
+    return outside
 
 
 def plot(data: dict, out: Path) -> tuple[Path, list[str]]:
-    conv = _converged(data["designs"])
-    rows = [r for r in conv if not aspect_exclusion(r)]
-    excl = [r for r in conv if aspect_exclusion(r)]
-    level1 = json.loads(Path("examples/output/gpu_coldplate/results.json").read_text())["designs"]
-    l1 = [(d["cfd"]["dp_pa"] / 1e3, d["cfd"]["r_th_k_per_w"] * 1e3) for d in level1]
-    f1 = pareto_indices([p[0] for p in l1], [p[1] for p in l1])
+    """Overview: each topology's Pareto front over its eligible designs, labelled directly, and the cross-topology pick."""
+    rows, _ = _eligible_and_excluded(data)
     budget = REQ.dp_budget_pa / 1e3
-    summ = data["summary"]
-    rec = summ["recommended"]
-    outside = []
-    fig, ax = plt.subplots(figsize=(10.5, 6.2), constrained_layout=True)
-    draw_requirements(ax, X_LIM[0], Y_LIM[0], budget, REQ.r_th_threshold_k_per_w * 1e3, REQ.r_th_objective_k_per_w * 1e3, Y_LIM[1],
-                      labels_right=True)
-    ax.plot([l1[i][0] for i in f1], [l1[i][1] for i in f1], color="#111827", lw=0.8, ls=":", zorder=1,
-            label="Straight fins, Level 1 CFD front (floor + cover)")
-    ax.scatter([r["result"]["dp_pa"] / 1e3 for r in excl], [r["result"]["r_th_k_per_w"] * 1e3 for r in excl], s=22,
-               facecolors="none", edgecolors="#9ca3af", linewidths=0.8, zorder=2, label=f"Excluded: H / gap > 10 ({len(excl)} designs)")
+    rec = data["summary"]["recommended"]
+    fig, ax = ps.figure(5.8)
+    draw_requirements(ax, VIEW_X[0], VIEW_Y[0], budget, REQ.r_th_threshold_k_per_w * 1e3, REQ.r_th_objective_k_per_w * 1e3,
+                      VIEW_Y[1], labels_right=True)
+    ends = {}
     for topo in TOPOLOGIES:
-        sel = [r for r in rows if r["topology"] == topo]
-        if not sel:
+        fx, fy = _front([r for r in rows if r["topology"] == topo])
+        if not fx:
             continue
-        x = [r["result"]["dp_pa"] / 1e3 for r in sel]
-        y = [r["result"]["r_th_k_per_w"] * 1e3 for r in sel]
-        n_out = sum(not (X_LIM[0] <= a <= X_LIM[1] and Y_LIM[0] <= b <= Y_LIM[1]) for a, b in zip(x, y))
-        if n_out:
-            outside.append(f"{LABELS[topo]}: {n_out} of {len(sel)} eligible outside the window")
-        ax.scatter(x, y, s=34, color=COLOURS[topo], marker=MARKERS[topo], edgecolors="white", linewidths=0.5, zorder=3, alpha=0.9)
-        front = pareto_indices(x, y)
-        ax.plot([x[i] for i in front], [y[i] for i in front], color=COLOURS[topo], lw=1.6, zorder=2,
-                label=f"{LABELS[topo]} ({len(sel)} eligible)")
-    picks = {summ["per_topology"][t]["recommended"]["design_id"] for t in TOPOLOGIES if summ["per_topology"][t]["recommended"]}
-    pk = [r for r in rows if r["design_id"] in picks and r["design_id"] != rec["design_id"]]
-    ax.scatter([r["result"]["dp_pa"] / 1e3 for r in pk], [r["result"]["r_th_k_per_w"] * 1e3 for r in pk], s=110,
-               facecolors="none", edgecolors="#6b7280", linewidths=1.1, zorder=4, label="Per-topology pick (marginal return)")
+        ax.plot(fx, fy, color=COLOURS[topo], marker=MARKERS[topo], ms=6, lw=2.0 if topo == "straight" else 1.8,
+                mec="white", mew=0.6, zorder=3)
+        ends[topo] = (fx[-1], fy[-1])
+    # direct labels: in clear spots inside the axes where a line has one, otherwise in the right margin at the height of the
+    # line's last point (pushed apart where they would overlap)
+    for t, (x, y, ha, va) in INLINE_LABELS.items():
+        if t in ends:
+            ax.text(x, y, LABELS[t], color=COLOURS[t], fontsize=ps.SMALL + 0.5, ha=ha, va=va, zorder=6)
+    names = [t for t in ends if t not in INLINE_LABELS]
+    ly = _spread([np.log10(ends[t][1]) for t in names], 0.032)
+    for t, y in zip(names, ly):
+        ax.annotate(LABELS[t], xy=ends[t], xycoords="data", xytext=(1.02, 10 ** y), textcoords=("axes fraction", "data"),
+                    color=COLOURS[t], fontsize=ps.SMALL + 0.5, va="center", ha="left", annotation_clip=False,
+                    arrowprops=dict(arrowstyle="-", color=COLOURS[t], lw=0.8, alpha=0.6, shrinkA=0, shrinkB=4))
     r = next(r for r in rows if r["design_id"] == rec["design_id"])
-    ax.scatter([r["result"]["dp_pa"] / 1e3], [r["result"]["r_th_k_per_w"] * 1e3], s=190, facecolors="none",
-               edgecolors="#111827", linewidths=1.8, zorder=5, label="Cross-topology pick (marginal return)")
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_xlim(*X_LIM)
-    ax.set_ylim(*Y_LIM)
-    plain_log_ticks(ax, *X_LIM, "x")
-    plain_log_ticks(ax, *Y_LIM, "y")
-    ax.set_xlabel("Channel-core pressure drop ΔP (kPa)")
+    px, py = r["result"]["dp_pa"] / 1e3, r["result"]["r_th_k_per_w"] * 1e3
+    ax.scatter([px], [py], s=260, facecolors="none", edgecolors=ps.INK, linewidths=2.0, zorder=5)
+    pick = describe(r["topology"], r["params_mm"]).split(", ", 1)
+    ax.annotate(f"Pick: {pick[0].lower()}\n{pick[1]}\n{py:.2f} mK/W at {px:.2f} kPa", xy=(px, py),
+                xytext=(0.62, 10.9), textcoords="data", fontsize=ps.SMALL + 0.5, color=ps.INK, ha="center", va="center",
+                arrowprops=dict(arrowstyle="-", color=ps.INK, lw=1.0, shrinkA=2, shrinkB=9))
+    _log_axes(ax, x_ticks=(0.3, 0.5, 1, 2, 3, 5, 7))
+    ax.set_xlabel("Pressure drop ΔP (kPa)")
     ax.set_ylabel("Thermal resistance R_th (mK/W)")
-    fig.suptitle("Fin planforms at equal flow: 2D plan-view Navier-Stokes (tall-fin limit, developed periodic) + resistance network\n"
-                 f"{FLOW_LPM} LPM PG25 at 40 °C, 1 kW over 60 × 60 mm, copper, 2 mm base; features and gaps ≥ 0.15 mm, H/t ≤ 10, H/gap ≤ 10",
-                 fontsize=10.5, x=0.02, ha="left")
-    ax.grid(True, which="both", alpha=0.25)
-    ax.legend(frameon=False, fontsize=8.5, loc="upper left", bbox_to_anchor=(1.01, 1.0))
-    note = ("Lines: each topology's own Pareto front\n(eligible designs only).\nPlan view ignores floor and cover:\n"
-            "for straight fins it reads ΔP 7% and\nR_th 6% below Level 1 CFD.")
-    if outside:
-        note += "\n" + "\n".join(outside)
-    ax.text(1.02, 0.02, note, transform=ax.transAxes, fontsize=8, va="bottom", ha="left", color="#374151")
-    fig.savefig(out, dpi=200)
-    plt.close(fig)
-    return out, outside
+    ax.set_title("Pareto front of each fin planform at equal flow")
+    ps.save(fig, out)
+    return out, _outside(rows)
 
 
-def write_summary(data: dict, out: Path) -> Path:
+def plot_panels(data: dict, out: Path) -> Path:
+    """One panel per non-straight topology: its eligible designs and front in colour against the straight-fin front in grey."""
+    rows, excl = _eligible_and_excluded(data)
+    summ = data["summary"]
+    budget = REQ.dp_budget_pa / 1e3
+    sx, sy = _front([r for r in rows if r["topology"] == "straight"])
+    fig, axes = ps.figure(6.4, 2, 3, sharex=True, sharey=True)
+    for ax, topo in zip(axes.flat, TOPOLOGIES[1:]):
+        ax.axvline(budget, color=ps.ACCENT, ls="--", lw=1.0, zorder=1)
+        ax.axhline(REQ.r_th_threshold_k_per_w * 1e3, color=ps.THRESHOLD, ls="--", lw=1.0, zorder=1)
+        ax.axhline(REQ.r_th_objective_k_per_w * 1e3, color=ps.OBJECTIVE, ls=":", lw=1.2, zorder=1)
+        ax.plot(sx, sy, color=ps.FIN_GREY, marker="o", ms=4, lw=2.2, zorder=2)
+        ex, ey = _xy([r for r in excl if r["topology"] == topo])
+        ax.scatter(ex, ey, s=16, facecolors="none", edgecolors=COLOURS[topo], linewidths=0.7, alpha=0.35, zorder=2)
+        sel = [r for r in rows if r["topology"] == topo]
+        x, y = _xy(sel)
+        ax.scatter(x, y, s=30, color=COLOURS[topo], marker=MARKERS[topo], edgecolors="white", linewidths=0.5, zorder=3)
+        fx, fy = _front(sel)
+        ax.plot(fx, fy, color=COLOURS[topo], lw=1.8, zorder=3)
+        pk = summ["per_topology"][topo]["recommended"]
+        if pk:
+            ax.scatter([pk["dp_pa"] / 1e3], [pk["r_th_k_per_w"] * 1e3], s=150, facecolors="none", edgecolors=ps.INK,
+                       linewidths=1.6, zorder=4)
+        ax.set_title(f"{LABELS[topo]} ({len(sel)} designs)", fontsize=11.5, loc="left", color=COLOURS[topo])
+        _log_axes(ax, x_ticks=(0.5, 1, 2, 5), y_ticks=(10, 15, 20))
+    axes[0, 2].tick_params(labelbottom=True)
+    for ax in (*axes[1, :2], axes[0, 2]):
+        ax.set_xlabel("ΔP (kPa)")
+    for ax in axes[:, 0]:
+        ax.set_ylabel("R_th (mK/W)")
+    key = axes.flat[-1]
+    key.axis("off")
+    handles = [
+        Line2D([], [], color="#6b7280", marker="P", ms=7, lw=1.8, label="Planform front"),
+        Line2D([], [], color=ps.FIN_GREY, marker="o", ms=4, lw=2.2, label="Straight-fin front"),
+        Line2D([], [], ls="none", marker="o", ms=11, mfc="none", mec=ps.INK, mew=1.6, label="Planform's pick"),
+        Line2D([], [], ls="none", marker="o", ms=5, mfc="none", mec="#6b7280", alpha=0.5, label="Too tall for its gap"),
+        Line2D([], [], color=ps.THRESHOLD, ls="--", lw=1.0, label=f"Threshold {REQ.r_th_threshold_k_per_w * 1e3:g} mK/W"),
+        Line2D([], [], color=ps.OBJECTIVE, ls=":", lw=1.2, label=f"Objective {REQ.r_th_objective_k_per_w * 1e3:g} mK/W"),
+        Line2D([], [], color=ps.ACCENT, ls="--", lw=1.0, label=f"ΔP budget {budget:g} kPa"),
+    ]
+    key.legend(handles=handles, loc="center left", fontsize=ps.SMALL + 0.5, borderaxespad=0, handlelength=2.0)
+    fig.suptitle("Each fin planform against straight fins")
+    ps.save(fig, out)
+    return out
+
+
+def write_summary(data: dict, out: Path, outside: list[str] | None = None) -> Path:
     """Short markdown summary of the plan-view selection: per-topology and cross-topology picks with the rule's steps."""
     summ, rows = data["summary"], {r["design_id"]: r for r in _converged(data["designs"])}
+    outside = outside or []
     req = summ["requirements"]
     cutoff = req["marginal_return_cutoff"]
     pt = lambda did: f"{did} ({rows[did]['result']['r_th_k_per_w']*1e3:.2f} mK/W at {rows[did]['result']['dp_pa']/1e3:.2f} kPa)"
@@ -367,6 +484,19 @@ def write_summary(data: dict, out: Path) -> Path:
              "whose return e = −ln(R_j/R_i) / ln(ΔP_j/ΔP_i) is at least the cut-off; stop when none is. "
              "Capacity = threshold × heat load / R_th; kW per pumping W = heat load / (ΔP × flow). Both ratios always favour the lowest "
              "ΔP inside the window, which is why they are reported and not used to choose.", "",
+             "![Pareto front of each fin planform](pareto_topologies.png)", "",
+             f"Each line is one planform's Pareto front over its eligible designs, at {FLOW_LPM:g} LPM PG25 at 40 °C, 1 kW over "
+             "60 × 60 mm, copper, 2 mm base, features and gaps ≥ 0.15 mm, H / t ≤ 10 and H / gap ≤ 10. The ring marks the design "
+             "the rule picks across all planforms. Not drawn: designs off the fronts, and the "
+             f"{len(summ['excluded'])} designs excluded because their fins are taller than 10 × the narrowest gap. Shading: within "
+             "the budget and the threshold (light), within the budget and the objective (darker). The model is 2D Navier-Stokes in "
+             "the plane of the fin layer (tall-fin limit, developed periodic flow) plus a resistance network. It has no floor or "
+             "cover: on straight fins it reads ΔP 7% and R_th 6% below the Level 1 cross-section CFD, so a gap between planforms "
+             "smaller than that is not resolved." + (" " + "; ".join(outside) + "." if outside else ""), "",
+             "![Each fin planform against straight fins](pareto_topologies_panels.png)", "",
+             "One panel per planform: its eligible designs (markers) and Pareto front in colour, the straight-fin front in grey, "
+             "and the planform's own pick (ring). Faint hollow markers are designs of that planform excluded by H / gap > 10. "
+             "Same axes, budget, threshold and objective in every panel.", "",
              "## Per topology", "",
              "| Topology | Eligible / converged | Excluded (H/gap > 10) | Pick | R_th (mK/W) | ΔP (kPa) | Objective met | Capacity (kW) | kW per kPa | kW per pumping W |",
              "|---|---|---|---|---|---|---|---|---|---|"]
@@ -394,6 +524,19 @@ def write_summary(data: dict, out: Path) -> Path:
               f"{v['difference_pct']:+.1f}% |" for v in summ["vs_straight_front"]]
     lines += ["", "## Excluded by H / min gap > 10 (solved, kept in results.json, not in fronts or selection)", "",
               "| Design | Reason |", "|---|---|"] + [f"| `{e['design_id']}` | {e['reason']} |" for e in summ["excluded"]]
+    fields_path = OUT / "fields.json"
+    if fields_path.exists():
+        fields = json.loads(fields_path.read_text())
+        lines += ["", "## Field plots", "",
+                  "One design per planform, solved as a developed periodic cell and tiled over a few periods; fins are grey. Top: "
+                  "speed with streamlines. Bottom: temperature above the local mean bulk temperature (velocity-weighted) under a "
+                  f"uniform wall heat flux, the periodic part only. All at {FLOW_LPM:g} LPM PG25. Pin pitch is transverse × streamwise."]
+        for topo, f in fields.items():
+            lines += ["", f"![{describe(topo, f['params_mm'])}](fields_{topo}.png)", "",
+                      f"{describe(topo, f['params_mm'])}, {f['params_mm']['h_fin']:g} mm tall: Re_Dh = {f['reynolds_dh']:.0f} "
+                      f"(Dh = {f['dh_mm']:.3f} mm), dp/dx = {f['dpdx_pa_per_m'] / 1e3:.1f} kPa/m, h = {f['h_w_m2k'] / 1e3:.1f} kW/m²K, "
+                      f"wall flux {f['wall_flux_w_m2'] / 1e4:.1f} W/cm² → ΔP {f['dp_pa'] / 1e3:.2f} kPa, "
+                      f"R_th {f['r_th_k_per_w'] * 1e3:.1f} mK/W."]
     out.write_text("\n".join(lines) + "\n")
     return out
 
@@ -404,12 +547,15 @@ def main() -> int:
     ap.add_argument("--sweep", action="store_true")
     ap.add_argument("--extend", action="store_true", help="solve only sweep designs not already converged in results.json")
     ap.add_argument("--plot-only", action="store_true")
+    ap.add_argument("--fields", action="store_true", help="re-solve the six field-figure designs only, then redraw everything")
     a = ap.parse_args()
     fluid = fluid_props(REQ.coolant, REQ.inlet_temp_c)
     data = _load()
     t0 = time.perf_counter()
     if a.extend:
         run_sweep(fluid, data, extend=True)
+    elif a.fields:
+        run_fields(fluid)
     elif not a.plot_only:
         data.setdefault("settings", {})
         data["settings"] = {"flow_lpm": FLOW_LPM, "cells": CELLS, "cells_fine": CELLS_FINE, "cells_developing": CELLS_DEVELOPING,
@@ -424,7 +570,7 @@ def main() -> int:
         data["summary"] = summarise(data)
         _save(data)
         out, outside = plot(data, OUT / "pareto_topologies.png")
-        print(out, write_summary(data, OUT / "summary.md"))
+        print(out, plot_panels(data, OUT / "pareto_topologies_panels.png"), write_summary(data, OUT / "summary.md", outside))
         rec = data["summary"]["recommended"]
         print(f"cross-topology pick {rec['design_id']} ({rec['rule']}): {rec['r_th_k_per_w']*1e3:.2f} mK/W at {rec['dp_pa']/1e3:.2f} kPa")
         for o in outside:

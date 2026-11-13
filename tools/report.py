@@ -1,16 +1,11 @@
 """report: Pareto plot, 1D-vs-CFD parity plot and report.md for a completed study."""
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.ticker import FixedLocator, NullFormatter, NullLocator
 
+from . import plotstyle as ps
+from .plotstyle import plain_log_ticks
 from .types import CfdResult, Screen1DResult
-
-ACCENT, MUTED = "#c2410c", "#9ca3af"
 
 
 def parity_stats(one_d: list[float], cfd: list[float]) -> dict:
@@ -36,44 +31,32 @@ RATIO_DEFINITIONS = (
     "kW per pumping W = heat load / (ΔP × volumetric flow), using hydraulic power. Both ratios always favour the lowest ΔP "
     "inside the window, which is why they are reported and not used to choose.")
 X_MIN_KPA = 0.3
-NICE_TICKS = (0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 3, 5, 7, 10, 12, 15, 20, 25, 30, 40, 50, 70, 100, 150, 200)
-
-
-def plain_log_ticks(ax, lo: float, hi: float, axis: str = "x") -> None:
-    """Readable tick labels (0.3, 1, 2, ...) on a log axis instead of matplotlib's 3×10⁻¹ style."""
-    a = ax.xaxis if axis == "x" else ax.yaxis
-    ticks = [t for t in NICE_TICKS if lo <= t <= hi]
-    a.set_major_locator(FixedLocator(ticks))
-    a.set_major_formatter(lambda v, _: f"{v:g}")
-    a.set_minor_locator(NullLocator())
-    a.set_minor_formatter(NullFormatter())
 
 
 def draw_requirements(ax, x_lo: float, y_lo: float, budget_kpa: float, threshold_mk: float | None, objective_mk: float | None,
                       y_hi: float, labels_right: bool = False) -> None:
-    """Budget, threshold and objective lines; threshold-and-budget window lightly shaded, objective-and-budget darker.
-    labels_right puts the R_th labels just left of the budget line instead of at the left edge."""
+    """Budget, threshold and objective lines with short labels; the threshold-and-budget window is lightly shaded and the
+    objective-and-budget window a little darker. labels_right puts the R_th labels just left of the budget line."""
     lx, ha = (budget_kpa * 0.96, "right") if labels_right else (x_lo * 1.04, "left")
     if threshold_mk is not None:
-        ax.fill_between([x_lo, budget_kpa], y_lo, threshold_mk, color="#16a34a", alpha=0.07, lw=0, zorder=0,
-                        label="Meets budget and threshold")
-        ax.axhline(threshold_mk, color="#15803d", ls="--", lw=1)
-        ax.text(lx, threshold_mk * 1.015, f"R_th threshold {threshold_mk:g} mK/W (must meet)", color="#15803d",
-                ha=ha, va="bottom", fontsize=9)
+        ax.fill_between([x_lo, budget_kpa], y_lo, threshold_mk, color=ps.THRESHOLD, alpha=0.06, lw=0, zorder=0)
+        ax.axhline(threshold_mk, color=ps.THRESHOLD, ls="--", lw=1.1, zorder=1)
+        ax.text(lx, threshold_mk * 1.015, f"Threshold {threshold_mk:g} mK/W", color=ps.THRESHOLD, ha=ha, va="bottom",
+                fontsize=ps.SMALL)
     if objective_mk is not None:
-        ax.fill_between([x_lo, budget_kpa], y_lo, objective_mk, color="#15803d", alpha=0.16, lw=0, zorder=0,
-                        label="Meets budget and objective")
-        ax.axhline(objective_mk, color="#166534", ls=":", lw=1.2)
-        ax.text(lx, objective_mk * 1.015, f"R_th objective {objective_mk:g} mK/W (want)", color="#166534",
-                ha=ha, va="bottom", fontsize=9)
-    ax.axvline(budget_kpa, color=ACCENT, ls="--", lw=1)
-    ax.text(budget_kpa * 0.96, y_hi * 0.97, f"ΔP budget {budget_kpa:g} kPa", color=ACCENT, ha="right", va="top", fontsize=9)
+        ax.fill_between([x_lo, budget_kpa], y_lo, objective_mk, color=ps.THRESHOLD, alpha=0.08, lw=0, zorder=0)
+        ax.axhline(objective_mk, color=ps.OBJECTIVE, ls=":", lw=1.4, zorder=1)
+        ax.text(lx, objective_mk * 1.015, f"Objective {objective_mk:g} mK/W", color=ps.OBJECTIVE, ha=ha, va="bottom",
+                fontsize=ps.SMALL)
+    ax.axvline(budget_kpa, color=ps.ACCENT, ls="--", lw=1.1, zorder=1)
+    ax.text(budget_kpa * 0.96, y_hi * 0.975, f"ΔP budget {budget_kpa:g} kPa", color=ps.ACCENT, ha="right", va="top",
+            fontsize=ps.SMALL)
 
 
 def plot_pareto(sweep: list[Screen1DResult], front: list[Screen1DResult], cfd: list[CfdResult], recommended_id: str,
                 dp_budget_pa: float, out: Path, r_th_threshold: float | None = None, r_th_objective: float | None = None) -> Path:
     """R_th vs ΔP restricted to the region of interest: 0.3 kPa to 1.5× budget, 0.7× lowest feasible R_th to 1.5× threshold."""
-    fig, ax = plt.subplots(figsize=(7.5, 5.2), constrained_layout=True)
+    fig, ax = ps.figure(5.4)
     feas = [s for s in sweep if s.feasible]
     budget_kpa = dp_budget_pa / 1e3
     in_budget = [c.r_th_k_per_w for c in cfd if c.dp_pa <= dp_budget_pa] + [s.r_th_k_per_w for s in feas]
@@ -82,27 +65,26 @@ def plot_pareto(sweep: list[Screen1DResult], front: list[Screen1DResult], cfd: l
     x_lo, x_hi = X_MIN_KPA, 1.5 * budget_kpa
     mk = lambda v: None if v is None else v * 1e3
     draw_requirements(ax, x_lo, y_lo, budget_kpa, mk(r_th_threshold), mk(r_th_objective), y_hi)
-    ax.scatter([s.dp_pa / 1e3 for s in feas], [s.r_th_k_per_w * 1e3 for s in feas], s=8, color=MUTED, alpha=0.5,
-               label=f"1D screen, feasible ({len(feas)} of {len(sweep)})", linewidths=0)
-    ax.plot([s.dp_pa / 1e3 for s in front], [s.r_th_k_per_w * 1e3 for s in front], color="#374151", lw=1.2, label="1D Pareto front")
-    ax.scatter([c.dp_pa / 1e3 for c in cfd], [c.r_th_k_per_w * 1e3 for c in cfd], s=46, color="#1d4ed8", zorder=3,
-               label=f"2D conjugate CFD ({len(cfd)} designs)")
+    ax.scatter([s.dp_pa / 1e3 for s in feas], [s.r_th_k_per_w * 1e3 for s in feas], s=9, color=ps.FIN_GREY, alpha=0.6,
+               label=f"1D screen, feasible designs ({len(feas)} of {len(sweep)})", linewidths=0, zorder=2)
+    ax.plot([s.dp_pa / 1e3 for s in front], [s.r_th_k_per_w * 1e3 for s in front], color=ps.INK, lw=1.4, label="1D Pareto front",
+            zorder=3)
+    ax.scatter([c.dp_pa / 1e3 for c in cfd], [c.r_th_k_per_w * 1e3 for c in cfd], s=50, color=ps.BLUE, zorder=4,
+               edgecolors="white", linewidths=0.8, label=f"2D conjugate CFD ({len(cfd)} designs)")
     rec = next(c for c in cfd if c.design_id == recommended_id)
-    ax.scatter([rec.dp_pa / 1e3], [rec.r_th_k_per_w * 1e3], s=190, facecolors="none", edgecolors=ACCENT, linewidths=2.2, zorder=4,
-               label="Recommended (marginal return)")
+    ax.scatter([rec.dp_pa / 1e3], [rec.r_th_k_per_w * 1e3], s=220, facecolors="none", edgecolors=ps.ACCENT, linewidths=2.2, zorder=5,
+               label="Recommended design")
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlim(x_lo, x_hi)
     ax.set_ylim(y_lo, y_hi)
     plain_log_ticks(ax, x_lo, x_hi, "x")
     plain_log_ticks(ax, y_lo, y_hi, "y")
-    ax.set_xlabel("Channel pressure drop ΔP (kPa)")
+    ax.set_xlabel("Pressure drop ΔP (kPa)")
     ax.set_ylabel("Thermal resistance R_th (mK/W)")
-    ax.set_title("Thermal resistance vs pressure drop at rated flow (region of interest)")
-    ax.grid(True, which="both", alpha=0.25)
-    ax.legend(frameon=False, fontsize=8.5, loc="lower left")
-    fig.savefig(out, dpi=200)
-    plt.close(fig)
+    ax.set_title("Straight fins: thermal resistance vs pressure drop")
+    ax.legend(loc="lower left", borderaxespad=0.6)
+    ps.save(fig, out)
     return out
 
 
@@ -112,25 +94,24 @@ def plot_parity(pairs: list[tuple[Screen1DResult, CfdResult]], out: Path) -> Pat
     eta = np.array([s.fin_efficiency for s, _ in pairs])
     stats = parity_stats(y, x)
     lo, hi = min(x.min(), y.min()) * 0.9, max(x.max(), y.max()) * 1.1
-    fig, ax = plt.subplots(figsize=(6.2, 5.6), constrained_layout=True)
+    fig, ax = ps.figure(6.2, width=7.0)
     line = np.array([lo, hi])
-    ax.fill_between(line, line * 0.95, line * 1.05, color=MUTED, alpha=0.25, label="±5%")
-    ax.plot(line, line, color="#374151", lw=1)
-    sc = ax.scatter(x, y, c=eta, cmap="viridis", vmin=min(0.5, eta.min()), vmax=1.0, s=60, zorder=3, edgecolors="white", linewidths=0.6)
-    fig.colorbar(sc, ax=ax, label="Fin efficiency (1D)")
+    ax.fill_between(line, line * 0.95, line * 1.05, color=ps.FAINT, alpha=0.6, lw=0, label="±5% band")
+    ax.plot(line, line, color=ps.INK, lw=1, label="1D = CFD")
+    sc = ax.scatter(x, y, c=eta, cmap="viridis", vmin=min(0.5, eta.min()), vmax=1.0, s=70, zorder=3, edgecolors="white", linewidths=0.8)
+    ps.colorbar(fig, sc, ax, "Fin efficiency, 1D", min(0.5, eta.min()), 1.0, shrink=0.85)
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlim(lo, hi)
     ax.set_ylim(lo, hi)
+    ax.set_aspect("equal")
     plain_log_ticks(ax, lo, hi, "x")
     plain_log_ticks(ax, lo, hi, "y")
     ax.set_xlabel("R_th, 2D conjugate CFD (mK/W)")
     ax.set_ylabel("R_th, 1D screen (mK/W)")
-    ax.set_title(f"1D vs CFD: mean |difference| {stats['mean_abs_pct']:.1f}%, max {stats['max_abs_pct']:.1f}%")
-    ax.legend(frameon=False, loc="upper left")
-    ax.grid(True, which="both", alpha=0.25)
-    fig.savefig(out, dpi=200)
-    plt.close(fig)
+    ax.set_title(f"1D screen vs CFD: mean difference {stats['mean_abs_pct']:.1f}%, max {stats['max_abs_pct']:.1f}%", loc="left")
+    ax.legend(loc="upper left")
+    ps.save(fig, out)
     return out
 
 
@@ -193,6 +174,8 @@ def write_report(study: dict, out: Path) -> Path:
         "",
         "![Pareto](pareto.png)",
         "",
+        f"Thermal resistance against channel pressure drop at the rated {d.flow_lpm:.1f} LPM. Grey dots: every feasible design from "
+        "the 1D screen; dark line: its Pareto front; blue: the designs solved with 2D conjugate CFD; ring: the recommended design. "
         "The plot shows the region of interest only: ΔP from 0.3 kPa to 1.5× the budget, R_th from 0.7× the lowest feasible value "
         "to 1.5× the threshold. Designs outside it are screened but not drawn. Light shading: meets the budget and the threshold; "
         "darker: meets the budget and the objective.",
@@ -217,6 +200,9 @@ def write_report(study: dict, out: Path) -> Path:
         "",
         "![Parity](parity.png)",
         "",
+        "R_th from the 1D screen against the 2D conjugate CFD for each solved design, coloured by the 1D fin efficiency; "
+        "the band is ±5%.",
+        "",
         "Ratios (CFD): " + RATIO_DEFINITIONS.format(rise=(threshold or 0) * req.heat_load_w),
         "",
         "| Channel (mm) | Fin (mm) | Height (mm) | Flow (LPM) | Re | ΔP CFD (kPa) | R_th 1D (mK/W) | R_th CFD (mK/W) | 1D − CFD | Fin eff. "
@@ -237,6 +223,9 @@ def write_report(study: dict, out: Path) -> Path:
     lines += [f"| {r['cells_across_half_channel']} | {r['n_dofs']} | {r['r_th_k_per_w']*1e3:.4f} | {r['dp_pa']/1e3:.4f} |" for r in ms["levels"]]
     lines += [
         "", "![Fields](fields_recommended.png)", "",
+        f"Recommended design at {d.flow_lpm:.1f} LPM {fluid.name}: axial velocity (left; copper in brown) and temperature at "
+        f"mid-length (right) on the cross-section, mirrored to show three channels. Re = {rec_c.reynolds:.0f}, "
+        f"ΔP = {rec_c.dp_pa/1e3:.2f} kPa, R_th = {rec_c.r_th_k_per_w*1e3:.1f} mK/W.", "",
         "## Inputs",
         f"- Heat load {req.heat_load_w:.0f} W, uniform over {req.footprint_width_m*1e3:.0f} × {req.flow_length_m*1e3:.0f} mm; "
         f"{req.base_thickness_m*1e3:.1f} mm base, k = {req.solid_k:.0f} W/m·K.",

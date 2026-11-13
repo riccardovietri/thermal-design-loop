@@ -9,14 +9,11 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 import gmsh
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.tri import Triangulation
 from skfem import MeshTri
 
+from tools import plotstyle as ps
 from tools.fluids import fluid_props
 from tools.types import Fluid, Requirements
 
@@ -133,47 +130,39 @@ def run_slot_jet(design: SlotJetDesign, req: Requirements, fluid: Fluid, out_dir
 
 
 def _plot(design, result, fluid, req, flow, energy, psi, x, theta_w, scale, out: Path) -> None:
+    """Half of one unit cell, jet centreline at the left edge and return slot at the right: speed with streamlines,
+    fluid temperature, and local h along the base."""
     b_mm = design.slot_width_m * 1e3
     m = flow.mesh
     n = m.p.shape[1]
-
-    def mirrored(ax, values, levels, cmap):
-        for sign in (-1, 1):
-            cs = ax.tricontourf(Triangulation(sign * m.p[0] * b_mm, m.p[1] * b_mm, m.t.T), values, levels=levels, cmap=cmap)
-        return cs
-
-    fig, axes = plt.subplots(3, 1, figsize=(10, 7.6), constrained_layout=True, sharex=True, height_ratios=[1, 1, 1.25])
+    tri = Triangulation(m.p[0] * b_mm, m.p[1] * b_mm, m.t.T)
+    fig, axes = ps.figure(6.4, 3, 1, sharex=True, height_ratios=[1, 1, 1.4])
     speed = flow.speed_at_nodes() * result.jet_velocity_m_s
-    cs = mirrored(axes[0], speed, np.linspace(0, speed.max(), 30), "viridis")
-    for sign in (-1, 1):
-        tri = Triangulation(sign * m.p[0] * b_mm, m.p[1] * b_mm, m.t.T)
-        axes[0].tricontour(tri, psi[:n], levels=np.linspace(0.02, 0.48, 9), colors="white", linewidths=0.5)
-        axes[0].tricontour(tri, psi[:n], levels=[-0.01, -0.003, -0.0005, 0.5005, 0.503, 0.51], colors="#ff6b6b", linewidths=0.8)
-    fig.colorbar(cs, ax=axes[0], label="speed (m/s)")
-    axes[0].set_title("Flow: white streamlines, red = recirculation", fontsize=10)
+    cs = axes[0].tricontourf(tri, speed, levels=ps.field_levels(0, speed.max()), cmap="viridis")
+    axes[0].tricontour(tri, psi[:n], levels=np.linspace(0.05, 0.45, 7), colors="white", linewidths=0.7)
+    axes[0].tricontour(tri, psi[:n], levels=[-0.01, -0.002, 0.502, 0.51], colors="#ff6b6b", linewidths=1.0)
+    ps.colorbar(fig, cs, axes[0], "Speed (m/s)", 0, float(speed.max()), nbins=3, min_ticks=3)
+    axes[0].set_title("Speed and streamlines (red: recirculation)", fontsize=11.5, loc="left")
     temp = req.inlet_temp_c + energy.theta[:n] * scale
-    cs = mirrored(axes[1], temp, np.linspace(temp.min(), temp.max(), 30), "inferno")
-    fig.colorbar(cs, ax=axes[1], label="fluid temperature (°C)")
-    axes[1].set_title("Temperature (fluid only; uniform heat flux on the base)", fontsize=10)
+    cs = axes[1].tricontourf(tri, temp, levels=ps.field_levels(temp.min(), temp.max()), cmap="inferno")
+    ps.colorbar(fig, cs, axes[1], "Temperature (°C)", float(temp.min()), float(temp.max()), nbins=3, min_ticks=3)
+    axes[1].set_title("Coolant temperature", fontsize=11.5, loc="left")
     for ax in axes[:2]:
         ax.set_aspect("equal")
-        ax.set_ylabel("mm")
+        ax.set_ylabel("Height (mm)")
+        ps.no_grid(ax)
     h = fluid.k / (design.slot_width_m * theta_w[1:]) / 1e3
-    xs = x[1:] * b_mm
-    axes[2].plot(np.concatenate([-xs[::-1], xs]), np.concatenate([h[::-1], h]), color="#c2410c", lw=1.8)
-    axes[2].axhline(result.h_mean_w_m2k / 1e3, color="#374151", ls="--", lw=1)
-    axes[2].text(0.99, result.h_mean_w_m2k / 1e3, " mean (1/average resistance)", va="bottom", ha="right", fontsize=8,
+    axes[2].plot(x[1:] * b_mm, h, color=ps.ACCENT, lw=2)
+    axes[2].axhline(result.h_mean_w_m2k / 1e3, color=ps.INK, ls="--", lw=1.1)
+    axes[2].text(0.98, result.h_mean_w_m2k / 1e3, "mean", va="bottom", ha="right", fontsize=ps.SMALL,
                  transform=axes[2].get_yaxis_transform())
-    axes[2].set_ylabel("local h (kW/m²K)\nreferenced to inlet temperature")
-    axes[2].set_xlabel("distance from jet centreline (mm)")
+    axes[2].set_ylabel("Local h (kW/m²K)")
+    axes[2].set_xlabel("Distance from jet centreline (mm)")
+    axes[2].set_title("Heat transfer coefficient along the base", fontsize=11.5, loc="left")
     axes[2].set_ylim(0, None)
-    axes[2].grid(alpha=0.25)
-    fig.suptitle(
-        f"Slot-jet array: {b_mm:.2f} mm slots, {design.gap_m*1e3:.2f} mm gap, {design.pitch_m*1e3:.1f} mm pitch, "
-        f"{design.flow_lpm:.1f} LPM {fluid.name}\nRe = {result.reynolds_slot:.0f}, ΔP = {result.dp_pa/1e3:.2f} kPa, "
-        f"R_th = {result.r_th_k_per_w*1e3:.1f} mK/W", fontsize=11)
-    fig.savefig(out, dpi=180)
-    plt.close(fig)
+    axes[2].set_xlim(0, design.pitch_m * 1e3 / 2)
+    fig.suptitle(f"Slot jets: {b_mm:.2f} mm slots, {design.gap_m*1e3:.2f} mm gap, {design.pitch_m*1e3:.1f} mm pitch")
+    ps.save(fig, out)
 
 
 def main() -> None:
@@ -183,11 +172,12 @@ def main() -> None:
     ap.add_argument("--pitch_mm", type=float, required=True)
     ap.add_argument("--flow_lpm", type=float, required=True)
     ap.add_argument("--out", type=Path, default=None)
+    ap.add_argument("--cells", type=int, default=20, help="cells across the gap (or slot, if narrower); the docs example uses 25")
     a = ap.parse_args()
     req = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 5e3, "PG25", r_th_threshold_k_per_w=20e-3,
                    r_th_objective_k_per_w=15e-3)
     d = SlotJetDesign(a.slot_mm / 1e3, a.gap_mm / 1e3, a.pitch_mm / 1e3, a.flow_lpm)
-    r = run_slot_jet(d, req, fluid_props("PG25", 40.0), a.out or Path("runs/level2") / d.design_id)
+    r = run_slot_jet(d, req, fluid_props("PG25", 40.0), a.out or Path("runs/level2") / d.design_id, cells_across=a.cells)
     print(json.dumps(asdict(r), indent=2))
 
 

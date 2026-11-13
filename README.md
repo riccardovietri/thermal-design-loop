@@ -5,6 +5,9 @@ a CFD model checks the ten that matter, and the output is a Pareto front, a reco
 
 ![Thermal resistance vs pressure drop](examples/output/gpu_coldplate/pareto.png)
 
+*Straight fins at the rated 1.5 LPM. Grey dots: the 1D screen; blue: designs checked with CFD; ring: the recommendation.
+Shading marks the 5 kPa budget with the 20 mK/W threshold (light) and the 15 mK/W objective (darker).*
+
 One command, about three seconds on a laptop, no LLM in the loop:
 
 ```bash
@@ -59,11 +62,14 @@ For straight fins in laminar flow, a correct 1D model is enough; the CFD is the 
 
 ![Velocity and temperature in the recommended design](examples/output/gpu_coldplate/fields_recommended.png)
 
+*The recommended design's cross-section at 1.5 LPM: coolant velocity (copper in brown) and temperature at mid-length.*
+
 Full output: [`examples/output/gpu_coldplate/report.md`](examples/output/gpu_coldplate/report.md).
 
 Level 2 (`level2/`, 2D planar Navier-Stokes) tests confined slot-jet arrays on a flat base at the same flow, with jet gaps and slots
 of at least 0.1 mm: the best reaches 23.8 mK/W at 0.49 kPa, so none meets the 20 mK/W threshold
-([comparison](examples/output/level2_slot_jet/pareto_compare.png)).
+([comparison](examples/output/level2_slot_jet/pareto_compare.png): 18 slot-jet arrays coloured by jet gap, marker by slot width,
+against the straight-fin CFD designs, all at 1.5 LPM PG25, 1 kW over 60 × 60 mm).
 
 ## More topologies
 
@@ -72,7 +78,16 @@ sinusoidal and zigzag channels, offset strip fins and staggered circular and dia
 into the same resistance network as Level 1, at the same 1.5 LPM, footprint and 0.15 mm manufacturing limits, with fin height at most
 10 times the narrowest gap.
 
-![Fin planforms at equal flow](examples/output/level2_planview/pareto_topologies.png)
+![Pareto front of each fin planform at equal flow](examples/output/level2_planview/pareto_topologies.png)
+
+*Each line is one planform's Pareto front over its eligible designs (1.5 LPM PG25 at 40 °C, 1 kW over 60 × 60 mm, copper,
+2 mm base). The ring is the design the rule picks across all planforms. The 36 designs whose fins are taller than 10 × their
+narrowest gap are left out. The plan view has no floor or cover: on straight fins it reads ΔP 7% and R_th 6% below the
+cross-section CFD.*
+
+![Each fin planform against straight fins](examples/output/level2_planview/pareto_topologies_panels.png)
+
+*One panel per planform: its designs and front in colour against the straight-fin front in grey, with the planform's own pick ringed.*
 
 The honest headline: staggered circular pins are the best planform in this model, but only by 3–6% at equal pressure drop,
 which is inside the 6% this model reads low on straight fins because it has no floor or cover. The same marginal-return rule picks

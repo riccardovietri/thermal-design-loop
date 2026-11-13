@@ -19,7 +19,7 @@ from tools.postprocess import plot_fields
 from tools.report import parity_stats, plot_pareto, plot_parity, write_report
 from tools.run_cfd import run_cfd
 from tools.screen_1d import screen_1d
-from tools.types import DesignSpace, Requirements, to_dict
+from tools.types import CfdResult, Design, DesignSpace, Requirements, Screen1DResult, to_dict
 
 
 def _levels(spec) -> tuple[float, ...]:
@@ -130,11 +130,34 @@ def run_study(config: Path, out_dir: Path | None = None, runs_dir: Path | None =
     return study
 
 
+def plot_only(config: Path, out_dir: Path | None = None, runs_dir: Path | None = None) -> list[Path]:
+    """Redraw pareto.png, parity.png and fields_recommended.png from a finished study's results.json and run directories,
+    without any CFD. The 1D screen (analytic, milliseconds) is re-run because its 672 designs are not saved."""
+    name, req, space, _ = load(config)
+    out_dir = Path(out_dir or Path("out") / name)
+    runs_dir = Path(runs_dir or Path("runs") / name)
+    saved = json.loads((out_dir / "results.json").read_text())
+    sweep = screen_1d(req, fluid_props(req.coolant, req.inlet_temp_c), space)
+    feasible = [s for s in sweep if s.feasible]
+    front = [feasible[i] for i in pareto_indices([s.dp_pa for s in feasible], [s.r_th_k_per_w for s in feasible])]
+    pairs = [(Screen1DResult(**{**d["one_d"], "design": Design(**d["one_d"]["design"])}), CfdResult(**d["cfd"])) for d in saved["designs"]]
+    cfd = [c for _, c in pairs]
+    return [plot_pareto(sweep, front, cfd, saved["recommended"], req.dp_budget_pa, out_dir / "pareto.png", req.r_th_threshold_k_per_w,
+                        req.r_th_objective_k_per_w),
+            plot_parity(pairs, out_dir / "parity.png"),
+            plot_fields(runs_dir / saved["recommended"], out_dir / "fields_recommended.png")]
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("config", type=Path)
     ap.add_argument("--out", type=Path, default=None)
+    ap.add_argument("--plot-only", action="store_true", help="redraw the figures from results.json and runs/, no CFD")
     a = ap.parse_args()
+    if a.plot_only:
+        for p in plot_only(a.config, a.out):
+            print(p)
+        return
     t0 = time.perf_counter()
     study = run_study(a.config, a.out)
     rec = study["recommended"][1]

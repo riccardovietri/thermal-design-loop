@@ -12,11 +12,9 @@ import time
 from dataclasses import asdict
 from pathlib import Path
 
-import matplotlib
+from matplotlib.lines import Line2D
 
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-
+from tools import plotstyle as ps
 from tools.fluids import fluid_props
 from tools.pareto import pareto_indices
 from tools.report import draw_requirements, plain_log_ticks
@@ -79,31 +77,43 @@ def plot_compare(rows: list[dict], out: Path) -> Path:
     x_lo, x_hi = 0.7 * min(xs), 1.5 * max(max(xs), budget)
     y_lo, y_hi = 0.7 * min(ys + [objective]), 1.3 * max(ys)
 
-    fig, ax = plt.subplots(figsize=(10.5, 5.6), constrained_layout=True)
+    fig, ax = ps.figure(5.6)
     draw_requirements(ax, x_lo, y_lo, budget, threshold, objective, y_hi)
-    ax.plot([p[0] for p in fins], [p[1] for p in fins], "o-", color="#1d4ed8", label=f"Straight fins (Level 1 CFD, {FLOW_LPM} LPM)")
-    for gap, colour in zip(GAPS_MM, ("#7c2d12", "#c2410c", "#f59e0b")):
-        for slot, marker in zip(SLOTS_MM, ("D", "s")):
+    ax.plot([p[0] for p in fins], [p[1] for p in fins], "o-", color=ps.BLUE, ms=5.5, zorder=3)
+    i_lbl = len(fins) // 2
+    ax.annotate("Straight fins", (fins[i_lbl][0], fins[i_lbl][1]), xytext=(10, 4), textcoords="offset points", color=ps.BLUE,
+                fontsize=ps.SMALL, ha="left", va="bottom")
+    gap_colours = dict(zip(GAPS_MM, ("#7c2d12", "#ea580c", "#fbbf24")))
+    slot_markers = dict(zip(SLOTS_MM, ("D", "s")))
+    for gap, colour in gap_colours.items():
+        for slot, marker in slot_markers.items():
             sel = [r for r in rows if abs(r["design"]["gap_m"] * 1e3 - gap) < 1e-9 and abs(r["design"]["slot_width_m"] * 1e3 - slot) < 1e-9]
-            ax.scatter([r["result"]["dp_pa"] / 1e3 for r in sel], [r["result"]["r_th_k_per_w"] * 1e3 for r in sel], s=46, color=colour,
-                       marker=marker, edgecolors="#374151", linewidths=0.6, zorder=3,
-                       label=f"Slot jets, {gap:.2f} mm gap, {slot:.1f} mm slot")
+            ax.scatter([r["result"]["dp_pa"] / 1e3 for r in sel], [r["result"]["r_th_k_per_w"] * 1e3 for r in sel], s=48, color=colour,
+                       marker=marker, edgecolors=ps.INK, linewidths=0.6, zorder=4)
     front = pareto_indices([r["result"]["dp_pa"] for r in rows], [r["result"]["r_th_k_per_w"] for r in rows])
     ax.plot([rows[i]["result"]["dp_pa"] / 1e3 for i in front], [rows[i]["result"]["r_th_k_per_w"] * 1e3 for i in front],
-            color="#c2410c", lw=1, ls="--", label="Slot-jet Pareto front")
+            color=ps.ACCENT, lw=1.1, ls="--", zorder=2)
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlim(x_lo, x_hi)
     ax.set_ylim(y_lo, y_hi)
-    plain_log_ticks(ax, x_lo, x_hi, "x")
+    plain_log_ticks(ax, x_lo, x_hi, "x", ticks=(0.005, 0.01, 0.03, 0.1, 0.3, 1, 3, 5))
     plain_log_ticks(ax, y_lo, y_hi, "y")
     ax.set_xlabel("Pressure drop ΔP (kPa)")
     ax.set_ylabel("Thermal resistance R_th (mK/W)")
-    ax.set_title(f"Slot-jet arrays on a flat base vs straight fins\n{FLOW_LPM} LPM PG25, 1 kW, 60 × 60 mm; jet gap and slot ≥ 0.1 mm, fins and channels ≥ 0.15 mm", fontsize=11)
-    ax.grid(True, which="both", alpha=0.25)
-    ax.legend(frameon=False, fontsize=8.5, loc="upper left", bbox_to_anchor=(1.01, 1.0))
-    fig.savefig(out, dpi=200)
-    plt.close(fig)
+    ax.set_title("Slot-jet arrays vs straight fins")
+    gaps = [Line2D([], [], ls="none", marker="o", ms=8, color=c, mec=ps.INK, mew=0.6, label=f"{g:.2f} mm")
+            for g, c in gap_colours.items()]
+    slots = [Line2D([], [], ls="none", marker=m, ms=7, color="white", mec=ps.INK, mew=1.0, label=f"{s:.1f} mm")
+             for s, m in slot_markers.items()]
+    front_h = [Line2D([], [], color=ps.ACCENT, lw=1.1, ls="--", label="Slot-jet front")]
+    leg = ax.legend(handles=gaps, title="Jet gap (colour)", loc="lower left", bbox_to_anchor=(0.0, 0.0), alignment="left")
+    ax.add_artist(leg)
+    leg2 = ax.legend(handles=slots + front_h, title="Slot width (shape)", loc="lower left", bbox_to_anchor=(0.2, 0.0),
+                     alignment="left")
+    for lg in (leg, leg2):
+        lg.get_title().set_fontsize(ps.SMALL + 0.5)
+    ps.save(fig, out)
     return out
 
 

@@ -39,6 +39,11 @@ Next: (1) Riccardo reviews the pull request and the open questions below; (2) bl
   applied (36 designs excluded), 15 designs added (78 converged), per-topology and cross-topology picks in
   `examples/output/level2_planview/summary.md`. `uv run pytest` → 38 passed.
 
+- 2026-11-12: Readable figures (`feat/readable-figures`): shared style `tools/plotstyle.py`, one-line titles with captions in
+  the markdown, plan-view comparison split into an overview (`pareto_topologies.png`) and per-planform panels
+  (`pareto_topologies_panels.png`), `--plot-only` for `run_study.py`, `--fields` for the plan-view sweep, `--cells` for the slot-jet CLI.
+  No numeric result changed.
+
 ## Result of the example study
 Rated flow 1.5 LPM, 672 designs screened (258 feasible within 5 kPa), 8 solved. 1D vs CFD on R_th: mean |diff| 1.1%, max 2.9%.
 All confidence checks pass.

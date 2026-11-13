@@ -26,7 +26,7 @@ Reference designs (CFD-verified, within budget):
 
 ![Pareto](pareto.png)
 
-The plot shows the region of interest only: ΔP from 0.3 kPa to 1.5× the budget, R_th from 0.7× the lowest feasible value to 1.5× the threshold. Designs outside it are screened but not drawn. Light shading: meets the budget and the threshold; darker: meets the budget and the objective.
+Thermal resistance against channel pressure drop at the rated 1.5 LPM. Grey dots: every feasible design from the 1D screen; dark line: its Pareto front; blue: the designs solved with 2D conjugate CFD; ring: the recommended design. The plot shows the region of interest only: ΔP from 0.3 kPa to 1.5× the budget, R_th from 0.7× the lowest feasible value to 1.5× the threshold. Designs outside it are screened but not drawn. Light shading: meets the budget and the threshold; darker: meets the budget and the objective.
 
 ## Flow sensitivity of the recommended design
 
@@ -43,6 +43,8 @@ The 1D screen evaluated 672 designs (258 feasible) in 3 ms. 8 designs spread alo
 - ΔP: identical to within 0.03%. This is expected, not a result: both models assume fully developed flow and share the same f·Re.
 
 ![Parity](parity.png)
+
+R_th from the 1D screen against the 2D conjugate CFD for each solved design, coloured by the 1D fin efficiency; the band is ±5%.
 
 Ratios (CFD): Capacity = threshold × heat load / R_th, the heat load the design could carry at the threshold rise (base-to-inlet rise of threshold × heat load, 20 K here); capacity per kPa = capacity / ΔP; kW per pumping W = heat load / (ΔP × volumetric flow), using hydraulic power. Both ratios always favour the lowest ΔP inside the window, which is why they are reported and not used to choose.
 
@@ -77,6 +79,8 @@ Mesh study on `w0422_t0444_h4000_q150`:
 | 16 | 71883 | 14.9283 | 1.2942 |
 
 ![Fields](fields_recommended.png)
+
+Recommended design at 1.5 LPM PG25: axial velocity (left; copper in brown) and temperature at mid-length (right) on the cross-section, mirrored to show three channels. Re = 119, ΔP = 1.29 kPa, R_th = 14.9 mK/W.
 
 ## Inputs
 - Heat load 1000 W, uniform over 60 × 60 mm; 2.0 mm base, k = 390 W/m·K.

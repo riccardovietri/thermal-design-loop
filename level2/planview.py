@@ -31,14 +31,10 @@ import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.ticker import MaxNLocator
 from matplotlib.tri import LinearTriInterpolator, Triangulation
 
+from tools import plotstyle as ps
 from tools.types import Fluid, Requirements
 
 from .planar import (NewtonDivergence, line_mean, solve_energy, solve_energy_periodic, solve_flow, solve_flow_periodic,
@@ -248,6 +244,20 @@ def _tiled(pf, pm, flow, energy, n_tile):
     return (px[first], py[first], inv[tris], *[f[first] for f in fields])
 
 
+def describe(topology: str, params: dict) -> str:
+    """Plain-words name of a planform design, e.g. 'Circular pins, 0.4 mm diameter, 0.8 × 0.9 mm pitch'."""
+    p = {k: f"{v:g}" for k, v in params.items()}
+    wave = f"{p.get('amp')} mm amplitude, {p.get('lam')} mm wavelength"
+    return {
+        "straight": f"Straight fins, {p.get('w')} mm channels, {p.get('t')} mm fins",
+        "sinusoidal": f"Sinusoidal fins, {p.get('w')} mm channels, {p.get('t')} mm fins, {wave}",
+        "zigzag": f"Zigzag fins, {p.get('w')} mm channels, {p.get('t')} mm fins, {wave}",
+        "offset_strip": f"Offset strip fins, {p.get('l')} mm long, {p.get('t')} mm thick, {p.get('p_t')} mm lateral pitch",
+        "pin_circle": f"Circular pins, {p.get('d')} mm diameter, {p.get('s_t')} × {p.get('s_l')} mm pitch",
+        "pin_diamond": f"Diamond pins, {p.get('s')} mm side, {p.get('s_t')} × {p.get('s_l')} mm pitch",
+    }[topology]
+
+
 def plot_fields(pf, pm, flow, energy, res, net, req, fluid, out: Path) -> Path:
     us = superficial_velocity(req, res.flow_lpm, pf.params["h_fin"])
     target_len = max(4 * pf.period_mm if pf.topology == "straight" else 2 * pf.period_mm, 3.0)
@@ -262,34 +272,33 @@ def plot_fields(pf, pm, flow, energy, res, net, req, fluid, out: Path) -> Path:
     temp = (t_rel - bulk_offset) * scale
     xr, yr = (px.min(), px.max()), (py.min(), py.max())
     aspect = (yr[1] - yr[0]) / (xr[1] - xr[0])
-    width = 10.0
-    panel_h = max(1.3, min(3.6, width * 0.8 * aspect))
-    fig, axes = plt.subplots(2, 1, figsize=(width, 2 * panel_h + 1.6), constrained_layout=True, sharex=True)
-    cs = axes[0].tricontourf(tri, speed, levels=np.linspace(0, speed.max(), 31), cmap="viridis")
-    fig.colorbar(cs, ax=axes[0], label="speed (m/s)", shrink=0.9, ticks=MaxNLocator(5))
-    nx = 500
+    width = ps.WIDTH_IN
+    panel_h = max(1.4, min(3.0, (width - 1.6) * aspect))
+    fig, axes = ps.figure(2 * panel_h + 1.5, 2, 1, sharex=True)
+    cs = axes[0].tricontourf(tri, speed, levels=ps.field_levels(0, speed.max()), cmap="viridis")
+    ps.colorbar(fig, cs, axes[0], "Speed (m/s)", 0, float(speed.max()), nbins=4, min_ticks=3, shrink=0.95)
+    nx = 400
     ny = max(40, int(nx * aspect))
     gx, gy = np.meshgrid(np.linspace(*xr, nx), np.linspace(*yr, ny))
     fu, fv = LinearTriInterpolator(tri, ux)(gx, gy), LinearTriInterpolator(tri, uy)(gx, gy)
-    axes[0].streamplot(gx, gy, np.ma.filled(fu, np.nan), np.ma.filled(fv, np.nan), color="white", linewidth=0.5,
-                       density=(1.0, 0.35) if pf.topology == "straight" else (2.5, max(0.6, 2.5 * aspect * 3)), arrowsize=0.6)
-    cs = axes[1].tricontourf(tri, temp, levels=np.linspace(temp.min(), temp.max(), 31), cmap="inferno")
-    fig.colorbar(cs, ax=axes[1], label="T − local mean bulk T (K)", shrink=0.9, ticks=MaxNLocator(5))
+    kw = {}
+    if pf.topology == "straight":  # parallel flow: a few lines seeded across the channel, away from the walls
+        kw["start_points"] = np.column_stack([np.full(5, xr[0] + 1e-6), np.linspace(yr[0], yr[1], 7)[1:-1]])
+    axes[0].streamplot(gx, gy, np.ma.filled(fu, np.nan), np.ma.filled(fv, np.nan), color="white", linewidth=0.7,
+                       density=(0.8, max(0.5, 0.8 * aspect * 2.5)), arrowsize=0.8,
+                       broken_streamlines=pf.kind == "strip", **kw)  # broken lines keep recirculation cells from filling in
+    cs = axes[1].tricontourf(tri, temp, levels=ps.field_levels(temp.min(), temp.max()), cmap="inferno")
+    ps.colorbar(fig, cs, axes[1], "T − bulk T (K)", float(temp.min()), float(temp.max()), nbins=4, min_ticks=3, shrink=0.95)
     for ax in axes:
-        ax.set_facecolor("#9ca3af")  # fins (outside the fluid) in grey
+        ax.set_facecolor(ps.FIN_GREY)  # fins (outside the fluid) in grey
         ax.set_aspect("equal")
         ax.set_xlim(*xr)
         ax.set_ylim(*yr)
         ax.set_ylabel("y (mm)")
-    axes[1].set_xlabel("x, streamwise (mm)")
-    axes[0].set_title("Speed and streamlines (fins grey; developed periodic flow, tiled)", fontsize=10)
-    axes[1].set_title(f"Temperature above the local mean bulk temperature, uniform wall flux "
-                      f"{net['wall_flux_w_m2'] / 1e4:.1f} W/cm² (periodic part, tiled)", fontsize=10)
-    p = ", ".join(f"{k} {v:g}" for k, v in pf.params.items() if k not in ("h_fin",))
-    fig.suptitle(f"{pf.topology}: {p} mm, H {pf.params['h_fin']:g} mm, {res.flow_lpm:g} LPM PG25\n"
-                 f"Re_Dh = {res.reynolds_dh:.0f} (Dh = {res.dh_mm:.3f} mm), dp/dx = {res.dpdx_pa_per_m / 1e3:.1f} kPa/m, "
-                 f"h = {res.h_w_m2k / 1e3:.1f} kW/m²K → ΔP {res.dp_pa / 1e3:.2f} kPa, R_th {res.r_th_k_per_w * 1e3:.1f} mK/W",
-                 fontsize=10.5)
-    fig.savefig(out, dpi=170)
-    plt.close(fig)
+        ps.no_grid(ax)
+    axes[1].set_xlabel("x, flow direction (mm)")
+    axes[0].set_title("Speed and streamlines", fontsize=11.5, loc="left")
+    axes[1].set_title("Temperature above the local bulk temperature", fontsize=11.5, loc="left")
+    fig.suptitle(describe(pf.topology, pf.params), fontsize=12.5)
+    ps.save(fig, out)
     return out
