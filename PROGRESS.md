@@ -1,13 +1,12 @@
 # PROGRESS
 
 ## Resume here
-SPEC Amendment 3 (threshold 20 / objective 15 mK/W, 5 kPa budget, marginal-return rule with cut-off 0.25, capacity ratios,
-H / gap ≤ 10 in the plan view) is on `feat/threshold-objective-criteria` as a pull request awaiting Riccardo's review.
-Headline: Level 1 still recommends 0.42 / 0.44 / 4.0 mm (14.93 mK/W at 1.29 kPa, meets the objective); across plan-view topologies the
-rule picks circular pins d 0.4, S_T 0.8, S_L 0.9 mm (12.65 mK/W at 1.42 kPa), 2.6–5.8% below straight fins at equal ΔP, inside the
-plan view's 6% tall-fin bias. No slot-jet case meets the 20 mK/W threshold.
-Next: (1) Riccardo reviews the pull request and the open questions below; (2) blog post on the fidelity ladder;
-(3) final repo name, make public; (4) LinkedIn post.
+Everything through SPEC Amendment 3 and the readable-figure pass is merged to `main`; the repo is public as `thermal-design-loop`.
+Headline: Level 1 recommends 0.42 / 0.44 / 4.0 mm straight fins (14.93 mK/W at 1.29 kPa, meets the objective); across plan-view
+topologies the rule picks circular pins d 0.4, S_T 0.8, S_L 0.9 mm (12.65 mK/W at 1.42 kPa), 2.6–5.8% below straight fins at equal ΔP,
+inside the plan view's 6% tall-fin bias. No slot-jet case meets the 20 mK/W threshold.
+Next: (1) an industry photo for the write-up (needs a licensed image); (2) turn the preview article into the blog post;
+(3) LinkedIn post; (4) the open questions below.
 
 ## Open questions for Riccardo
 - Plan view: the pin advantage (2.6–5.8% at equal ΔP) is smaller than the plan view's tall-fin bias measured on straight fins (−5.7% on
@@ -64,5 +63,4 @@ Slot jets at 1.5 LPM with ≥ 0.1 mm features: best 23.8 mK/W at 0.49 kPa; none 
 
 ## Notes for a fresh session
 - Run everything with `uv run`. In Claude Code's sandbox, `uv`, `git` and `gh` writes may need the sandbox disabled.
-- Fable usage: 7% used after M1 on 11/10.
-- GitHub: private repo riccardovietri/coldplate-design-loop; `main` pushed once with Riccardo's OK, work goes on branches.
+- GitHub: public repo riccardovietri/thermal-design-loop (renamed from coldplate-design-loop on 2026-11-12); work goes on branches and merges by pull request.
