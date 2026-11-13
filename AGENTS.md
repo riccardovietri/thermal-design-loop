@@ -14,13 +14,18 @@ Instructions for any coding agent (or person) picking this project up cold.
 ## Commands
 - `uv sync` then `uv run pytest` (must pass before any commit).
 - `uv run python run_study.py examples/gpu_coldplate.yaml --out examples/output/gpu_coldplate` — the whole Level 1 study, about 3 s (regenerates the committed example output).
+  `--plot-only` redraws its three figures from `results.json` and `runs/` without CFD.
 - `uv run python validation/duct_fully_developed.py` — Level 1 solver validation against Shah & London.
 - `uv run python validation/level2_thermal_entrance.py` — Level 2 solver validation (developing flow between plates), about 20 s.
-- `uv run python -m level2.slot_jet --slot_mm 0.3 --gap_mm 0.6 --pitch_mm 6 --flow_lpm 1.5` — one slot-jet case with a field plot.
+- `uv run python -m level2.slot_jet --slot_mm 0.3 --gap_mm 0.6 --pitch_mm 6 --flow_lpm 1.5` — one slot-jet case with a field plot
+  (`--cells 25 --out docs/figures/slot_jet_example` reproduces the docs example exactly).
 - `uv run python validation/level2_planview_straight.py` — plan-view gates G1–G3 on straight fins, about 3 s.
 - `uv run python -m level2.planview_sweep` — plan-view checks (mesh, periodicity, developing strip, field figures, about 6 min) and the
   78-design topology sweep with the comparison plot and `summary.md` (about 5 min); `--checks`, `--sweep`, `--plot-only` run parts;
-  `--extend` solves only designs not yet in `results.json`.
+  `--extend` solves only designs not yet in `results.json`; `--fields` re-solves only the six field-figure designs (about 20 s).
+- `uv run python -m level2.sweep --plot-only` — redraw the slot-jet comparison from saved results.
+- Figures share one style, `tools/plotstyle.py` (8 in wide, 200 dpi, text ≥ 10 pt so it stays legible at 700 px). Titles are one
+  short line; conditions and caveats go in the markdown caption next to the figure.
 - `uv run python -m level2.sweep` — slot-jet mesh study, the 18-case sweep at rated flow and the comparison plot with fins, 10–20 minutes.
 
 ## Rules
