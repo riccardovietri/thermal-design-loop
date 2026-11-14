@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choosing a cold plate for a 1 kW chip</title>
+<meta name="description" content="A design study of a liquid cold plate for a 1 kW chip: a 1D model, conjugate CFD, and what still needs checking.">
+<meta property="og:title" content="Choosing a cold plate for a 1 kW chip">
+<meta property="og:image" content="https://riccardovietri.github.io/thermal-design-loop/img/l1_pareto.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap">
+<style>body{margin:0} img{max-width:100%}</style>
+<style>
+/* Layout: a single article column. Figures run slightly wider than the prose and sit before the text that discusses them. */
+:root {
+  --bg: #ffffff; --fg: #1b1f24; --muted: #5d6670; --rule: #e3e6ea; --link: #1a4fc4; --plate: #ffffff;
+  --head: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "Libre Franklin", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #14171b; --fg: #e7e9ec; --muted: #9ea7b1; --rule: #2b3138; --link: #8fb1ff; --plate: #f5f6f7; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #14171b; --fg: #e7e9ec; --muted: #9ea7b1; --rule: #2b3138; --link: #8fb1ff; --plate: #f5f6f7; color-scheme: dark; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 17px; line-height: 1.65; }
+article { max-width: 880px; margin: 0 auto; padding-block: 56px 88px;
+  padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 22px; }
+article > p, article > ul, article > ol, article > h1, article > h2, article > h3 { max-width: 680px; margin: 0; }
+h1, h2, h3 { font-family: var(--head); font-weight: 600; line-height: 1.2; text-wrap: balance; }
+h1 { font-size: clamp(2.1rem, 5vw, 3rem); letter-spacing: -0.015em; }
+h2 { font-size: 1.6rem; margin-top: 30px !important; }
+h3 { font-size: 1.2rem; font-weight: 500; margin-top: 10px !important; }
+.byline { color: var(--muted); font-size: 0.95rem; }
+a { color: var(--link); text-underline-offset: 2px; }
+a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+ul, ol { padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; }
+figure { margin: 6px 0; display: flex; flex-direction: column; gap: 10px; }
+figure img { display: block; width: 100%; height: auto; background: var(--plate); border-radius: 4px; }
+figcaption { font-size: 0.9rem; color: var(--muted); max-width: 680px; line-height: 1.5; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.93rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 0.85rem; }
+td.n { white-space: nowrap; }
+hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0; }
+.small { font-size: 0.9rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<article>
+  <h1>Choosing a cold plate for a 1 kW chip</h1>
+  <p class="byline">Riccardo Vietri, November 2026. Code and full results: <a href="https://github.com/riccardovietri/thermal-design-loop">github.com/riccardovietri/thermal-design-loop</a></p>
+
+  <p>I wanted to understand how much simulation it takes to choose a cold-plate geometry. I started with straight fins and a simple thermal-hydraulic model, then checked selected designs with conjugate CFD.</p>
+  <p>Under the same fully developed assumptions, the two models agreed closely. The harder question was whether that agreement was enough to trust the recommendation. Its margin to the preferred thermal target is small, and an apparent advantage for circular pins needs a more complete model before I would act on it.</p>
+
+  <figure><img src="img/l1_pareto.png" alt="Thermal resistance against pressure drop for straight-fin cold plates, with the pressure budget, the must-meet threshold and the objective marked, and the recommended design circled at 14.9 mK/W and 1.29 kPa.">
+    <figcaption>Straight-fin designs at 1.5 LPM. Grey dots are 1D results, blue dots were checked with CFD, and the ring marks the recommended design.</figcaption></figure>
+
+  <h2>The requirement</h2>
+  <p>A 1 kW chip on a 60 × 60 mm copper cold plate, cooled by 25% propylene glycol at 40 °C. Thermal resistance is measured from the average plate base temperature to the coolant inlet. The interface material and the chip are outside it.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Criterion</th><th>Value</th><th>Where it comes from</th></tr></thead>
+    <tbody>
+      <tr><td>Flow</td><td class="n">1.5 LPM</td><td>Open Compute Project guidance of 1.5 LPM per kW for a 10 K coolant rise</td></tr>
+      <tr><td>Thermal resistance, must meet</td><td class="n">≤ 20 mK/W</td><td>OCP reports under 20 mK/W case to inlet, interface material included, for a 1 kW module. The plate alone has to beat that</td></tr>
+      <tr><td>Thermal resistance, objective</td><td class="n">≤ 15 mK/W</td><td>A measured skived plate reached 12 mK/W at 2.6 LPM. 15 leaves about 5 for the interface material</td></tr>
+      <tr><td>Pressure drop in the channels</td><td class="n">≤ 5 kPa</td><td>My allocation, a third of a 15 kPa whole-plate budget. I did not find a standard that sets a per-plate limit</td></tr>
+      <tr><td>Smallest feature</td><td class="n">0.15 mm</td><td>Inside the range a fabrication guide gives for skived copper fins</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>The design I would pick</h2>
+  <p>Straight copper fins with 0.42 mm channels, 0.44 mm fins, 4.0 mm tall. The CFD gives 14.9 mK/W at 1.29 kPa, which puts the plate base at 54.9 °C on average and 59.9 °C at the outlet end.</p>
+  <p>Of that 14.9 mK/W, about 8.4 is fins and convection, 5.0 is the coolant warming up as it crosses the plate, and 1.4 is conduction through the base. Finer fins only reduce the first part.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Flow</th><th>Pressure drop</th><th>Resistance</th><th>Average base</th><th>Peak base</th></tr></thead>
+    <tbody>
+      <tr><td class="n">1.0 LPM</td><td class="n">0.86 kPa</td><td class="n">17.4 mK/W</td><td class="n">57.4 °C</td><td class="n">64.9 °C</td></tr>
+      <tr><td class="n">1.5 LPM</td><td class="n">1.29 kPa</td><td class="n">14.9 mK/W</td><td class="n">54.9 °C</td><td class="n">59.9 °C</td></tr>
+      <tr><td class="n">2.0 LPM</td><td class="n">1.73 kPa</td><td class="n">13.7 mK/W</td><td class="n">53.7 °C</td><td class="n">57.4 °C</td></tr>
+    </tbody>
+  </table></div>
+  <p>This design meets the objective by 0.5%, and misses it at 1.0 LPM. That margin is smaller than the effects the model leaves out, so I treat the recommendation as provisional until the checks at the end are done.</p>
+
+  <h3>How I chose it</h3>
+  <p>Heat removed per unit of pressure drop is highest for the lowest-pressure design in the acceptable window, so that ratio could not separate the candidates. I walked along the front instead, and kept going only while each 1% of extra pressure drop bought at least 0.25% lower resistance. The 0.25 cut-off is a judgment call.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Design</th><th>Resistance</th><th>Pressure drop</th><th>Return on the next step</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>0.50 mm channels</td><td class="n">17.1 mK/W</td><td class="n">0.86 kPa</td><td class="n">0.33</td><td>Keep going</td></tr>
+      <tr><td>0.42 mm channels</td><td class="n">14.9 mK/W</td><td class="n">1.29 kPa</td><td class="n">0.14</td><td>Stop here</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>How I got there</h2>
+  <h3>A 1D model to screen the design space</h3>
+  <p>A resistance network evaluates every combination of channel width, fin thickness and fin height, using base conduction, fin efficiency, laminar duct correlations and coolant heating. It covers 672 designs in a few milliseconds, and 258 of them meet the pressure and manufacturing limits.</p>
+  <p>My earlier version of this model used circular-tube constants on rectangular channels and had no fin efficiency. Finding that was the first useful result.</p>
+
+  <h3>Conjugate CFD on the shortlist</h3>
+  <figure><img src="img/l1_fields.png" alt="Coolant velocity and temperature on the cross-section of the recommended design, showing three channels between copper fins above a 2 mm base.">
+    <figcaption>Velocity and temperature across three channels of the recommended design. The bottom 2 mm is the copper base, with the chip underneath.</figcaption></figure>
+  <p>I solved the eight designs along the 1D front with a finite-element model of the channel cross-section. Flow in the channel and temperature in the fluid, fin and base are solved together.</p>
+  <figure><img src="img/l1_parity.png" alt="1D thermal resistance plotted against CFD thermal resistance. All points lie within a 5% band around the diagonal.">
+    <figcaption>1D against CFD for the eight designs.</figcaption></figure>
+  <p>For these straight-fin designs the two models agree on thermal resistance to 1.1% on average and 2.9% at worst. Both assume fully developed flow, so this tells me the 1D model handles fin and base conduction correctly. It does not tell me either model matches hardware.</p>
+
+  <h2>Other geometries I checked</h2>
+  <p>Straight fins look the same at every point along the flow. Jets and interrupted fins do not, so I added a steady laminar Navier-Stokes and energy solve in two dimensions.</p>
+
+  <h3>Slot jets onto a flat base</h3>
+  <figure><img src="img/jet_fields.png" alt="Flow field of a slot jet striking a heated base, with wall jets running outward, a recirculation cell beside the jet, and local heat transfer peaking under the slot.">
+    <figcaption>A slot jet striking the base. Heat transfer peaks under the slot and falls along the wall.</figcaption></figure>
+  <p>Coolant enters through long slots in the cover, strikes the base and runs outward to return slots. With slots and gaps of 0.1 mm or more, the best of the 18 arrays I ran reached 23.8 mK/W, which misses the 20 mK/W requirement.</p>
+  <p>The fins in this study have six to eight times the wetted area of a flat base, so the liquid film over a flat base has to be much thinner to compete. In an earlier sweep, gaps of 0.05 mm came close to the fins. I have only seen features that small made at low volume.</p>
+  <figure><img src="img/jet_compare.png" alt="Thermal resistance against pressure drop for slot-jet arrays and straight fins at equal flow. Every slot-jet point lies above the 20 mK/W line.">
+    <figcaption>Slot jets and straight fins at the same flow.</figcaption></figure>
+
+  <h3>Fin shapes in plan view</h3>
+  <figure><img src="img/pv_pins.png" alt="Coolant speed with streamlines, and temperature, around a staggered array of circular pin fins.">
+    <figcaption>Circular pins, 0.4 mm across.</figcaption></figure>
+  <p>For tall, thin fins the flow over most of the fin height is close to two-dimensional when seen from above. I solved six fin shapes this way and fed the results into the same resistance network as before. This model ignores the channel floor and cover.</p>
+  <figure><img src="img/pv_pareto.png" alt="Thermal resistance against pressure drop for six fin shapes. The circular-pin front lies slightly below the straight-fin front and the others lie above it.">
+    <figcaption>The best designs of each fin shape at equal flow. The ring marks the design the selection rule picks across all six.</figcaption></figure>
+  <p>The table gives the design the rule selects for each shape. These are single points, so they are not at the same pressure drop.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Fin shape</th><th>Selected design</th><th>Resistance</th><th>Pressure drop</th></tr></thead>
+    <tbody>
+      <tr><td>Circular pins</td><td>0.4 mm pins, 0.8 × 0.9 mm pitch</td><td class="n">12.7 mK/W</td><td class="n">1.42 kPa</td></tr>
+      <tr><td>Straight</td><td>0.4 mm channels and fins</td><td class="n">13.4 mK/W</td><td class="n">1.31 kPa</td></tr>
+      <tr><td>Zigzag</td><td>0.4 mm gap, 0.3 mm amplitude</td><td class="n">13.4 mK/W</td><td class="n">1.46 kPa</td></tr>
+      <tr><td>Sinusoidal</td><td>0.4 mm gap, 0.3 mm amplitude</td><td class="n">13.6 mK/W</td><td class="n">1.54 kPa</td></tr>
+      <tr><td>Diamond pins</td><td>0.4 mm side</td><td class="n">12.3 mK/W</td><td class="n">2.51 kPa</td></tr>
+      <tr><td>Offset strip</td><td>2 mm strips</td><td class="n">18.4 mK/W</td><td class="n">0.50 kPa</td></tr>
+    </tbody>
+  </table></div>
+  <p>To compare shapes fairly I read each front against the straight-fin front at the same pressure drop, over the range where both exist:</p>
+  <ul>
+    <li>Circular pins: 2.6 to 5.8% lower resistance, between 0.8 and 1.9 kPa.</li>
+    <li>Zigzag and sinusoidal: 2 to 4% higher.</li>
+    <li>Diamond pins: 2 to 7% higher.</li>
+    <li>Offset strips: 2 to 12% higher.</li>
+  </ul>
+  <figure><img src="img/pv_panels.png" alt="Five small panels, one per fin shape, each showing that shape's designs against the straight-fin front in grey.">
+    <figcaption>Each shape against straight fins in grey. Faint hollow markers are designs whose fin height is more than ten times the smallest gap, which I excluded.</figcaption></figure>
+  <p>I do not read the pin result as a recommendation. On straight fins, this plan-view model gives resistance 5.7% lower than the cross-section CFD, because it has no floor or cover. A 3 to 6% lead for pins is the same size as that difference. The pin solutions are also steady, and I have not checked whether the wakes would shed. Skiving cuts continuous fins, and I did not find a documented volume process for copper pins at this size.</p>
+  <p>The sinusoidal and zigzag fins had higher pressure drop without lower resistance in this model, at Reynolds numbers of about 90 to 150. Published gains for wavy channels are reported at higher Reynolds numbers and attributed to three-dimensional vortices, which a plan-view model cannot represent.</p>
+
+  <h2>What the checks cover</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Check</th><th>Quantity</th><th>Compared with</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Cross-section solver, rectangular ducts at four aspect ratios</td><td>Friction and Nusselt number</td><td>Shah and London reference values</td><td class="n">within 0.007%</td></tr>
+      <tr><td>Cross-section mesh at twice the resolution</td><td>Thermal resistance of the recommended design</td><td>Itself</td><td class="n">0.001% change</td></tr>
+      <tr><td>Navier-Stokes solver, developing flow between plates</td><td>Local Nusselt number</td><td>An independent marching solution</td><td class="n">within 0.64%</td></tr>
+      <tr><td>Plan-view solver, straight channel</td><td>Friction and Nusselt number</td><td>Analytical solution</td><td class="n">within 0.004%</td></tr>
+      <tr><td>Plan view against cross-section, same straight design</td><td>Resistance and pressure drop</td><td>The cross-section CFD</td><td class="n">5.7% and 7.1% low</td></tr>
+      <tr><td>Energy balance, every Navier-Stokes run</td><td>Heat in against heat carried out</td><td>Conservation</td><td class="n">within 0.75%</td></tr>
+    </tbody>
+  </table></div>
+  <p>These checks show the solvers reproduce known solutions and that the meshes are fine enough. None of them is a comparison with a measured cold plate.</p>
+
+  <h2>What I'm checking next</h2>
+  <ol>
+    <li><a href="https://github.com/riccardovietri/thermal-design-loop/issues/12">Entrance effects.</a> Both models assume fully developed flow. I want to know how much developing flow and inlet losses move the recommended design, given its 0.5% margin.</li>
+    <li><a href="https://github.com/riccardovietri/thermal-design-loop/issues/11">A measured plate.</a> I need a published test with complete geometry to compare against. The closest one I found does not give its width or base thickness.</li>
+    <li><a href="https://github.com/riccardovietri/thermal-design-loop/issues/10">Pins in 3D.</a> A matched 3D comparison of straight fins and circular pins at equal pressure drop, to see whether the pin lead survives the floor and cover.</li>
+  </ol>
+
+  <hr>
+  <p class="small">Requirement sources: OCP OAI System Liquid Cooling Guidelines (2023); Ortega et al., ASME InterPACK 2022; Boyd heat sink fabrication guide. The assumptions register in the repository lists every external number with its source.</p>
+</article>
+
+</body>
+</html>

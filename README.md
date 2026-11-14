@@ -3,6 +3,8 @@
 A design loop for a liquid cold plate, run the way a thermal engineer would: a 1D physics model screens 672 fin geometries,
 a conjugate CFD model checks the 8 along the Pareto front, and the output is a recommendation with the evidence for trusting it.
 
+**[Read the case study: Choosing a cold plate for a 1 kW chip](https://riccardovietri.github.io/thermal-design-loop/)**
+
 ![Thermal resistance vs pressure drop](examples/output/gpu_coldplate/pareto.png)
 
 | | |
