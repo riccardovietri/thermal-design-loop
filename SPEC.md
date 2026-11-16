@@ -123,3 +123,21 @@ Supersedes the ΔP-budget, thermal-target and recommendation items of Amendment 
 6. **Level 1 aspect-ratio limit H / gap ≤ 10 applies to the plan-view results** as well. Designs that break it are excluded from the
    fronts and the recommendation and listed as excluded with the reason. Solves are not repeated for this; a topology left with
    fewer than 5 eligible designs gets added designs to restore about 8.
+
+## Amendment 4 (2026-11-15, approved by Riccardo)
+Adds to the recommendation rule of Amendment 3 and to the Level 1 study size; everything above stands.
+1. **Objective clause.** If the marginal-return walk stops at a design that misses the R_th objective, and a design further along the
+   eligible front meets the objective, the rule continues to the lowest-pressure-drop design on that front that meets it. The report
+   states this as its own outcome in plain words: the walk stopped at X; the rule continued to Y to meet the objective. If no further
+   design meets the objective, the pick stays where the walk stopped and the report says the objective is not met.
+2. **Guard against nearly coincident points.** When the return from the current point i to a further point j is computed, j is
+   ignored if ΔP_j / ΔP_i is below a minimum ratio, so two designs that are almost the same point cannot produce a large return. The
+   minimum ratio is 1.10 by default and is set in the requirements file as `min_dp_ratio`. The report states the guard and lists
+   ignored points as skipped.
+3. **Denser Level 1 study.** Every design on the 1D Pareto front within the budget is solved with the 2D conjugate CFD, not a spread
+   of about ten (`n_cfd: all`). The design grid is refined so that it contains the earlier grid: channel width 23 geometric levels and fin
+   thickness 15 geometric levels from 0.15 to 1.0 mm, fin height 13 levels from 1.0 to 4.0 mm in 0.25 mm steps (4,485 designs). The
+   mesh setting is unchanged, and the whole study must still run in well under a minute.
+4. The rule stays a pure function in `tools/pareto.py` (`recommend_marginal_return_objective`); `recommend_marginal_return`,
+   `recommend` and `knee_index` stay in the code. A cut-off sensitivity (0.05 to 0.60 in steps of 0.05) is reported beside the
+   recommendation; it does not change how the recommendation is made.
