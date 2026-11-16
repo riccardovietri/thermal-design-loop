@@ -1,20 +1,20 @@
 # PROGRESS
 
 ## Resume here
-Everything through SPEC Amendment 3 and the readable-figure pass is merged to `main`; the repo is public as `thermal-design-loop`.
-Headline: Level 1 recommends 0.42 / 0.44 / 4.0 mm straight fins (14.93 mK/W at 1.29 kPa, meets the objective); across plan-view
-topologies the rule picks circular pins d 0.4, S_T 0.8, S_L 0.9 mm (12.65 mK/W at 1.42 kPa), 2.6–5.8% below straight fins at equal ΔP,
-inside the plan view's 6% tall-fin bias. No slot-jet case meets the 20 mK/W threshold.
-Next: (1) an industry photo for the write-up (needs a licensed image); (2) turn the preview article into the blog post;
-(3) LinkedIn post; (4) the open questions below.
+SPEC Amendment 4 (#17) is merged; Riccardo accepted the new Level 1 pick. README and the case study (`docs/index.html`, `docs/img/`)
+match the committed results as of `docs/case-study-update`. Headline: Level 1 recommends 0.39 / 0.39 / 3.75 mm straight fins
+(14.05 mK/W at 1.60 kPa, 6.3% margin on the 15 mK/W objective; 4,485 designs screened, 18 solved, 1D vs CFD 1.0% mean, 2.9% max);
+across plan-view topologies the rule picks circular pins d 0.4, S_T 0.8, S_L 0.9 mm (12.65 mK/W at 1.42 kPa), 2.6–5.8% below
+straight fins at equal ΔP, inside the plan view's tall-fin bias. No slot-jet case meets the 20 mK/W threshold.
+Entrance effects (issue #12, pull request #18, open): with the re-anchored correction the pick reads 13.66 mK/W at 1.617 kPa and the
+tall-fin gate passes (+3.1% R_th, −2.9% ΔP); the case study already quotes these numbers, so merge #18 with or before this branch.
+Next: (1) Riccardo's call on the open questions below; (2) issue #10 (3D straight fins against pins), gate values from results.json;
+(3) issue #11 (measured plate); (4) blog post and LinkedIn post from the case study.
 
 ## Open questions for Riccardo
 - Plan view: the pin advantage (2.6–5.8% at equal ΔP) is smaller than the plan view's tall-fin bias measured on straight fins (−5.7% on
   R_th, no floor or cover). Treat it as unconfirmed until a 3D or end-wall check?
 - Pins at Re_d,max 50–136 may shed vortices; steady symmetric solutions were computed. Accept, or add an unsteady check?
-- Level 1 pick changed with the denser grid (Amendment 4): 0.39 / 0.39 / 3.75 mm, 14.05 mK/W at 1.60 kPa (was 0.42 / 0.44 / 4.0 mm,
-  14.93 at 1.29). It holds only for cut-offs 0.20–0.25; at 0.30 and above the pick is 0.42 / 0.39 / 3.75 mm (14.90 at 1.29). Accept
-  the new pick, and update `docs/index.html` (case study) to match?
 - Cross-topology pick (pins 0.8 × 0.9 mm) holds only at a cut-off of exactly 0.25 among the swept values; circular pins win at every
   cut-off. Is the 0.25 cut-off still the right call, given that it now decides which pin array is named?
 - Non-straight planforms have no known volume process at 0.15 mm in copper (ASSUMPTIONS V11). Keep them as a modelling comparison only?
@@ -48,13 +48,19 @@ Next: (1) an industry photo for the write-up (needs a licensed image); (2) turn 
 - 2026-11-15: SPEC Amendment 4 (issue #13): `tools.pareto.recommend_marginal_return_objective` (objective clause, ΔP-ratio guard
   1.10), denser Level 1 study (4,485 designs, all 18 front designs solved, about 5 s), cut-off sensitivity and local-return figures;
   plan view re-selected from saved results (offset strips now 14.58 mK/W at 1.57 kPa via the clause). Details in `docs/build-log.md`.
+- 2026-11-15: README and case study brought in line with Amendment 4 (`docs/case-study-update`): fin-shape comparison as the first
+  README figure, every case-study number and figure from the committed results, cut-off and local-return paragraph, entrance-effect
+  paragraph (numbers from #18), indicative measured-plate comparison (issue #11), work-plan gate for issue #10 reads results.json.
 
 ## Result of the example study
-Rated flow 1.5 LPM, 672 designs screened (258 feasible within 5 kPa), 8 solved. 1D vs CFD on R_th: mean |diff| 1.1%, max 2.9%.
-All confidence checks pass.
-Recommended (`marginal_return`, cut-off 0.25): 0.42 mm channels, 0.44 mm fins, 4.0 mm tall → 14.93 mK/W at 1.29 kPa, meets the
-objective, interface 54.9 °C average. Steps: from 0.50 mm (17.12 mK/W, 0.86 kPa) return 0.331 → 0.42 mm; further returns 0.141 and 0.159 → stop.
-Lowest ΔP meeting the threshold: 0.50 / 0.44 / 4.0 mm → 17.12 mK/W at 0.86 kPa. Lowest R_th in budget: 0.30 / 0.26 / 2.5 mm → 12.58 mK/W at 3.79 kPa.
+Rated flow 1.5 LPM, 4,485 designs screened (1,783 feasible within 5 kPa), all 18 on the 1D front solved. 1D vs CFD on R_th: mean
+|diff| 1.0%, max 2.9%. All confidence checks pass.
+Recommended (`marginal_return`, cut-off 0.25, ΔP-ratio guard 1.10): 0.39 mm channels, 0.39 mm fins, 3.75 mm tall → 14.05 mK/W at
+1.60 kPa, meets the objective (margin 6.3%), interface 54.0 °C average, 59.0 °C peak. Walk: 0.55 / 0.44 / 4.0 (18.47, 0.70 kPa) →
+0.50 (0.378) → 0.46 (0.346) → 0.42 / 0.39 / 3.75 (0.327) → 0.39 / 0.39 / 3.75 (0.277) → stop (best further 0.187).
+Pick holds for cut-offs 0.20–0.25; 0.30–0.60 → 0.42 / 0.39 / 3.75 mm (14.90 mK/W at 1.29 kPa); 0.15 → 2.64 kPa; ≤ 0.10 → 4.66 kPa.
+Flow sensitivity: 1.0 LPM 16.55 mK/W (misses the objective), 2.0 LPM 12.80 mK/W.
+Lowest ΔP meeting the threshold: 0.55 / 0.44 / 4.0 mm → 18.47 mK/W at 0.70 kPa. Lowest R_th in budget: 0.27 / 0.26 / 2.5 mm → 11.92 mK/W at 4.66 kPa.
 Slot jets at 1.5 LPM with ≥ 0.1 mm features: best 23.8 mK/W at 0.49 kPa; none meets the 20 mK/W threshold.
 
 ## Open items

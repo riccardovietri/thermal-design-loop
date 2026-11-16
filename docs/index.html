@@ -51,10 +51,10 @@ hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0
   <p class="byline">Riccardo Vietri, November 2026. Code and full results: <a href="https://github.com/riccardovietri/thermal-design-loop">github.com/riccardovietri/thermal-design-loop</a></p>
 
   <p>This study picks a fin geometry for a liquid cold plate under a 1 kW chip, and asks how much simulation that choice needs. A 1D thermal-hydraulic model screens straight-fin designs, and conjugate CFD checks the shortlist.</p>
-  <p>Under the same fully developed assumptions, the two models agree closely. That agreement is not yet enough to trust the recommendation. Its margin to the preferred thermal target is small, and an apparent advantage for circular pins needs a more complete model.</p>
+  <p>Under the same fully developed assumptions, the two models agree closely. That agreement is not yet enough to trust the recommendation. It meets the preferred thermal target with a 6.3% margin, but no measured plate has confirmed the model yet, and an apparent advantage for circular pins needs a more complete model.</p>
   <p class="small">How it was built: I set the requirements, made the modelling decisions and reviewed the results. Claude, Anthropic's AI model, wrote most of the code and ran the simulations under that direction. Each solver was checked against a known solution before its results were used.</p>
 
-  <figure><img src="img/l1_pareto.png" alt="Thermal resistance against pressure drop for straight-fin cold plates, with the pressure budget, the must-meet threshold and the objective marked, and the recommended design circled at 14.9 mK/W and 1.29 kPa.">
+  <figure><img src="img/l1_pareto.png" alt="Thermal resistance against pressure drop for straight-fin cold plates, with the pressure budget, the must-meet threshold and the objective marked, and the recommended design circled at 14.0 mK/W and 1.60 kPa.">
     <figcaption>Straight-fin designs at 1.5 LPM. Grey dots are 1D results, blue dots were checked with CFD, and the ring marks the recommended design.</figcaption></figure>
 
   <h2>The requirement</h2>
@@ -71,40 +71,45 @@ hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0
   </table></div>
 
   <h2>Recommended design</h2>
-  <p>Straight copper fins with 0.42 mm channels, 0.44 mm fins, 4.0 mm tall. The CFD gives 14.9 mK/W at 1.29 kPa, which puts the plate base at 54.9 °C on average and 59.9 °C at the outlet end.</p>
-  <p>Of that 14.9 mK/W, about 8.4 is fins and convection, 5.0 is the coolant warming up as it crosses the plate, and 1.4 is conduction through the base. Finer fins only reduce the first part.</p>
+  <p>Straight copper fins with 0.39 mm channels, 0.39 mm fins, 3.75 mm tall. The CFD gives 14.0 mK/W at 1.60 kPa, which puts the plate base at 54.0 °C on average and 59.0 °C at the outlet end.</p>
+  <p>Of that 14.0 mK/W, about 7.5 is fins and convection, 5.0 is the coolant warming up as it crosses the plate, and 1.4 is conduction through the base. Finer fins only reduce the first part.</p>
   <div class="tablewrap"><table>
     <thead><tr><th>Flow</th><th>Pressure drop</th><th>Resistance</th><th>Average base</th><th>Peak base</th></tr></thead>
     <tbody>
-      <tr><td class="n">1.0 LPM</td><td class="n">0.86 kPa</td><td class="n">17.4 mK/W</td><td class="n">57.4 °C</td><td class="n">64.9 °C</td></tr>
-      <tr><td class="n">1.5 LPM</td><td class="n">1.29 kPa</td><td class="n">14.9 mK/W</td><td class="n">54.9 °C</td><td class="n">59.9 °C</td></tr>
-      <tr><td class="n">2.0 LPM</td><td class="n">1.73 kPa</td><td class="n">13.7 mK/W</td><td class="n">53.7 °C</td><td class="n">57.4 °C</td></tr>
+      <tr><td class="n">1.0 LPM</td><td class="n">1.07 kPa</td><td class="n">16.5 mK/W</td><td class="n">56.5 °C</td><td class="n">64.0 °C</td></tr>
+      <tr><td class="n">1.5 LPM</td><td class="n">1.60 kPa</td><td class="n">14.0 mK/W</td><td class="n">54.0 °C</td><td class="n">59.0 °C</td></tr>
+      <tr><td class="n">2.0 LPM</td><td class="n">2.13 kPa</td><td class="n">12.8 mK/W</td><td class="n">52.8 °C</td><td class="n">56.5 °C</td></tr>
     </tbody>
   </table></div>
-  <p>This design meets the objective by 0.5%, and misses it at 1.0 LPM. That margin is smaller than the effects the model leaves out, so the recommendation is provisional until the checks at the end are done.</p>
+  <p>This design meets the objective with a 6.3% margin at rated flow, and misses it at 1.0 LPM. Entrance effects, checked below, lower the resistance rather than raise it. Manifolds, uneven flow between channels and a comparison with a measured plate are still open, so the recommendation is provisional until the checks at the end are done.</p>
 
   <h3>How it was chosen</h3>
   <p>Heat removed per unit of pressure drop is highest for the lowest-pressure design in the acceptable window, so that ratio cannot separate the candidates. The selection walks along the front instead, and keeps going only while each 1% of extra pressure drop buys at least 0.25% lower resistance. The 0.25 cut-off is a judgment call.</p>
   <div class="tablewrap"><table>
-    <thead><tr><th>Design</th><th>Resistance</th><th>Pressure drop</th><th>Return on the next step</th><th></th></tr></thead>
+    <thead><tr><th>Design (channel / fin / height)</th><th>Resistance</th><th>Pressure drop</th><th>Return on the next step</th><th></th></tr></thead>
     <tbody>
-      <tr><td>0.50 mm channels</td><td class="n">17.1 mK/W</td><td class="n">0.86 kPa</td><td class="n">0.33</td><td>Keep going</td></tr>
-      <tr><td>0.42 mm channels</td><td class="n">14.9 mK/W</td><td class="n">1.29 kPa</td><td class="n">0.14</td><td>Stop here</td></tr>
+      <tr><td>0.46 / 0.44 / 4.0 mm</td><td class="n">15.9 mK/W</td><td class="n">1.05 kPa</td><td class="n">0.33</td><td>Keep going</td></tr>
+      <tr><td>0.42 / 0.39 / 3.75 mm</td><td class="n">14.9 mK/W</td><td class="n">1.29 kPa</td><td class="n">0.28</td><td>Keep going</td></tr>
+      <tr><td>0.39 / 0.39 / 3.75 mm</td><td class="n">14.0 mK/W</td><td class="n">1.60 kPa</td><td class="n">0.19</td><td>Stop here</td></tr>
     </tbody>
   </table></div>
+  <p>The table shows the last three steps. Two came before them: the walk starts at 0.55 mm channels (18.5 mK/W at 0.70 kPa), the lowest pressure drop that meets the 20 mK/W limit, and moves through 0.50 mm channels with returns of 0.38 and 0.35. In the last row, 0.19 is the best return to any further design.</p>
+  <p>The cut-off is a judgment call, so the rule was run again for cut-offs from 0.05 to 0.60. For straight fins the pick stays at 1.60 kPa for cut-offs of 0.20 and 0.25 and at 1.29 kPa (0.42 mm channels, 14.9 mK/W) from 0.30 to 0.60. Below 0.20 it moves to 2.64 kPa and then 4.66 kPa. The circular-pin array picked across fin shapes (below) holds only at the chosen 0.25: a cut-off of 0.20 picks a denser pin array and 0.30 a sparser one.</p>
+  <figure><img src="img/l1_local_return.png" alt="Return between neighbouring straight-fin designs against pressure drop. It falls from about 0.7 near 0.2 kPa to between 0.28 and 0.41 from 0.7 to 1.6 kPa, and is mostly below the 0.25 cut-off beyond the recommended design.">
+    <figcaption>Return between neighbouring designs on the straight-fin front. It falls gradually, so there is no sharp knee for the cut-off to find.</figcaption></figure>
 
   <h2>Method</h2>
   <h3>A 1D model to screen the design space</h3>
-  <p>A resistance network evaluates every combination of channel width, fin thickness and fin height, using base conduction, fin efficiency, laminar duct correlations [4] and coolant heating. It covers 672 designs in a few milliseconds, and 258 of them meet the pressure and manufacturing limits.</p>
+  <p>A resistance network evaluates every combination of channel width, fin thickness and fin height, using base conduction, fin efficiency, laminar duct correlations [4] and coolant heating. It covers 4,485 designs in under 20 milliseconds, and 1,783 of them meet the pressure and manufacturing limits.</p>
   <p>An earlier version of this model used circular-tube constants on rectangular channels and had no fin efficiency. Finding that was the first useful result.</p>
 
   <h3>Conjugate CFD on the shortlist</h3>
   <figure><img src="img/l1_fields.png" alt="Coolant velocity and temperature on the cross-section of the recommended design, showing three channels between copper fins above a 2 mm base.">
     <figcaption>Velocity and temperature across three channels of the recommended design. The bottom 2 mm is the copper base, with the chip underneath.</figcaption></figure>
-  <p>The eight designs along the 1D front are solved with a finite-element model of the channel cross-section. Flow in the channel and temperature in the fluid, fin and base are solved together.</p>
+  <p>All 18 designs on the 1D front within the pressure budget are solved with a finite-element model of the channel cross-section. Flow in the channel and temperature in the fluid, fin and base are solved together.</p>
   <figure><img src="img/l1_parity.png" alt="1D thermal resistance plotted against CFD thermal resistance. All points lie within a 5% band around the diagonal.">
-    <figcaption>1D against CFD for the eight designs.</figcaption></figure>
-  <p>For these straight-fin designs the two models agree on thermal resistance to 1.1% on average and 2.9% at worst. Both assume fully developed flow, so this shows the 1D model handles fin and base conduction correctly. It does not show that either model matches hardware.</p>
+    <figcaption>1D against CFD for the 18 designs.</figcaption></figure>
+  <p>For these straight-fin designs the two models agree on thermal resistance to 1.0% on average and 2.9% at worst. Both assume fully developed flow, so this shows the 1D model handles fin and base conduction correctly. It does not show that either model matches hardware.</p>
 
   <h2>Other geometries</h2>
   <p>Straight fins look the same at every point along the flow. Jets and interrupted fins do not, so they are solved with a steady laminar Navier-Stokes and energy model in two dimensions.</p>
@@ -132,9 +137,10 @@ hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0
       <tr><td>Zigzag</td><td>0.4 mm gap, 0.3 mm amplitude</td><td class="n">13.4 mK/W</td><td class="n">1.46 kPa</td></tr>
       <tr><td>Sinusoidal</td><td>0.4 mm gap, 0.3 mm amplitude</td><td class="n">13.6 mK/W</td><td class="n">1.54 kPa</td></tr>
       <tr><td>Diamond pins</td><td>0.4 mm side</td><td class="n">12.3 mK/W</td><td class="n">2.51 kPa</td></tr>
-      <tr><td>Offset strip</td><td>2 mm strips</td><td class="n">18.4 mK/W</td><td class="n">0.50 kPa</td></tr>
+      <tr><td>Offset strip</td><td>1 mm strips, 0.3 mm thick, 3 mm tall</td><td class="n">14.6 mK/W</td><td class="n">1.57 kPa</td></tr>
     </tbody>
   </table></div>
+  <p>For offset strips the walk stops at its first design (18.4 mK/W at 0.50 kPa), which misses the 15 mK/W objective. Other offset-strip designs meet it, so the rule's objective clause continues to the one with the lowest pressure drop.</p>
   <p>For a fair comparison, each front is read against the straight-fin front at the same pressure drop, over the range where both exist:</p>
   <ul>
     <li>Circular pins: 2.6 to 5.8% lower resistance, between 0.8 and 1.9 kPa.</li>
@@ -144,7 +150,7 @@ hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0
   </ul>
   <figure><img src="img/pv_panels.png" alt="Five small panels, one per fin shape, each showing that shape's designs against the straight-fin front in grey.">
     <figcaption>Each shape against straight fins in grey. Faint hollow markers are designs whose fin height is more than ten times the smallest gap, which are excluded.</figcaption></figure>
-  <p>The pin result is not a recommendation. On straight fins, this plan-view model gives resistance 5.7% lower than the cross-section CFD, because it has no floor or cover. A 3 to 6% lead for pins is the same size as that difference. The pin solutions are also steady, with no check yet on whether the wakes would shed. Skiving cuts continuous fins [3], and no documented volume process was found for copper pins at this size.</p>
+  <p>The pin result is not a recommendation. On straight fins, this plan-view model gives resistance 5.6% lower than the cross-section CFD, because it has no floor or cover. A 3 to 6% lead for pins is the same size as that difference. The pin solutions are also steady, with no check yet on whether the wakes would shed. Skiving cuts continuous fins [3], and no documented volume process was found for copper pins at this size.</p>
   <p>The sinusoidal and zigzag fins had higher pressure drop without lower resistance in this model, at Reynolds numbers of about 90 to 150. Published gains for wavy channels are reported at higher Reynolds numbers and attributed to three-dimensional vortices [5, 6], which a plan-view model cannot represent.</p>
 
   <h2>What the checks cover</h2>
@@ -152,19 +158,21 @@ hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0
     <thead><tr><th>Check</th><th>Quantity</th><th>Compared with</th><th>Result</th></tr></thead>
     <tbody>
       <tr><td>Cross-section solver, rectangular ducts at four aspect ratios</td><td>Friction and Nusselt number</td><td>Shah and London reference values [4]</td><td class="n">within 0.007%</td></tr>
-      <tr><td>Cross-section mesh at twice the resolution</td><td>Thermal resistance of the recommended design</td><td>Itself</td><td class="n">0.001% change</td></tr>
+      <tr><td>Cross-section mesh at twice the resolution</td><td>Thermal resistance of the recommended design</td><td>Itself</td><td class="n">0.002% change</td></tr>
       <tr><td>Navier-Stokes solver, developing flow between plates</td><td>Local Nusselt number</td><td>An independent marching solution</td><td class="n">within 0.64%</td></tr>
       <tr><td>Plan-view solver, straight channel</td><td>Friction and Nusselt number</td><td>Analytical solution</td><td class="n">within 0.004%</td></tr>
-      <tr><td>Plan view against cross-section, same straight design</td><td>Resistance and pressure drop</td><td>The cross-section CFD</td><td class="n">5.7% and 7.1% low</td></tr>
+      <tr><td>Plan view against cross-section, same straight design</td><td>Resistance and pressure drop</td><td>The cross-section CFD</td><td class="n">5.6% and 7.1% low</td></tr>
       <tr><td>Energy balance, every Navier-Stokes run</td><td>Heat in against heat carried out</td><td>Conservation</td><td class="n">within 0.75%</td></tr>
     </tbody>
   </table></div>
   <p>These checks show the solvers reproduce known solutions and that the meshes are fine enough. None of them is a comparison with a measured cold plate.</p>
+  <p>Both models assume fully developed flow. To see what that leaves out, the channel of the recommended design was also solved over its full 60 mm from a uniform inlet, in the tall-fin limit (two heated fin walls, no floor or cover). Developing flow raises the length-mean heat transfer coefficient by 5.1% and the channel pressure drop by 1.2%. A 1D entrance correction built from published results [7, 8] matches the resulting changes in resistance and pressure drop to within 3.1% and 2.9%. An earlier version of the correction missed them by 36 to 41% and was rebuilt before these numbers were produced. Applied to the recommended design, the correction lowers the resistance from 14.0 to 13.7 mK/W and raises the pressure drop from 1.60 to 1.62 kPa, so the margin on the objective grows to 8.9%. Across the 18 designs the order by resistance does not change, but the return on the last step of the selection falls from 0.277 to 0.248, just under the cut-off, so the rule applied to the corrected values would stop one step earlier, at 0.42 mm channels.</p>
+  <p>An indicative comparison with a published skived copper plate [2] is recorded on <a href="https://github.com/riccardovietri/thermal-design-loop/issues/11">issue 11</a>. With a base of 2 to 3 mm assumed, the 1D model reads 6 to 16% low on thermal resistance from 1 LPM up. The paper does not publish the base thickness, so this is indicative only and not a validation.</p>
 
   <h2>Next checks</h2>
   <ol>
-    <li><a href="https://github.com/riccardovietri/thermal-design-loop/issues/12">Entrance effects.</a> Both models assume fully developed flow. The open question is how much developing flow and inlet losses move the recommended design, given its 0.5% margin.</li>
-    <li><a href="https://github.com/riccardovietri/thermal-design-loop/issues/11">A measured plate.</a> This needs a published test with complete geometry. The closest one found [2] does not give its width or base thickness.</li>
+    <li><a href="https://github.com/riccardovietri/thermal-design-loop/issues/12">The full three-dimensional duct.</a> The tall-fin check of entrance effects agrees with the 1D correction. What it does not cover is development in the real duct, with its floor, cover and corners, and the losses in the inlet and outlet manifolds.</li>
+    <li><a href="https://github.com/riccardovietri/thermal-design-loop/issues/11">A measured plate.</a> This needs a published test with complete geometry. The closest one found [2] does not publish its base thickness.</li>
     <li><a href="https://github.com/riccardovietri/thermal-design-loop/issues/10">Pins in 3D.</a> A matched 3D comparison of straight fins and circular pins at equal pressure drop, to see whether the pin lead survives the floor and cover.</li>
   </ol>
 
@@ -177,6 +185,8 @@ hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0
     <li>R. K. Shah and A. L. London, Laminar Flow Forced Convection in Ducts, Academic Press, 1978.</li>
     <li>J. Kundu, <a href="https://etd.ohiolink.edu/acprod/odb_etd/ws/send_file/send?accession=ucin998059414&amp;disposition=inline">Numerical Investigation of Laminar Forced Convection in Two-Dimensional and Three-Dimensional Sinusoidal Corrugated Ducts</a>, MS thesis, University of Cincinnati, 2001.</li>
     <li>N. Ghorbani et al., <a href="https://doi.org/10.1038/s41598-022-09859-6">Investigation of wavy microchannel ability on electronic devices cooling</a>, Scientific Reports 12:5882, 2022.</li>
+    <li>Y. S. Muzychka and M. M. Yovanovich, <a href="https://research.library.mun.ca/2486">Laminar flow friction and heat transfer in non-circular ducts and channels, Part II: thermal problem</a>, Compact Heat Exchangers, Grenoble, 2002.</li>
+    <li>B. Ray, F. Durst and S. Ray, <a href="https://arxiv.org/abs/1707.04947">Pressure drop and flow development in the entrance region of micro-channels with second order velocity slip condition and the requirement for development length</a>, arXiv:1707.04947, 2017.</li>
   </ol>
   <p class="small">The assumptions register in the repository lists every external number with its source.</p>
 </article>
