@@ -7556,6 +7556,7 @@
       "r_th_threshold_k_per_w": 0.02,
       "r_th_objective_k_per_w": 0.015,
       "marginal_return_cutoff": 0.25,
+      "min_dp_ratio": 1.1,
       "max_h_over_gap": 10.0
     },
     "recommended": {
@@ -7579,6 +7580,9 @@
         "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
         "pin_circle_d0300_s_t0600_s_l0550_h_fin3000"
       ],
+      "walk_stop": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+      "objective_step": null,
+      "objective_unreachable": false,
       "steps": [
         {
           "from": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
@@ -7586,123 +7590,104 @@
           "returns": [
             {
               "to": "straight_w0500_t0400_h_fin4000",
-              "return": 0.40429917099531487
+              "return": 0.40429917099531487,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
-              "return": 0.45709648274948184
+              "return": 0.45709648274948184,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
-              "return": 0.404151096480859
+              "return": 0.404151096480859,
+              "skipped": false
             },
             {
               "to": "straight_w0400_t0400_h_fin4000",
-              "return": 0.3342165378977644
+              "return": 0.3342165378977644,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
-              "return": 0.35278151927428686
+              "return": 0.35278151927428686,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
-              "return": 0.36037138367024785
+              "return": 0.36037138367024785,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
-              "return": 0.3331486141843
+              "return": 0.3331486141843,
+              "skipped": false
             },
             {
               "to": "straight_w0300_t0300_h_fin3000",
-              "return": 0.25185983897841224
+              "return": 0.25185983897841224,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
-              "return": 0.266284469193794
+              "return": 0.266284469193794,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
-              "return": 0.2591256644893806
+              "return": 0.2591256644893806,
+              "skipped": false
             }
           ]
         },
         {
           "from": "straight_w0500_t0400_h_fin4000",
-          "to": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
-          "returns": [
-            {
-              "to": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
-              "return": 0.8220265736106805
-            },
-            {
-              "to": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
-              "return": 0.40396124995939636
-            },
-            {
-              "to": "straight_w0400_t0400_h_fin4000",
-              "return": 0.2834698915934402
-            },
-            {
-              "to": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
-              "return": 0.31841909626864184
-            },
-            {
-              "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
-              "return": 0.33274037517625915
-            },
-            {
-              "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
-              "return": 0.3018160676155725
-            },
-            {
-              "to": "straight_w0300_t0300_h_fin3000",
-              "return": 0.208817758104599
-            },
-            {
-              "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
-              "return": 0.2285188794224264
-            },
-            {
-              "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
-              "return": 0.225368819995221
-            }
-          ]
-        },
-        {
-          "from": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
           "to": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
           "returns": [
             {
+              "to": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+              "return": 0.8220265736106805,
+              "skipped": true
+            },
+            {
               "to": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
-              "return": 0.30875332719981335
+              "return": 0.40396124995939636,
+              "skipped": false
             },
             {
               "to": "straight_w0400_t0400_h_fin4000",
-              "return": 0.22044800060490974
+              "return": 0.2834698915934402,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
-              "return": 0.2646300132615669
+              "return": 0.31841909626864184,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
-              "return": 0.28375567627031095
+              "return": 0.33274037517625915,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
-              "return": 0.26641722433920223
+              "return": 0.3018160676155725,
+              "skipped": false
             },
             {
               "to": "straight_w0300_t0300_h_fin3000",
-              "return": 0.18270092679127103
+              "return": 0.208817758104599,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
-              "return": 0.20405404830733245
+              "return": 0.2285188794224264,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
-              "return": 0.20459752025298325
+              "return": 0.225368819995221,
+              "skipped": false
             }
           ]
         },
@@ -7712,31 +7697,38 @@
           "returns": [
             {
               "to": "straight_w0400_t0400_h_fin4000",
-              "return": 0.12711352643868273
+              "return": 0.12711352643868273,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
-              "return": 0.22565854278585817
+              "return": 0.22565854278585817,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
-              "return": 0.2641456525803173
+              "return": 0.2641456525803173,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
-              "return": 0.24837665845188756
+              "return": 0.24837665845188756,
+              "skipped": false
             },
             {
               "to": "straight_w0300_t0300_h_fin3000",
-              "return": 0.15370391253318116
+              "return": 0.15370391253318116,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
-              "return": 0.18091483660055163
+              "return": 0.18091483660055163,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
-              "return": 0.18580259717269487
+              "return": 0.18580259717269487,
+              "skipped": false
             }
           ]
         },
@@ -7746,19 +7738,23 @@
           "returns": [
             {
               "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
-              "return": 0.22962503096777437
+              "return": 0.22962503096777437,
+              "skipped": false
             },
             {
               "to": "straight_w0300_t0300_h_fin3000",
-              "return": 0.10788080538140647
+              "return": 0.10788080538140647,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
-              "return": 0.14826961867428523
+              "return": 0.14826961867428523,
+              "skipped": false
             },
             {
               "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
-              "return": 0.1623979038794708
+              "return": 0.1623979038794708,
+              "skipped": false
             }
           ]
         }
@@ -7789,6 +7785,9 @@
             "straight_w0400_t0400_h_fin4000",
             "straight_w0300_t0300_h_fin3000"
           ],
+          "walk_stop": "straight_w0400_t0400_h_fin4000",
+          "objective_step": null,
+          "objective_unreachable": false,
           "steps": [
             {
               "from": "straight_w0500_t0400_h_fin4000",
@@ -7796,11 +7795,13 @@
               "returns": [
                 {
                   "to": "straight_w0400_t0400_h_fin4000",
-                  "return": 0.2834698915934402
+                  "return": 0.2834698915934402,
+                  "skipped": false
                 },
                 {
                   "to": "straight_w0300_t0300_h_fin3000",
-                  "return": 0.208817758104599
+                  "return": 0.208817758104599,
+                  "skipped": false
                 }
               ]
             },
@@ -7810,7 +7811,8 @@
               "returns": [
                 {
                   "to": "straight_w0300_t0300_h_fin3000",
-                  "return": 0.16110111117310436
+                  "return": 0.16110111117310436,
+                  "skipped": false
                 }
               ]
             }
@@ -7857,6 +7859,9 @@
           "front": [
             "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000"
           ],
+          "walk_stop": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+          "objective_step": null,
+          "objective_unreachable": false,
           "steps": [
             {
               "from": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
@@ -7907,6 +7912,9 @@
             "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
             "zigzag_w0300_t0300_amp0300_lam2000_h_fin3000"
           ],
+          "walk_stop": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+          "objective_step": null,
+          "objective_unreachable": false,
           "steps": [
             {
               "from": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
@@ -7914,7 +7922,8 @@
               "returns": [
                 {
                   "to": "zigzag_w0300_t0300_amp0300_lam2000_h_fin3000",
-                  "return": 0.10097353906008451
+                  "return": 0.10097353906008451,
+                  "skipped": false
                 }
               ]
             }
@@ -7951,13 +7960,13 @@
           210.14645305312686
         ],
         "recommended": {
-          "design_id": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+          "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
           "topology": "offset_strip",
-          "r_th_k_per_w": 0.01836412346732321,
-          "dp_pa": 504.84970436880093,
-          "rule": "marginal_return",
+          "r_th_k_per_w": 0.014578277582908895,
+          "dp_pa": 1566.3016996172585,
+          "rule": "marginal_return_then_objective",
           "meets_threshold": true,
-          "meets_objective": false,
+          "meets_objective": true,
           "front": [
             "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
             "offset_strip_l1000_t0400_p_t1600_g0000_h_fin4000",
@@ -7967,6 +7976,12 @@
             "offset_strip_l0500_t0300_p_t1200_g0000_h_fin3000",
             "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000"
           ],
+          "walk_stop": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+          "objective_step": {
+            "from": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+            "to": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000"
+          },
+          "objective_unreachable": false,
           "steps": [
             {
               "from": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
@@ -7974,27 +7989,33 @@
               "returns": [
                 {
                   "to": "offset_strip_l1000_t0400_p_t1600_g0000_h_fin4000",
-                  "return": 0.22989212727690597
+                  "return": 0.22989212727690597,
+                  "skipped": false
                 },
                 {
                   "to": "offset_strip_l2000_t0300_p_t1200_g0000_h_fin3000",
-                  "return": 0.21884106910250145
+                  "return": 0.21884106910250145,
+                  "skipped": false
                 },
                 {
                   "to": "offset_strip_l0500_t0400_p_t1600_g0000_h_fin4000",
-                  "return": 0.21031305499895714
+                  "return": 0.21031305499895714,
+                  "skipped": false
                 },
                 {
                   "to": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
-                  "return": 0.20390741118527755
+                  "return": 0.20390741118527755,
+                  "skipped": false
                 },
                 {
                   "to": "offset_strip_l0500_t0300_p_t1200_g0000_h_fin3000",
-                  "return": 0.2019981987797285
+                  "return": 0.2019981987797285,
+                  "skipped": false
                 },
                 {
                   "to": "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000",
-                  "return": 0.18906251736269997
+                  "return": 0.18906251736269997,
+                  "skipped": false
                 }
               ]
             }
@@ -8047,6 +8068,9 @@
             "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
             "pin_circle_d0300_s_t0600_s_l0550_h_fin3000"
           ],
+          "walk_stop": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+          "objective_step": null,
+          "objective_unreachable": false,
           "steps": [
             {
               "from": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
@@ -8054,27 +8078,33 @@
               "returns": [
                 {
                   "to": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
-                  "return": 0.30875332719981335
+                  "return": 0.30875332719981335,
+                  "skipped": false
                 },
                 {
                   "to": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
-                  "return": 0.2646300132615669
+                  "return": 0.2646300132615669,
+                  "skipped": false
                 },
                 {
                   "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
-                  "return": 0.28375567627031095
+                  "return": 0.28375567627031095,
+                  "skipped": false
                 },
                 {
                   "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
-                  "return": 0.26641722433920223
+                  "return": 0.26641722433920223,
+                  "skipped": false
                 },
                 {
                   "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
-                  "return": 0.20405404830733245
+                  "return": 0.20405404830733245,
+                  "skipped": false
                 },
                 {
                   "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
-                  "return": 0.20459752025298325
+                  "return": 0.20459752025298325,
+                  "skipped": false
                 }
               ]
             },
@@ -8084,23 +8114,28 @@
               "returns": [
                 {
                   "to": "pin_circle_d0400_s_t0900_s_l0700_h_fin4000",
-                  "return": 0.22565854278585817
+                  "return": 0.22565854278585817,
+                  "skipped": false
                 },
                 {
                   "to": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
-                  "return": 0.2641456525803173
+                  "return": 0.2641456525803173,
+                  "skipped": false
                 },
                 {
                   "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
-                  "return": 0.24837665845188756
+                  "return": 0.24837665845188756,
+                  "skipped": false
                 },
                 {
                   "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
-                  "return": 0.18091483660055163
+                  "return": 0.18091483660055163,
+                  "skipped": false
                 },
                 {
                   "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
-                  "return": 0.18580259717269487
+                  "return": 0.18580259717269487,
+                  "skipped": false
                 }
               ]
             },
@@ -8110,15 +8145,18 @@
               "returns": [
                 {
                   "to": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
-                  "return": 0.22962503096777437
+                  "return": 0.22962503096777437,
+                  "skipped": false
                 },
                 {
                   "to": "pin_circle_d0300_s_t0600_s_l0700_h_fin3000",
-                  "return": 0.14826961867428523
+                  "return": 0.14826961867428523,
+                  "skipped": false
                 },
                 {
                   "to": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
-                  "return": 0.1623979038794708
+                  "return": 0.1623979038794708,
+                  "skipped": false
                 }
               ]
             }
@@ -8170,6 +8208,9 @@
             "pin_diamond_s0300_s_t0750_s_l0700_h_fin3000",
             "pin_diamond_s0300_s_t0850_s_l0500_h_fin3000"
           ],
+          "walk_stop": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+          "objective_step": null,
+          "objective_unreachable": false,
           "steps": [
             {
               "from": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
@@ -8177,23 +8218,28 @@
               "returns": [
                 {
                   "to": "pin_diamond_s0400_s_t1000_s_l0900_h_fin4000",
-                  "return": 0.24697100001853953
+                  "return": 0.24697100001853953,
+                  "skipped": false
                 },
                 {
                   "to": "pin_diamond_s0400_s_t1100_s_l0700_h_fin4000",
-                  "return": 0.22771479360550215
+                  "return": 0.22771479360550215,
+                  "skipped": false
                 },
                 {
                   "to": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
-                  "return": 0.2526785517962304
+                  "return": 0.2526785517962304,
+                  "skipped": false
                 },
                 {
                   "to": "pin_diamond_s0300_s_t0750_s_l0700_h_fin3000",
-                  "return": 0.17642919049724107
+                  "return": 0.17642919049724107,
+                  "skipped": false
                 },
                 {
                   "to": "pin_diamond_s0300_s_t0850_s_l0500_h_fin3000",
-                  "return": 0.16814530894485205
+                  "return": 0.16814530894485205,
+                  "skipped": false
                 }
               ]
             },
@@ -8203,11 +8249,13 @@
               "returns": [
                 {
                   "to": "pin_diamond_s0300_s_t0750_s_l0700_h_fin3000",
-                  "return": 0.10281218048619166
+                  "return": 0.10281218048619166,
+                  "skipped": false
                 },
                 {
                   "to": "pin_diamond_s0300_s_t0850_s_l0500_h_fin3000",
-                  "return": 0.10174516180213102
+                  "return": 0.10174516180213102,
+                  "skipped": false
                 }
               ]
             }
@@ -8231,6 +8279,820 @@
           "r_th_k_per_w": 0.014049655080465184,
           "dp_pa": 1476.5615974882583
         }
+      }
+    },
+    "cutoff_sensitivity": {
+      "all": {
+        "picks": [
+          {
+            "cutoff": 0.05,
+            "design_id": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+            "r_th_k_per_w": 0.010609545662924413,
+            "dp_pa": 4194.599926272966
+          },
+          {
+            "cutoff": 0.1,
+            "design_id": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+            "r_th_k_per_w": 0.010609545662924413,
+            "dp_pa": 4194.599926272966
+          },
+          {
+            "cutoff": 0.15,
+            "design_id": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+            "r_th_k_per_w": 0.011883304462603689,
+            "dp_pa": 1864.5562150917517
+          },
+          {
+            "cutoff": 0.2,
+            "design_id": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+            "r_th_k_per_w": 0.011883304462603689,
+            "dp_pa": 1864.5562150917517
+          },
+          {
+            "cutoff": 0.25,
+            "design_id": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.012649269866607395,
+            "dp_pa": 1420.4764333627315
+          },
+          {
+            "cutoff": 0.3,
+            "design_id": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.013777632137071016,
+            "dp_pa": 1027.8900633380927
+          },
+          {
+            "cutoff": 0.35,
+            "design_id": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.013777632137071016,
+            "dp_pa": 1027.8900633380927
+          },
+          {
+            "cutoff": 0.4,
+            "design_id": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.013777632137071016,
+            "dp_pa": 1027.8900633380927
+          },
+          {
+            "cutoff": 0.45,
+            "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014900536709759105,
+            "dp_pa": 797.5132181107151
+          },
+          {
+            "cutoff": 0.5,
+            "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+            "r_th_k_per_w": 0.014900536709759105,
+            "dp_pa": 797.5132181107151
+          },
+          {
+            "cutoff": 0.55,
+            "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+            "r_th_k_per_w": 0.014900536709759105,
+            "dp_pa": 797.5132181107151
+          },
+          {
+            "cutoff": 0.6,
+            "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+            "r_th_k_per_w": 0.014900536709759105,
+            "dp_pa": 797.5132181107151
+          }
+        ],
+        "stable_range": [
+          0.25,
+          0.25
+        ]
+      },
+      "straight": {
+        "picks": [
+          {
+            "cutoff": 0.05,
+            "design_id": "straight_w0300_t0300_h_fin3000",
+            "topology": "straight",
+            "rule": "marginal_return",
+            "walk_stop": "straight_w0300_t0300_h_fin3000",
+            "r_th_k_per_w": 0.011628858870723926,
+            "dp_pa": 3097.656582752169
+          },
+          {
+            "cutoff": 0.1,
+            "design_id": "straight_w0300_t0300_h_fin3000",
+            "topology": "straight",
+            "rule": "marginal_return",
+            "walk_stop": "straight_w0300_t0300_h_fin3000",
+            "r_th_k_per_w": 0.011628858870723926,
+            "dp_pa": 3097.656582752169
+          },
+          {
+            "cutoff": 0.15,
+            "design_id": "straight_w0300_t0300_h_fin3000",
+            "topology": "straight",
+            "rule": "marginal_return",
+            "walk_stop": "straight_w0300_t0300_h_fin3000",
+            "r_th_k_per_w": 0.011628858870723926,
+            "dp_pa": 3097.656582752169
+          },
+          {
+            "cutoff": 0.2,
+            "design_id": "straight_w0400_t0400_h_fin4000",
+            "topology": "straight",
+            "rule": "marginal_return",
+            "walk_stop": "straight_w0400_t0400_h_fin4000",
+            "r_th_k_per_w": 0.013363505840162448,
+            "dp_pa": 1306.823870848576
+          },
+          {
+            "cutoff": 0.25,
+            "design_id": "straight_w0400_t0400_h_fin4000",
+            "topology": "straight",
+            "rule": "marginal_return",
+            "walk_stop": "straight_w0400_t0400_h_fin4000",
+            "r_th_k_per_w": 0.013363505840162448,
+            "dp_pa": 1306.823870848576
+          },
+          {
+            "cutoff": 0.3,
+            "design_id": "straight_w0400_t0400_h_fin4000",
+            "topology": "straight",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "straight_w0500_t0400_h_fin4000",
+            "r_th_k_per_w": 0.013363505840162448,
+            "dp_pa": 1306.823870848576
+          },
+          {
+            "cutoff": 0.35,
+            "design_id": "straight_w0400_t0400_h_fin4000",
+            "topology": "straight",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "straight_w0500_t0400_h_fin4000",
+            "r_th_k_per_w": 0.013363505840162448,
+            "dp_pa": 1306.823870848576
+          },
+          {
+            "cutoff": 0.4,
+            "design_id": "straight_w0400_t0400_h_fin4000",
+            "topology": "straight",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "straight_w0500_t0400_h_fin4000",
+            "r_th_k_per_w": 0.013363505840162448,
+            "dp_pa": 1306.823870848576
+          },
+          {
+            "cutoff": 0.45,
+            "design_id": "straight_w0400_t0400_h_fin4000",
+            "topology": "straight",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "straight_w0500_t0400_h_fin4000",
+            "r_th_k_per_w": 0.013363505840162448,
+            "dp_pa": 1306.823870848576
+          },
+          {
+            "cutoff": 0.5,
+            "design_id": "straight_w0400_t0400_h_fin4000",
+            "topology": "straight",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "straight_w0500_t0400_h_fin4000",
+            "r_th_k_per_w": 0.013363505840162448,
+            "dp_pa": 1306.823870848576
+          },
+          {
+            "cutoff": 0.55,
+            "design_id": "straight_w0400_t0400_h_fin4000",
+            "topology": "straight",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "straight_w0500_t0400_h_fin4000",
+            "r_th_k_per_w": 0.013363505840162448,
+            "dp_pa": 1306.823870848576
+          },
+          {
+            "cutoff": 0.6,
+            "design_id": "straight_w0400_t0400_h_fin4000",
+            "topology": "straight",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "straight_w0500_t0400_h_fin4000",
+            "r_th_k_per_w": 0.013363505840162448,
+            "dp_pa": 1306.823870848576
+          }
+        ],
+        "stable_range": [
+          0.2,
+          0.6
+        ]
+      },
+      "sinusoidal": {
+        "picks": [
+          {
+            "cutoff": 0.05,
+            "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "sinusoidal",
+            "rule": "marginal_return",
+            "walk_stop": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013582293672575782,
+            "dp_pa": 1535.449877302684
+          },
+          {
+            "cutoff": 0.1,
+            "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "sinusoidal",
+            "rule": "marginal_return",
+            "walk_stop": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013582293672575782,
+            "dp_pa": 1535.449877302684
+          },
+          {
+            "cutoff": 0.15,
+            "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "sinusoidal",
+            "rule": "marginal_return",
+            "walk_stop": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013582293672575782,
+            "dp_pa": 1535.449877302684
+          },
+          {
+            "cutoff": 0.2,
+            "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "sinusoidal",
+            "rule": "marginal_return",
+            "walk_stop": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013582293672575782,
+            "dp_pa": 1535.449877302684
+          },
+          {
+            "cutoff": 0.25,
+            "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "sinusoidal",
+            "rule": "marginal_return",
+            "walk_stop": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013582293672575782,
+            "dp_pa": 1535.449877302684
+          },
+          {
+            "cutoff": 0.3,
+            "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "sinusoidal",
+            "rule": "marginal_return",
+            "walk_stop": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013582293672575782,
+            "dp_pa": 1535.449877302684
+          },
+          {
+            "cutoff": 0.35,
+            "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "sinusoidal",
+            "rule": "marginal_return",
+            "walk_stop": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013582293672575782,
+            "dp_pa": 1535.449877302684
+          },
+          {
+            "cutoff": 0.4,
+            "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "sinusoidal",
+            "rule": "marginal_return",
+            "walk_stop": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013582293672575782,
+            "dp_pa": 1535.449877302684
+          },
+          {
+            "cutoff": 0.45,
+            "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "sinusoidal",
+            "rule": "marginal_return",
+            "walk_stop": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013582293672575782,
+            "dp_pa": 1535.449877302684
+          },
+          {
+            "cutoff": 0.5,
+            "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "sinusoidal",
+            "rule": "marginal_return",
+            "walk_stop": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013582293672575782,
+            "dp_pa": 1535.449877302684
+          },
+          {
+            "cutoff": 0.55,
+            "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "sinusoidal",
+            "rule": "marginal_return",
+            "walk_stop": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013582293672575782,
+            "dp_pa": 1535.449877302684
+          },
+          {
+            "cutoff": 0.6,
+            "design_id": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "sinusoidal",
+            "rule": "marginal_return",
+            "walk_stop": "sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013582293672575782,
+            "dp_pa": 1535.449877302684
+          }
+        ],
+        "stable_range": [
+          0.05,
+          0.6
+        ]
+      },
+      "zigzag": {
+        "picks": [
+          {
+            "cutoff": 0.05,
+            "design_id": "zigzag_w0300_t0300_amp0300_lam2000_h_fin3000",
+            "topology": "zigzag",
+            "rule": "marginal_return",
+            "walk_stop": "zigzag_w0300_t0300_amp0300_lam2000_h_fin3000",
+            "r_th_k_per_w": 0.011915823764575138,
+            "dp_pa": 4822.39574847955
+          },
+          {
+            "cutoff": 0.1,
+            "design_id": "zigzag_w0300_t0300_amp0300_lam2000_h_fin3000",
+            "topology": "zigzag",
+            "rule": "marginal_return",
+            "walk_stop": "zigzag_w0300_t0300_amp0300_lam2000_h_fin3000",
+            "r_th_k_per_w": 0.011915823764575138,
+            "dp_pa": 4822.39574847955
+          },
+          {
+            "cutoff": 0.15,
+            "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "zigzag",
+            "rule": "marginal_return",
+            "walk_stop": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013443246258400217,
+            "dp_pa": 1460.5359734058654
+          },
+          {
+            "cutoff": 0.2,
+            "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "zigzag",
+            "rule": "marginal_return",
+            "walk_stop": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013443246258400217,
+            "dp_pa": 1460.5359734058654
+          },
+          {
+            "cutoff": 0.25,
+            "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "zigzag",
+            "rule": "marginal_return",
+            "walk_stop": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013443246258400217,
+            "dp_pa": 1460.5359734058654
+          },
+          {
+            "cutoff": 0.3,
+            "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "zigzag",
+            "rule": "marginal_return",
+            "walk_stop": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013443246258400217,
+            "dp_pa": 1460.5359734058654
+          },
+          {
+            "cutoff": 0.35,
+            "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "zigzag",
+            "rule": "marginal_return",
+            "walk_stop": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013443246258400217,
+            "dp_pa": 1460.5359734058654
+          },
+          {
+            "cutoff": 0.4,
+            "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "zigzag",
+            "rule": "marginal_return",
+            "walk_stop": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013443246258400217,
+            "dp_pa": 1460.5359734058654
+          },
+          {
+            "cutoff": 0.45,
+            "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "zigzag",
+            "rule": "marginal_return",
+            "walk_stop": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013443246258400217,
+            "dp_pa": 1460.5359734058654
+          },
+          {
+            "cutoff": 0.5,
+            "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "zigzag",
+            "rule": "marginal_return",
+            "walk_stop": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013443246258400217,
+            "dp_pa": 1460.5359734058654
+          },
+          {
+            "cutoff": 0.55,
+            "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "zigzag",
+            "rule": "marginal_return",
+            "walk_stop": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013443246258400217,
+            "dp_pa": 1460.5359734058654
+          },
+          {
+            "cutoff": 0.6,
+            "design_id": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "topology": "zigzag",
+            "rule": "marginal_return",
+            "walk_stop": "zigzag_w0400_t0400_amp0300_lam4000_h_fin4000",
+            "r_th_k_per_w": 0.013443246258400217,
+            "dp_pa": 1460.5359734058654
+          }
+        ],
+        "stable_range": [
+          0.15,
+          0.6
+        ]
+      },
+      "offset_strip": {
+        "picks": [
+          {
+            "cutoff": 0.05,
+            "design_id": "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000",
+            "topology": "offset_strip",
+            "rule": "marginal_return",
+            "walk_stop": "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000",
+            "r_th_k_per_w": 0.012394520714865333,
+            "dp_pa": 4038.7976349504033
+          },
+          {
+            "cutoff": 0.1,
+            "design_id": "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000",
+            "topology": "offset_strip",
+            "rule": "marginal_return",
+            "walk_stop": "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000",
+            "r_th_k_per_w": 0.012394520714865333,
+            "dp_pa": 4038.7976349504033
+          },
+          {
+            "cutoff": 0.15,
+            "design_id": "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000",
+            "topology": "offset_strip",
+            "rule": "marginal_return",
+            "walk_stop": "offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000",
+            "r_th_k_per_w": 0.012394520714865333,
+            "dp_pa": 4038.7976349504033
+          },
+          {
+            "cutoff": 0.2,
+            "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+            "topology": "offset_strip",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "offset_strip_l1000_t0400_p_t1600_g0000_h_fin4000",
+            "r_th_k_per_w": 0.014578277582908895,
+            "dp_pa": 1566.3016996172585
+          },
+          {
+            "cutoff": 0.25,
+            "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+            "topology": "offset_strip",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+            "r_th_k_per_w": 0.014578277582908895,
+            "dp_pa": 1566.3016996172585
+          },
+          {
+            "cutoff": 0.3,
+            "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+            "topology": "offset_strip",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+            "r_th_k_per_w": 0.014578277582908895,
+            "dp_pa": 1566.3016996172585
+          },
+          {
+            "cutoff": 0.35,
+            "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+            "topology": "offset_strip",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+            "r_th_k_per_w": 0.014578277582908895,
+            "dp_pa": 1566.3016996172585
+          },
+          {
+            "cutoff": 0.4,
+            "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+            "topology": "offset_strip",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+            "r_th_k_per_w": 0.014578277582908895,
+            "dp_pa": 1566.3016996172585
+          },
+          {
+            "cutoff": 0.45,
+            "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+            "topology": "offset_strip",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+            "r_th_k_per_w": 0.014578277582908895,
+            "dp_pa": 1566.3016996172585
+          },
+          {
+            "cutoff": 0.5,
+            "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+            "topology": "offset_strip",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+            "r_th_k_per_w": 0.014578277582908895,
+            "dp_pa": 1566.3016996172585
+          },
+          {
+            "cutoff": 0.55,
+            "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+            "topology": "offset_strip",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+            "r_th_k_per_w": 0.014578277582908895,
+            "dp_pa": 1566.3016996172585
+          },
+          {
+            "cutoff": 0.6,
+            "design_id": "offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000",
+            "topology": "offset_strip",
+            "rule": "marginal_return_then_objective",
+            "walk_stop": "offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000",
+            "r_th_k_per_w": 0.014578277582908895,
+            "dp_pa": 1566.3016996172585
+          }
+        ],
+        "stable_range": [
+          0.2,
+          0.6
+        ]
+      },
+      "pin_circle": {
+        "picks": [
+          {
+            "cutoff": 0.05,
+            "design_id": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+            "r_th_k_per_w": 0.010609545662924413,
+            "dp_pa": 4194.599926272966
+          },
+          {
+            "cutoff": 0.1,
+            "design_id": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0300_s_t0600_s_l0550_h_fin3000",
+            "r_th_k_per_w": 0.010609545662924413,
+            "dp_pa": 4194.599926272966
+          },
+          {
+            "cutoff": 0.15,
+            "design_id": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+            "r_th_k_per_w": 0.011883304462603689,
+            "dp_pa": 1864.5562150917517
+          },
+          {
+            "cutoff": 0.2,
+            "design_id": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t0800_s_l0700_h_fin4000",
+            "r_th_k_per_w": 0.011883304462603689,
+            "dp_pa": 1864.5562150917517
+          },
+          {
+            "cutoff": 0.25,
+            "design_id": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t0800_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.012649269866607395,
+            "dp_pa": 1420.4764333627315
+          },
+          {
+            "cutoff": 0.3,
+            "design_id": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t0900_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.013777632137071016,
+            "dp_pa": 1027.8900633380927
+          },
+          {
+            "cutoff": 0.35,
+            "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014900536709759105,
+            "dp_pa": 797.5132181107151
+          },
+          {
+            "cutoff": 0.4,
+            "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014900536709759105,
+            "dp_pa": 797.5132181107151
+          },
+          {
+            "cutoff": 0.45,
+            "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014900536709759105,
+            "dp_pa": 797.5132181107151
+          },
+          {
+            "cutoff": 0.5,
+            "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014900536709759105,
+            "dp_pa": 797.5132181107151
+          },
+          {
+            "cutoff": 0.55,
+            "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014900536709759105,
+            "dp_pa": 797.5132181107151
+          },
+          {
+            "cutoff": 0.6,
+            "design_id": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "topology": "pin_circle",
+            "rule": "marginal_return",
+            "walk_stop": "pin_circle_d0400_s_t1000_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014900536709759105,
+            "dp_pa": 797.5132181107151
+          }
+        ],
+        "stable_range": [
+          0.25,
+          0.25
+        ]
+      },
+      "pin_diamond": {
+        "picks": [
+          {
+            "cutoff": 0.05,
+            "design_id": "pin_diamond_s0300_s_t0850_s_l0500_h_fin3000",
+            "topology": "pin_diamond",
+            "rule": "marginal_return",
+            "walk_stop": "pin_diamond_s0300_s_t0850_s_l0500_h_fin3000",
+            "r_th_k_per_w": 0.011465216097840104,
+            "dp_pa": 4946.454010043795
+          },
+          {
+            "cutoff": 0.1,
+            "design_id": "pin_diamond_s0300_s_t0750_s_l0700_h_fin3000",
+            "topology": "pin_diamond",
+            "rule": "marginal_return",
+            "walk_stop": "pin_diamond_s0300_s_t0750_s_l0700_h_fin3000",
+            "r_th_k_per_w": 0.01160658756000123,
+            "dp_pa": 4359.883012731562
+          },
+          {
+            "cutoff": 0.15,
+            "design_id": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+            "topology": "pin_diamond",
+            "rule": "marginal_return",
+            "walk_stop": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+            "r_th_k_per_w": 0.012282915682749852,
+            "dp_pa": 2513.237594916369
+          },
+          {
+            "cutoff": 0.2,
+            "design_id": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+            "topology": "pin_diamond",
+            "rule": "marginal_return",
+            "walk_stop": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+            "r_th_k_per_w": 0.012282915682749852,
+            "dp_pa": 2513.237594916369
+          },
+          {
+            "cutoff": 0.25,
+            "design_id": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+            "topology": "pin_diamond",
+            "rule": "marginal_return",
+            "walk_stop": "pin_diamond_s0400_s_t1000_s_l0700_h_fin4000",
+            "r_th_k_per_w": 0.012282915682749852,
+            "dp_pa": 2513.237594916369
+          },
+          {
+            "cutoff": 0.3,
+            "design_id": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "topology": "pin_diamond",
+            "rule": "marginal_return",
+            "walk_stop": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014049655080465184,
+            "dp_pa": 1476.5615974882583
+          },
+          {
+            "cutoff": 0.35,
+            "design_id": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "topology": "pin_diamond",
+            "rule": "marginal_return",
+            "walk_stop": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014049655080465184,
+            "dp_pa": 1476.5615974882583
+          },
+          {
+            "cutoff": 0.4,
+            "design_id": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "topology": "pin_diamond",
+            "rule": "marginal_return",
+            "walk_stop": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014049655080465184,
+            "dp_pa": 1476.5615974882583
+          },
+          {
+            "cutoff": 0.45,
+            "design_id": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "topology": "pin_diamond",
+            "rule": "marginal_return",
+            "walk_stop": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014049655080465184,
+            "dp_pa": 1476.5615974882583
+          },
+          {
+            "cutoff": 0.5,
+            "design_id": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "topology": "pin_diamond",
+            "rule": "marginal_return",
+            "walk_stop": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014049655080465184,
+            "dp_pa": 1476.5615974882583
+          },
+          {
+            "cutoff": 0.55,
+            "design_id": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "topology": "pin_diamond",
+            "rule": "marginal_return",
+            "walk_stop": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014049655080465184,
+            "dp_pa": 1476.5615974882583
+          },
+          {
+            "cutoff": 0.6,
+            "design_id": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "topology": "pin_diamond",
+            "rule": "marginal_return",
+            "walk_stop": "pin_diamond_s0400_s_t1100_s_l0900_h_fin4000",
+            "r_th_k_per_w": 0.014049655080465184,
+            "dp_pa": 1476.5615974882583
+          }
+        ],
+        "stable_range": [
+          0.15,
+          0.25
+        ]
       }
     },
     "excluded": [
