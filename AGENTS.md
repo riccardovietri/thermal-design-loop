@@ -25,6 +25,12 @@ Instructions for any coding agent (or person) picking this project up cold.
   78-design topology sweep with the comparison plot and `summary.md` (about 5 min); `--checks`, `--sweep`, `--plot-only` run parts;
   `--extend` solves only designs not yet in `results.json`; `--fields` re-solves only the six field-figure designs (about 20 s).
 - `uv run python -m level2.sweep --plot-only` — redraw the slot-jet comparison from saved results.
+- `uv run python -m tools.screen_1d --w_ch_mm 0.42 --t_fin_mm 0.44 --h_fin_mm 4 --flow_lpm 1.5 --entrance` — one design with
+  developing flow and inlet/outlet losses (the option is off by default; `analyze_1d(..., entrance_effects=True)`).
+- `uv run python -m level2.entrance` — entrance effects on every CFD design in `examples/output/gpu_coldplate/results.json`
+  and the resolved tall-fin check on five picked from it (widest, recommended and neighbours, narrowest); writes
+  `examples/output/entrance_effects/` (about 5 min). Rerun after the Level 1 results change; `--level1`, `--out` select
+  other files; `--plot-only` redraws the figure and summary.
 - Figures share one style, `tools/plotstyle.py` (8 in wide, 200 dpi, text ≥ 10 pt so it stays legible at 700 px). Titles are one
   short line; conditions and caveats go in the markdown caption next to the figure.
 - `uv run python -m level2.sweep` — slot-jet mesh study, the 18-case sweep at rated flow and the comparison plot with fins, 10–20 minutes.

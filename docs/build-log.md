@@ -167,3 +167,23 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
   The eligible straight front ends at 3.10 kPa (w 0.3 / t 0.3 / H 3), so there is no comparison above that. Best within 5 kPa:
   pins 10.61 mK/W (d 0.3, H 3, 4.19 kPa) vs straight 11.63 (3.10 kPa). Wavy fins +2.4 to +4.3%, diamond pins +2 to +7%, offset strips
   +2 to +12%. The pin advantage remains inside the plan view's own 6% tall-fin bias.
+
+## 2026-11-15 (Sun) — entrance effects (issue #12)
+- Sources (full text): Muzychka & Yovanovich (2002) Parts I and II (MUN repository); dos Reis & Altemani (COBEM 1999) for Kays's laminar
+  Kc, Ke fits. Not obtained: Shah & London (1978), Kays (1950), Shah (1978). The decoded Part I/II text needed a Type 3 font map
+  (dvips glyph names, base 36 minus 360).
+- 1D option (`tools/screen_1d.py`, `entrance_effects=True`): recommended design 14.79 → 14.30 mK/W (1D), core ΔP ×1.020, inlet/outlet
+  +18.6 Pa (Kc 0.752, Ke 0.047, σ 0.487). Developed path unchanged: 24 new tests, the study output identical apart from a timing line.
+- CFD-anchored (Level 1 CFD + 1D increment): 14.93 → 14.44 mK/W, 1.294 → 1.320 kPa core, 1.339 kPa with inlet/outlet. Objective margin
+  0.5% → 3.7%. Widest channel 35.98 → 28.55 mK/W (x* 0.018). 0.60 / 0.44 / 4.0 mm drops from 20.05 to 18.58 mK/W and so enters the
+  threshold window; the marginal-return walk becomes 0.60 → 0.50 → 0.42 mm (returns 0.337, 0.293) and stops at the same design (best further
+  return 0.150). Ranking by R_th unchanged.
+- Resolved (plan view, tall-fin limit, five designs): h +25.2%, +7.8%, +5.9%, +5.2%, +4.2% (w 1.0, 0.50, 0.42, 0.36, 0.30 mm) against the
+  1D option in the plate limit +13.7%, +4.7%, +3.7%, +3.3%, +2.7%; core ΔP +5.2%, +1.7%, +1.3%, +1.2%, +1.0% against +7.3%, +2.4%, +1.9%,
+  +1.7%, +1.4%. Resolved developing-channel excess 0.69–0.70 ρU²/2 on all five; plenum-to-plenum inlet + outlet −0.10 to +0.26 ρU²/2
+  against Kays Kc + Ke 0.43–0.86. Mesh 8 → 16 cells: h +0.008%, ΔP −0.001%; energy balance ≤ 0.05%.
+- First try put the uniform profile at x = 0 on the wall corner: the core-ΔP increment grew with the mesh (1.81 / 1.89 / 2.16% at 4 / 8 /
+  16 cells) because the inlet pressure is singular there. A 1 mm slip lead-in fixed it (1.340 / 1.339%).
+- Gate on 1D vs resolved increments (10%) fails on both R_th (−36%) and ΔP (+41%); diagnosis in the summary. Re-blending the source's
+  entrance asymptotes with the exact developed Nu of parallel plates gives +6.0% against +5.9% resolved, so the thermal gap is the
+  developed anchor, not the entrance asymptotes.

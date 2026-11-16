@@ -42,6 +42,10 @@ Next: (1) an industry photo for the write-up (needs a licensed image); (2) turn 
   the markdown, plan-view comparison split into an overview (`pareto_topologies.png`) and per-planform panels
   (`pareto_topologies_panels.png`), `--plot-only` for `run_study.py`, `--fields` for the plan-view sweep, `--cells` for the slot-jet CLI.
   No numeric result changed.
+- 2026-11-15: Entrance effects (issue #12, `feat/entrance-effects`): 1D option `entrance_effects=True` (off by default),
+  `level2/entrance.py`, `examples/output/entrance_effects/summary.md`. Recommended design 14.93 → 14.44 mK/W, core ΔP
+  1.294 → 1.320 kPa; objective still met; recommendation unchanged. Resolved-check gate on the 1D increments fails
+  (−36% R_th, +41% ΔP, tall-fin limit), reported untuned. `uv run pytest` → 64 passed.
 
 ## Result of the example study
 Rated flow 1.5 LPM, 672 designs screened (258 feasible within 5 kPa), 8 solved. 1D vs CFD on R_th: mean |diff| 1.1%, max 2.9%.
