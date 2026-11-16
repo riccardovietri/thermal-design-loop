@@ -6,6 +6,8 @@ Sources (full text read, see docs/literature.md):
   MY-II  Same authors, Part II: thermal problem, pp. 131-139.
   RA     dos Reis & Altemani (1999), Pressure drop and heat transfer in airflow cooled finned heat sinks using
          correlations, COBEM 1999 (fits to the Kays 1950 laminar loss coefficients).
+  RDR    Ray, Durst & Ray (2017), Pressure drop and flow development in the entrance region of micro-channels with second
+         order velocity slip condition and the requirement for development length, arXiv:1707.04947.
 """
 import math
 from dataclasses import fields
@@ -13,9 +15,9 @@ from dataclasses import fields
 import numpy as np
 import pytest
 
-from tools.screen_1d import (analyze_1d, effective_nu_factor, f_app_re_sqrt_a, f_pr_uwf, f_re_sqrt_a, hydrodynamic_entrance_length,
-                             k_contraction, k_expansion, nu_combined_sqrt_a, nu_fd_sqrt_a, nu_graetz_sqrt_a, screen_1d,
-                             thermal_entrance_length)
+from tools.screen_1d import (K_INF_PLATES, analyze_1d, effective_nu_factor, f_app_re_sqrt_a, f_pr_uwf, f_re_sqrt_a, hydrodynamic_entrance_length,
+                             k_contraction, k_expansion, nu_combined_sqrt_a, nu_fd_sqrt_a, nu_graetz_sqrt_a, nu_h1,
+                             screen_1d, thermal_entrance_length)
 from tools.types import Design, DesignSpace, Fluid, Requirements, Screen1DEntranceResult, Screen1DResult, to_dict
 
 REQ = Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, 5e3, "PG25")
@@ -126,14 +128,51 @@ def test_default_path_is_unchanged():
     assert {f.name for f in fields(Screen1DResult)} <= set(to_dict(on))
 
 
+def test_incremental_pressure_drop_number_is_the_sourced_value():
+    # RDR Table 2, parallel-plate channel, Kn = 0.0001, C2 = 0: K1 = 0.6802 (high-Re asymptote of K_fd)
+    assert K_INF_PLATES == pytest.approx(0.6802, abs=5e-4)
+
+
+def test_re_anchored_blend_reaches_the_screen_developed_nu():
+    eps, pr = 0.1, 11.5
+    anchor = 0.8 * nu_fd_sqrt_a(eps)  # any developed value: the blend must tend to it, not to the source's Eq. 31
+    assert nu_graetz_sqrt_a(eps, 10.0, nu_fd=anchor) == pytest.approx(anchor, rel=1e-6)
+    assert nu_combined_sqrt_a(eps, 10.0, pr, nu_fd=anchor) == pytest.approx(anchor, rel=1e-4)
+    # the entrance asymptotes are untouched: near the inlet the anchor does not matter
+    lev = 0.501 * (f_re_sqrt_a(eps) / 1e-9) ** (1 / 3)
+    assert nu_graetz_sqrt_a(eps, 1e-9, nu_fd=anchor) == pytest.approx(lev, rel=1e-6)
+    assert effective_nu_factor(eps, 1e4, pr, nu_fd=anchor) == pytest.approx(1.0, abs=1e-3)
+    # a smaller developed value gives a larger relative entrance gain
+    assert effective_nu_factor(eps, 0.05, pr, nu_fd=anchor) > effective_nu_factor(eps, 0.05, pr)
+
+
+def test_screen_anchors_to_its_own_nu_h1():
+    d = Design(0.42e-3, 0.44e-3, 4e-3, 1.5)
+    r = analyze_1d(d, REQ, FLUID, entrance_effects=True)
+    w, h = 0.42e-3, 4e-3
+    eps, dh, sqrt_a = w / h, 2 * w * h / (w + h), math.sqrt(w * h)
+    pr = FLUID.cp * FLUID.mu / FLUID.k
+    l_plus = r.l_plus_dh * dh**2 / sqrt_a**2  # L / (sqrt(A) Re_sqrtA) = L mu / (rho U A) = L / (Dh Re_Dh) * Dh^2 / A
+    anchor = nu_h1(eps) * sqrt_a / dh
+    assert r.nusselt_fully_developed == pytest.approx(nu_h1(eps))
+    assert r.nu_factor_combined == pytest.approx(effective_nu_factor(eps, l_plus / pr, pr, nu_fd=anchor), rel=1e-9)
+    assert r.nu_factor_thermal == pytest.approx(effective_nu_factor(eps, l_plus / pr, nu_fd=anchor), rel=1e-9)
+
+
 def test_entrance_option_directions_and_bookkeeping():
     d = Design(0.42e-3, 0.44e-3, 4e-3, 1.5)
     r = analyze_1d(d, REQ, FLUID, entrance_effects=True)
-    assert r.dp_pa > r.dp_fully_developed_pa and r.f_app_factor > 1
+    assert r.dp_pa > r.dp_fully_developed_pa and r.dp_factor > 1
     assert r.r_th_k_per_w < r.r_th_fully_developed_k_per_w and r.nu_factor_combined > 1
     assert r.r_th_thermal_entrance_k_per_w < r.r_th_fully_developed_k_per_w
-    assert r.dp_with_inlet_outlet_pa == pytest.approx(r.dp_pa + r.dp_inlet_outlet_pa)
-    assert r.dp_hydrodynamic_entrance_pa == pytest.approx(r.dp_pa - r.dp_fully_developed_pa)
+    n = d.n_channels(REQ.footprint_width_m)
+    u = 1.5 / 60e3 / (n * 0.42e-3 * 4e-3)
+    q = 0.5 * FLUID.rho * u**2
+    assert r.dynamic_pressure_pa == pytest.approx(q)
+    # core dp = fully developed + K(inf) rho U^2 / 2; inlet/outlet losses are separate and not in dp_pa
+    assert r.dp_hydrodynamic_entrance_pa == pytest.approx(K_INF_PLATES * q)
+    assert r.dp_pa == pytest.approx(r.dp_fully_developed_pa + K_INF_PLATES * q)
+    assert r.dp_inlet_outlet_pa == pytest.approx((r.k_contraction + r.k_expansion) * q)
     assert r.r_th_k_per_w == pytest.approx(r.r_base + r.r_conv + r.r_caloric)
     dh = 2 * 0.42e-3 * 4e-3 / (0.42e-3 + 4e-3)
     assert r.x_star == pytest.approx(0.060 / (dh * r.reynolds * FLUID.cp * FLUID.mu / FLUID.k))
@@ -143,6 +182,8 @@ def test_entrance_effects_vanish_for_a_long_plate():
     d = Design(0.42e-3, 0.44e-3, 4e-3, 1.5)
     long_req = Requirements(1000.0, 0.060, 60.0, 0.002, 390.0, 40.0, 5e6, "PG25")  # 60 m flow length
     r = analyze_1d(d, long_req, FLUID, entrance_effects=True)
-    assert r.f_app_factor == pytest.approx(1.0, abs=1e-4)
+    fd = analyze_1d(d, long_req, FLUID)
+    assert r.dp_factor == pytest.approx(1.0, abs=1e-4)
     assert r.nu_factor_combined == pytest.approx(1.0, abs=1e-3)
-    assert r.r_th_k_per_w == pytest.approx(r.r_th_fully_developed_k_per_w, rel=1e-3)
+    assert r.r_th_k_per_w == pytest.approx(fd.r_th_k_per_w, rel=1e-3)
+    assert r.dp_pa == pytest.approx(fd.dp_pa, rel=1e-4)
