@@ -2,7 +2,7 @@
 
 Requirements (SPEC Amendment 3): ΔP ≤ 5 kPa, threshold R_th ≤ 20 mK/W (must meet), objective ≤ 15 mK/W (want), marginal-return cut-off 0.25, H / min gap ≤ 10. All numbers are plan-view (tall-fin limit), which reads R_th about 6% low on straight fins.
 
-Rule: from the lowest-ΔP point of the eligible front (within budget and threshold), move to the nearest further point whose return e = −ln(R_j/R_i) / ln(ΔP_j/ΔP_i) is at least the cut-off; stop when none is. Capacity = threshold × heat load / R_th; kW per pumping W = heat load / (ΔP × flow). Both ratios always favour the lowest ΔP inside the window, which is why they are reported and not used to choose.
+Rule (SPEC Amendment 4): from the lowest-ΔP point of the eligible front (within budget and threshold), move to the nearest further point whose return e = −ln(R_j/R_i) / ln(ΔP_j/ΔP_i) is at least the cut-off; stop when none is. Guard: a point less than 1.10 × the current ΔP is ignored (listed as *skipped*), so two nearly coincident designs cannot produce a large return. Objective clause: if the walk stops at a design that misses the objective and a design further along the eligible front meets it, the rule continues to the lowest-ΔP design that meets it. Capacity = threshold × heat load / R_th; kW per pumping W = heat load / (ΔP × flow). Both ratios always favour the lowest ΔP inside the window, which is why they are reported and not used to choose.
 
 ![Pareto front of each fin planform](pareto_topologies.png)
 
@@ -19,7 +19,7 @@ One panel per planform: its eligible designs (markers) and Pareto front in colou
 | Straight | 6 / 12 | 6 | `straight_w0400_t0400_h_fin4000` (`marginal_return`) | 13.36 | 1.31 | yes | 1.50 | 1.15 | 30.6 |
 | Sinusoidal | 6 / 10 | 4 | `sinusoidal_w0400_t0400_amp0300_lam4000_h_fin4000` (`marginal_return`) | 13.58 | 1.54 | yes | 1.47 | 0.96 | 26.1 |
 | Zigzag | 6 / 10 | 4 | `zigzag_w0400_t0400_amp0300_lam4000_h_fin4000` (`marginal_return`) | 13.44 | 1.46 | yes | 1.49 | 1.02 | 27.4 |
-| Offset strip | 8 / 15 | 7 | `offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000` (`marginal_return`) | 18.36 | 0.50 | no | 1.09 | 2.16 | 79.2 |
+| Offset strip | 8 / 15 | 7 | `offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000` (`marginal_return_then_objective`) | 14.58 | 1.57 | yes | 1.37 | 0.88 | 25.5 |
 | Pins, circular | 8 / 15 | 7 | `pin_circle_d0400_s_t0800_s_l0900_h_fin4000` (`marginal_return`) | 12.65 | 1.42 | yes | 1.58 | 1.11 | 28.2 |
 | Pins, diamond | 8 / 16 | 8 | `pin_diamond_s0400_s_t1000_s_l0700_h_fin4000` (`marginal_return`) | 12.28 | 2.51 | yes | 1.63 | 0.65 | 15.9 |
 
@@ -39,6 +39,7 @@ One panel per planform: its eligible designs (markers) and Pareto front in colou
 ### Offset strip
 
 1. From offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000 (18.36 mK/W at 0.50 kPa): returns 0.230 to `offset_strip_l1000_t0400_p_t1600_g0000_h_fin4000`; 0.219 to `offset_strip_l2000_t0300_p_t1200_g0000_h_fin3000`; 0.210 to `offset_strip_l0500_t0400_p_t1600_g0000_h_fin4000`; 0.204 to `offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000`; 0.202 to `offset_strip_l0500_t0300_p_t1200_g0000_h_fin3000`; 0.189 to `offset_strip_l1000_t0200_p_t0800_g0000_h_fin2000` → stop.
+2. Objective clause: the walk stopped at `offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000`, which misses the objective; continued to `offset_strip_l1000_t0300_p_t1200_g0000_h_fin3000` (14.58 mK/W at 1.57 kPa), the lowest-ΔP design on the eligible front that meets it.
 
 ### Pins, circular
 
@@ -56,10 +57,32 @@ One panel per planform: its eligible designs (markers) and Pareto front in colou
 Pick: `pin_circle_d0400_s_t0800_s_l0900_h_fin4000` (Pins, circular), 12.65 mK/W at 1.42 kPa, rule `marginal_return`; meets the objective: yes.
 
 1. From offset_strip_l2000_t0400_p_t1600_g0000_h_fin4000 (18.36 mK/W at 0.50 kPa): returns **0.404** to `straight_w0500_t0400_h_fin4000`; **0.457** to `pin_circle_d0400_s_t1000_s_l0900_h_fin4000`; **0.404** to `pin_circle_d0400_s_t0900_s_l0900_h_fin4000`; **0.334** to `straight_w0400_t0400_h_fin4000`; **0.353** to `pin_circle_d0400_s_t0900_s_l0700_h_fin4000`; **0.360** to `pin_circle_d0400_s_t0800_s_l0900_h_fin4000`; **0.333** to `pin_circle_d0400_s_t0800_s_l0700_h_fin4000`; **0.252** to `straight_w0300_t0300_h_fin3000`; **0.266** to `pin_circle_d0300_s_t0600_s_l0700_h_fin3000`; **0.259** to `pin_circle_d0300_s_t0600_s_l0550_h_fin3000` → move to `straight_w0500_t0400_h_fin4000`.
-2. From straight_w0500_t0400_h_fin4000 (15.63 mK/W at 0.75 kPa): returns **0.822** to `pin_circle_d0400_s_t1000_s_l0900_h_fin4000`; **0.404** to `pin_circle_d0400_s_t0900_s_l0900_h_fin4000`; **0.283** to `straight_w0400_t0400_h_fin4000`; **0.318** to `pin_circle_d0400_s_t0900_s_l0700_h_fin4000`; **0.333** to `pin_circle_d0400_s_t0800_s_l0900_h_fin4000`; **0.302** to `pin_circle_d0400_s_t0800_s_l0700_h_fin4000`; 0.209 to `straight_w0300_t0300_h_fin3000`; 0.229 to `pin_circle_d0300_s_t0600_s_l0700_h_fin3000`; 0.225 to `pin_circle_d0300_s_t0600_s_l0550_h_fin3000` → move to `pin_circle_d0400_s_t1000_s_l0900_h_fin4000`.
-3. From pin_circle_d0400_s_t1000_s_l0900_h_fin4000 (14.90 mK/W at 0.80 kPa): returns **0.309** to `pin_circle_d0400_s_t0900_s_l0900_h_fin4000`; 0.220 to `straight_w0400_t0400_h_fin4000`; **0.265** to `pin_circle_d0400_s_t0900_s_l0700_h_fin4000`; **0.284** to `pin_circle_d0400_s_t0800_s_l0900_h_fin4000`; **0.266** to `pin_circle_d0400_s_t0800_s_l0700_h_fin4000`; 0.183 to `straight_w0300_t0300_h_fin3000`; 0.204 to `pin_circle_d0300_s_t0600_s_l0700_h_fin3000`; 0.205 to `pin_circle_d0300_s_t0600_s_l0550_h_fin3000` → move to `pin_circle_d0400_s_t0900_s_l0900_h_fin4000`.
-4. From pin_circle_d0400_s_t0900_s_l0900_h_fin4000 (13.78 mK/W at 1.03 kPa): returns 0.127 to `straight_w0400_t0400_h_fin4000`; 0.226 to `pin_circle_d0400_s_t0900_s_l0700_h_fin4000`; **0.264** to `pin_circle_d0400_s_t0800_s_l0900_h_fin4000`; 0.248 to `pin_circle_d0400_s_t0800_s_l0700_h_fin4000`; 0.154 to `straight_w0300_t0300_h_fin3000`; 0.181 to `pin_circle_d0300_s_t0600_s_l0700_h_fin3000`; 0.186 to `pin_circle_d0300_s_t0600_s_l0550_h_fin3000` → move to `pin_circle_d0400_s_t0800_s_l0900_h_fin4000`.
-5. From pin_circle_d0400_s_t0800_s_l0900_h_fin4000 (12.65 mK/W at 1.42 kPa): returns 0.230 to `pin_circle_d0400_s_t0800_s_l0700_h_fin4000`; 0.108 to `straight_w0300_t0300_h_fin3000`; 0.148 to `pin_circle_d0300_s_t0600_s_l0700_h_fin3000`; 0.162 to `pin_circle_d0300_s_t0600_s_l0550_h_fin3000` → stop.
+2. From straight_w0500_t0400_h_fin4000 (15.63 mK/W at 0.75 kPa): returns *skipped* (0.822, ΔP ratio 1.06) to `pin_circle_d0400_s_t1000_s_l0900_h_fin4000`; **0.404** to `pin_circle_d0400_s_t0900_s_l0900_h_fin4000`; **0.283** to `straight_w0400_t0400_h_fin4000`; **0.318** to `pin_circle_d0400_s_t0900_s_l0700_h_fin4000`; **0.333** to `pin_circle_d0400_s_t0800_s_l0900_h_fin4000`; **0.302** to `pin_circle_d0400_s_t0800_s_l0700_h_fin4000`; 0.209 to `straight_w0300_t0300_h_fin3000`; 0.229 to `pin_circle_d0300_s_t0600_s_l0700_h_fin3000`; 0.225 to `pin_circle_d0300_s_t0600_s_l0550_h_fin3000` → move to `pin_circle_d0400_s_t0900_s_l0900_h_fin4000`.
+3. From pin_circle_d0400_s_t0900_s_l0900_h_fin4000 (13.78 mK/W at 1.03 kPa): returns 0.127 to `straight_w0400_t0400_h_fin4000`; 0.226 to `pin_circle_d0400_s_t0900_s_l0700_h_fin4000`; **0.264** to `pin_circle_d0400_s_t0800_s_l0900_h_fin4000`; 0.248 to `pin_circle_d0400_s_t0800_s_l0700_h_fin4000`; 0.154 to `straight_w0300_t0300_h_fin3000`; 0.181 to `pin_circle_d0300_s_t0600_s_l0700_h_fin3000`; 0.186 to `pin_circle_d0300_s_t0600_s_l0550_h_fin3000` → move to `pin_circle_d0400_s_t0800_s_l0900_h_fin4000`.
+4. From pin_circle_d0400_s_t0800_s_l0900_h_fin4000 (12.65 mK/W at 1.42 kPa): returns 0.230 to `pin_circle_d0400_s_t0800_s_l0700_h_fin4000`; 0.108 to `straight_w0300_t0300_h_fin3000`; 0.148 to `pin_circle_d0300_s_t0600_s_l0700_h_fin3000`; 0.162 to `pin_circle_d0300_s_t0600_s_l0550_h_fin3000` → stop.
+
+## Sensitivity to the cut-off
+
+The rule re-run on the saved plan-view results for cut-offs from 0.05 to 0.60 (guard and objective clause on throughout; no new solves). Each cell is the pick's R_th (mK/W) / ΔP (kPa); (c) = the objective clause moved the pick. Across topologies the pick's planform is named.
+
+| Cut-off | Across topologies | Straight | Sinusoidal | Zigzag | Offset strip | Pins, circular | Pins, diamond |
+|---|---|---|---|---|---|---|---|
+| 0.05 | Pins, circular, 10.61 / 4.19 | 11.63 / 3.10 | 13.58 / 1.54 | 11.92 / 4.82 | 12.39 / 4.04 | 10.61 / 4.19 | 11.47 / 4.95 |
+| 0.10 | Pins, circular, 10.61 / 4.19 | 11.63 / 3.10 | 13.58 / 1.54 | 11.92 / 4.82 | 12.39 / 4.04 | 10.61 / 4.19 | 11.61 / 4.36 |
+| 0.15 | Pins, circular, 11.88 / 1.86 | 11.63 / 3.10 | 13.58 / 1.54 | 13.44 / 1.46 | 12.39 / 4.04 | 11.88 / 1.86 | 12.28 / 2.51 |
+| 0.20 | Pins, circular, 11.88 / 1.86 | 13.36 / 1.31 | 13.58 / 1.54 | 13.44 / 1.46 | 14.58 / 1.57 (c) | 11.88 / 1.86 | 12.28 / 2.51 |
+| 0.25 (in use) | Pins, circular, 12.65 / 1.42 | 13.36 / 1.31 | 13.58 / 1.54 | 13.44 / 1.46 | 14.58 / 1.57 (c) | 12.65 / 1.42 | 12.28 / 2.51 |
+| 0.30 | Pins, circular, 13.78 / 1.03 | 13.36 / 1.31 (c) | 13.58 / 1.54 | 13.44 / 1.46 | 14.58 / 1.57 (c) | 13.78 / 1.03 | 14.05 / 1.48 |
+| 0.35 | Pins, circular, 13.78 / 1.03 | 13.36 / 1.31 (c) | 13.58 / 1.54 | 13.44 / 1.46 | 14.58 / 1.57 (c) | 14.90 / 0.80 | 14.05 / 1.48 |
+| 0.40 | Pins, circular, 13.78 / 1.03 | 13.36 / 1.31 (c) | 13.58 / 1.54 | 13.44 / 1.46 | 14.58 / 1.57 (c) | 14.90 / 0.80 | 14.05 / 1.48 |
+| 0.45 | Pins, circular, 14.90 / 0.80 | 13.36 / 1.31 (c) | 13.58 / 1.54 | 13.44 / 1.46 | 14.58 / 1.57 (c) | 14.90 / 0.80 | 14.05 / 1.48 |
+| 0.50 | Pins, circular, 14.90 / 0.80 (c) | 13.36 / 1.31 (c) | 13.58 / 1.54 | 13.44 / 1.46 | 14.58 / 1.57 (c) | 14.90 / 0.80 | 14.05 / 1.48 |
+| 0.55 | Pins, circular, 14.90 / 0.80 (c) | 13.36 / 1.31 (c) | 13.58 / 1.54 | 13.44 / 1.46 | 14.58 / 1.57 (c) | 14.90 / 0.80 | 14.05 / 1.48 |
+| 0.60 | Pins, circular, 14.90 / 0.80 (c) | 13.36 / 1.31 (c) | 13.58 / 1.54 | 13.44 / 1.46 | 14.58 / 1.57 (c) | 14.90 / 0.80 | 14.05 / 1.48 |
+
+![Cross-topology pick against cut-off](cutoff_sensitivity.png)
+
+Cross-topology pick's R_th (top) and ΔP (bottom) against the marginal-return cut-off; the vertical line is the cut-off in use. Plan-view numbers. The cross-topology pick (`pin_circle_d0400_s_t0800_s_l0900_h_fin4000`) is unchanged only at a cut-off of 0.25; the neighbouring swept values (±0.05) pick a different design. Per topology, the pick at 0.25 is unchanged over the cut-offs: Straight 0.20–0.60; Sinusoidal 0.05–0.60; Zigzag 0.15–0.60; Offset strip 0.20–0.60; Pins, circular 0.25–0.25; Pins, diamond 0.15–0.25.
 
 ## Against the straight-fin front at equal ΔP (eligible designs)
 

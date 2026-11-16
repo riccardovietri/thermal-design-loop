@@ -23,8 +23,9 @@ from matplotlib.lines import Line2D
 
 from tools import plotstyle as ps
 from tools.fluids import fluid_props
-from tools.pareto import capacity_ratios, pareto_indices, recommend_marginal_return
-from tools.report import draw_requirements
+from tools.pareto import (CUTOFF_SWEEP, capacity_ratios, pareto_indices, recommend_marginal_return_objective,
+                          stable_cutoff_range)
+from tools.report import draw_requirements, plot_cutoff_sensitivity, range_text
 from tools.types import Requirements
 
 from .planar import NewtonDivergence
@@ -239,15 +240,38 @@ def _brief(r: dict) -> dict:
             "dp_pa": r["result"]["dp_pa"]}
 
 
-def _select(rows: list[dict]) -> dict:
-    """Marginal-return rule (tools.pareto.recommend_marginal_return) over eligible converged designs, with design ids."""
-    sel = recommend_marginal_return([(r["result"]["dp_pa"], r["result"]["r_th_k_per_w"]) for r in rows], REQ.dp_budget_pa,
-                                    REQ.r_th_threshold_k_per_w, REQ.r_th_objective_k_per_w, REQ.marginal_return_cutoff)
+def _select(rows: list[dict], cutoff: float | None = None) -> dict:
+    """Selection rule of SPEC Amendment 4 (tools.pareto.recommend_marginal_return_objective: marginal-return walk, minimum-ΔP-
+    ratio guard, objective clause) over eligible converged designs, with design ids."""
+    sel = recommend_marginal_return_objective([(r["result"]["dp_pa"], r["result"]["r_th_k_per_w"]) for r in rows],
+                                              REQ.dp_budget_pa, REQ.r_th_threshold_k_per_w, REQ.r_th_objective_k_per_w,
+                                              REQ.marginal_return_cutoff if cutoff is None else cutoff, REQ.min_dp_ratio)
     rid = lambda i: rows[i]["design_id"]
     return {**_brief(rows[sel["index"]]), "rule": sel["rule"], "meets_threshold": sel["meets_threshold"],
             "meets_objective": sel["meets_objective"], "front": [rid(i) for i in sel["front"]],
+            "walk_stop": rid(sel["walk_stop"]) if sel["walk_stop"] is not None else None,
+            "objective_step": {k: rid(v) for k, v in sel["objective_step"].items()} if sel["objective_step"] else None,
+            "objective_unreachable": sel["objective_unreachable"],
             "steps": [{"from": rid(st["from"]), "to": rid(st["to"]) if st["to"] is not None else None,
-                       "returns": [{"to": rid(e["to"]), "return": e["return"]} for e in st["returns"]]} for st in sel["steps"]]}
+                       "returns": [{"to": rid(e["to"]), "return": e["return"], "skipped": e["skipped"]} for e in st["returns"]]}
+                      for st in sel["steps"]]}
+
+
+def cutoff_sweep(ok: list[dict]) -> dict:
+    """Picks across topologies and per topology for each swept cut-off, from saved results (no solves), and the range of
+    cut-offs around the one in use over which each pick is unchanged."""
+    groups = {"all": ok, **{t: [r for r in ok if r["topology"] == t] for t in TOPOLOGIES}}
+    out = {}
+    for name, rows in groups.items():
+        if not any(r["result"]["dp_pa"] <= REQ.dp_budget_pa for r in rows):
+            continue
+        picks = []
+        for c in CUTOFF_SWEEP:
+            sel = _select(rows, c)
+            picks.append({"cutoff": c, "design_id": sel["design_id"], "topology": sel["topology"], "rule": sel["rule"],
+                          "walk_stop": sel["walk_stop"], "r_th_k_per_w": sel["r_th_k_per_w"], "dp_pa": sel["dp_pa"]})
+        out[name] = {"picks": picks, "stable_range": stable_cutoff_range(picks, REQ.marginal_return_cutoff, "design_id")}
+    return out
 
 
 def summarise(data: dict) -> dict:
@@ -301,8 +325,9 @@ def summarise(data: dict) -> dict:
                                     "r_th_k_per_w": r["result"]["r_th_k_per_w"], "straight_r_th_at_same_dp": r_st,
                                     "difference_pct": 100 * (r["result"]["r_th_k_per_w"] / r_st - 1)})
     return {"requirements": {"dp_budget_pa": budget, "r_th_threshold_k_per_w": threshold, "r_th_objective_k_per_w": objective,
-                             "marginal_return_cutoff": REQ.marginal_return_cutoff, "max_h_over_gap": MAX_H_OVER_GAP},
-            "recommended": _select(ok), "per_topology": per_topo, "excluded": excluded, "ratios": ratios,
+                             "marginal_return_cutoff": REQ.marginal_return_cutoff, "min_dp_ratio": REQ.min_dp_ratio,
+                             "max_h_over_gap": MAX_H_OVER_GAP},
+            "recommended": _select(ok), "per_topology": per_topo, "cutoff_sensitivity": cutoff_sweep(ok), "excluded": excluded, "ratios": ratios,
             "vs_straight_front": vs_straight, "equal_dp": equal_dp,
             "max_energy_balance_error": max(abs(r["result"]["energy_balance_error"]) for r in conv_all),
             "worst_undershoot_rel": min(r["result"]["undershoot_rel"] for r in conv_all),
@@ -459,6 +484,38 @@ def plot_panels(data: dict, out: Path) -> Path:
     return out
 
 
+def sensitivity_lines(summ: dict, rows: dict) -> list[str]:
+    sens = summ.get("cutoff_sensitivity")
+    if not sens:
+        return []
+    cutoff = summ["requirements"]["marginal_return_cutoff"]
+    groups = ["all"] + [t for t in TOPOLOGIES if t in sens]
+    head = ["Across topologies"] + [LABELS[t] for t in groups[1:]]
+    cell = lambda p: (f"{p['r_th_k_per_w']*1e3:.2f} / {p['dp_pa']/1e3:.2f}" + (" (c)" if p["rule"] == "marginal_return_then_objective" else ""))
+    lines = ["", "## Sensitivity to the cut-off", "",
+             "The rule re-run on the saved plan-view results for cut-offs from 0.05 to 0.60 (guard and objective clause on "
+             "throughout; no new solves). Each cell is the pick's R_th (mK/W) / ΔP (kPa); (c) = the objective clause moved the "
+             "pick. Across topologies the pick's planform is named.", "",
+             "| Cut-off | " + " | ".join(head) + " |", "|---" * (len(head) + 1) + "|"]
+    for k, c in enumerate(CUTOFF_SWEEP):
+        allp = sens["all"]["picks"][k]
+        row = [f"{LABELS[allp['topology']]}, {cell(allp)}"] + [cell(sens[t]["picks"][k]) for t in groups[1:]]
+        lines.append(f"| {c:.2f}{' (in use)' if abs(c - cutoff) < 1e-9 else ''} | " + " | ".join(row) + " |")
+    rng = lambda g: sens[g]["stable_range"]
+    lines += ["", "![Cross-topology pick against cut-off](cutoff_sensitivity.png)", "",
+              "Cross-topology pick's R_th (top) and ΔP (bottom) against the marginal-return cut-off; the vertical line is the cut-off "
+              f"in use. Plan-view numbers. The cross-topology pick (`{summ['recommended']['design_id']}`) is unchanged "
+              f"{range_text(rng('all'))}. Per topology, the pick at {cutoff:g} is unchanged over the cut-offs: "
+              + "; ".join(f"{LABELS[t]} {rng(t)[0]:.2f}–{rng(t)[1]:.2f}" for t in groups[1:]) + "."]
+    return lines
+
+
+def plot_sensitivity(data: dict, out: Path) -> Path:
+    picks = data["summary"]["cutoff_sensitivity"]["all"]["picks"]
+    return plot_cutoff_sensitivity(picks, out, REQ.marginal_return_cutoff, REQ.r_th_threshold_k_per_w, REQ.r_th_objective_k_per_w,
+                                   REQ.dp_budget_pa, "All planforms: cross-topology pick against cut-off")
+
+
 def write_summary(data: dict, out: Path, outside: list[str] | None = None) -> Path:
     """Short markdown summary of the plan-view selection: per-topology and cross-topology picks with the rule's steps."""
     summ, rows = data["summary"], {r["design_id"]: r for r in _converged(data["designs"])}
@@ -470,18 +527,35 @@ def write_summary(data: dict, out: Path, outside: list[str] | None = None) -> Pa
     def steps(sel):
         out = []
         for k, st in enumerate(sel["steps"], 1):
-            rets = "; ".join((f"**{e['return']:.3f}**" if e["return"] >= cutoff else f"{e['return']:.3f}") + f" to `{e['to']}`"
-                             for e in st["returns"]) or "none"
+            rets = "; ".join(_ret(e, st["from"]) + f" to `{e['to']}`" for e in st["returns"]) or "none"
             out.append(f"{k}. From {pt(st['from'])}: returns {rets} → " + (f"move to `{st['to']}`." if st["to"] else "stop."))
+        if sel.get("objective_step"):
+            o = sel["objective_step"]
+            out.append(f"{len(sel['steps']) + 1}. Objective clause: the walk stopped at `{o['from']}`, which misses the "
+                       f"objective; continued to `{o['to']}` ({rows[o['to']]['result']['r_th_k_per_w']*1e3:.2f} mK/W at "
+                       f"{rows[o['to']]['result']['dp_pa']/1e3:.2f} kPa), the lowest-ΔP design on the eligible front that meets it.")
+        elif sel.get("objective_unreachable"):
+            out.append(f"{len(sel['steps']) + 1}. Objective clause: the walk stopped short of the objective and no further "
+                       "design on the eligible front meets it; the pick stays at the stop point. **Objective not met.**")
         return out
+
+    def _ret(e, frm):
+        if e.get("skipped"):
+            ratio = rows[e["to"]]["result"]["dp_pa"] / rows[frm]["result"]["dp_pa"]
+            return f"*skipped* ({e['return']:.3f}, ΔP ratio {ratio:.2f})"
+        return f"**{e['return']:.3f}**" if e["return"] >= cutoff else f"{e['return']:.3f}"
 
     lines = ["# Plan-view topology comparison: selection", "",
              f"Requirements (SPEC Amendment 3): ΔP ≤ {req['dp_budget_pa']/1e3:g} kPa, threshold R_th ≤ {req['r_th_threshold_k_per_w']*1e3:g} mK/W "
              f"(must meet), objective ≤ {req['r_th_objective_k_per_w']*1e3:g} mK/W (want), marginal-return cut-off {cutoff:g}, "
              f"H / min gap ≤ {req['max_h_over_gap']:g}. All numbers are plan-view (tall-fin limit), which reads R_th about 6% low on "
              "straight fins.", "",
-             "Rule: from the lowest-ΔP point of the eligible front (within budget and threshold), move to the nearest further point "
-             "whose return e = −ln(R_j/R_i) / ln(ΔP_j/ΔP_i) is at least the cut-off; stop when none is. "
+             "Rule (SPEC Amendment 4): from the lowest-ΔP point of the eligible front (within budget and threshold), move to the "
+             "nearest further point whose return e = −ln(R_j/R_i) / ln(ΔP_j/ΔP_i) is at least the cut-off; stop when none is. "
+             f"Guard: a point less than {req['min_dp_ratio']:.2f} × the current ΔP is ignored (listed as *skipped*), so two nearly "
+             "coincident designs cannot produce a large return. Objective clause: if the walk stops at a design that misses the "
+             "objective and a design further along the eligible front meets it, the rule continues to the lowest-ΔP design that "
+             "meets it. "
              "Capacity = threshold × heat load / R_th; kW per pumping W = heat load / (ΔP × flow). Both ratios always favour the lowest "
              "ΔP inside the window, which is why they are reported and not used to choose.", "",
              "![Pareto front of each fin planform](pareto_topologies.png)", "",
@@ -518,6 +592,7 @@ def write_summary(data: dict, out: Path, outside: list[str] | None = None) -> Pa
     lines += ["", "## Across all topologies", "",
               f"Pick: `{rec['design_id']}` ({LABELS[rec['topology']]}), {rec['r_th_k_per_w']*1e3:.2f} mK/W at {rec['dp_pa']/1e3:.2f} kPa, "
               f"rule `{rec['rule']}`; meets the objective: {'yes' if rec['meets_objective'] else 'no'}.", ""] + steps(rec)
+    lines += sensitivity_lines(summ, rows)
     lines += ["", "## Against the straight-fin front at equal ΔP (eligible designs)", "",
               "| Design | ΔP (kPa) | R_th (mK/W) | Straight at same ΔP | Difference |", "|---|---|---|---|---|"]
     lines += [f"| `{v['design_id']}` | {v['dp_pa']/1e3:.2f} | {v['r_th_k_per_w']*1e3:.2f} | {v['straight_r_th_at_same_dp']*1e3:.2f} | "
@@ -570,7 +645,8 @@ def main() -> int:
         data["summary"] = summarise(data)
         _save(data)
         out, outside = plot(data, OUT / "pareto_topologies.png")
-        print(out, plot_panels(data, OUT / "pareto_topologies_panels.png"), write_summary(data, OUT / "summary.md", outside))
+        print(out, plot_panels(data, OUT / "pareto_topologies_panels.png"), plot_sensitivity(data, OUT / "cutoff_sensitivity.png"),
+              write_summary(data, OUT / "summary.md", outside))
         rec = data["summary"]["recommended"]
         print(f"cross-topology pick {rec['design_id']} ({rec['rule']}): {rec['r_th_k_per_w']*1e3:.2f} mK/W at {rec['dp_pa']/1e3:.2f} kPa")
         for o in outside:

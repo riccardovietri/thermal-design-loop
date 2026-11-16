@@ -1,5 +1,5 @@
 {
-  "recommended": "w0422_t0444_h4000_q150",
+  "recommended": "w0387_t0387_h3750_q150",
   "rule": "marginal_return",
   "meets_threshold": true,
   "meets_objective": true,
@@ -7,55 +7,346 @@
   "r_th_threshold_k_per_w": 0.02,
   "r_th_objective_k_per_w": 0.015,
   "marginal_return_cutoff": 0.25,
+  "min_dp_ratio": 1.1,
   "selection_steps": [
     {
-      "from": "w0502_t0444_h4000_q150",
-      "to": "w0422_t0444_h4000_q150",
+      "from": "w0547_t0444_h4000_q150",
+      "to": "w0502_t0444_h4000_q150",
       "returns": [
         {
-          "to": "w0422_t0444_h4000_q150",
-          "return": 0.33139939745980335
+          "to": "w0502_t0444_h4000_q150",
+          "return": 0.37759727031777196,
+          "skipped": false
         },
         {
-          "to": "w0355_t0444_h3500_q150",
-          "return": 0.22154187622079674
+          "to": "w0460_t0444_h4000_q150",
+          "return": 0.3616790050803168,
+          "skipped": false
         },
         {
-          "to": "w0299_t0258_h2500_q150",
-          "return": 0.2067771404311029
+          "to": "w0422_t0387_h3750_q150",
+          "return": 0.35002581497616514,
+          "skipped": false
+        },
+        {
+          "to": "w0387_t0387_h3750_q150",
+          "return": 0.33114699646823165,
+          "skipped": false
+        },
+        {
+          "to": "w0355_t0387_h3500_q150",
+          "return": 0.2778855088643583,
+          "skipped": false
+        },
+        {
+          "to": "w0355_t0338_h3250_q150",
+          "return": 0.27649636796755045,
+          "skipped": false
+        },
+        {
+          "to": "w0326_t0338_h3250_q150",
+          "return": 0.2766891005363037,
+          "skipped": false
+        },
+        {
+          "to": "w0299_t0295_h2750_q150",
+          "return": 0.23673567523914416,
+          "skipped": false
+        },
+        {
+          "to": "w0274_t0258_h2500_q150",
+          "return": 0.2308931032827345,
+          "skipped": false
         }
       ]
     },
     {
-      "from": "w0422_t0444_h4000_q150",
+      "from": "w0502_t0444_h4000_q150",
+      "to": "w0460_t0444_h4000_q150",
+      "returns": [
+        {
+          "to": "w0460_t0444_h4000_q150",
+          "return": 0.3459907516613637,
+          "skipped": false
+        },
+        {
+          "to": "w0422_t0387_h3750_q150",
+          "return": 0.3365064355925323,
+          "skipped": false
+        },
+        {
+          "to": "w0387_t0387_h3750_q150",
+          "return": 0.316121542275446,
+          "skipped": false
+        },
+        {
+          "to": "w0355_t0387_h3500_q150",
+          "return": 0.2558132798778994,
+          "skipped": false
+        },
+        {
+          "to": "w0355_t0338_h3250_q150",
+          "return": 0.25428830610992414,
+          "skipped": false
+        },
+        {
+          "to": "w0326_t0338_h3250_q150",
+          "return": 0.2585959129948727,
+          "skipped": false
+        },
+        {
+          "to": "w0299_t0295_h2750_q150",
+          "return": 0.21714502157456583,
+          "skipped": false
+        },
+        {
+          "to": "w0274_t0258_h2500_q150",
+          "return": 0.21339535129845727,
+          "skipped": false
+        }
+      ]
+    },
+    {
+      "from": "w0460_t0444_h4000_q150",
+      "to": "w0422_t0387_h3750_q150",
+      "returns": [
+        {
+          "to": "w0422_t0387_h3750_q150",
+          "return": 0.3271154098704677,
+          "skipped": false
+        },
+        {
+          "to": "w0387_t0387_h3750_q150",
+          "return": 0.3015281957460907,
+          "skipped": false
+        },
+        {
+          "to": "w0355_t0387_h3500_q150",
+          "return": 0.22969188007038482,
+          "skipped": false
+        },
+        {
+          "to": "w0355_t0338_h3250_q150",
+          "return": 0.22798736888171442,
+          "skipped": false
+        },
+        {
+          "to": "w0326_t0338_h3250_q150",
+          "return": 0.2391599324834167,
+          "skipped": false
+        },
+        {
+          "to": "w0299_t0295_h2750_q150",
+          "return": 0.19597539571331715,
+          "skipped": false
+        },
+        {
+          "to": "w0274_t0258_h2500_q150",
+          "return": 0.19513912813106143,
+          "skipped": false
+        }
+      ]
+    },
+    {
+      "from": "w0422_t0387_h3750_q150",
+      "to": "w0387_t0387_h3750_q150",
+      "returns": [
+        {
+          "to": "w0387_t0387_h3750_q150",
+          "return": 0.2766048503919554,
+          "skipped": false
+        },
+        {
+          "to": "w0355_t0387_h3500_q150",
+          "return": 0.189405719223192,
+          "skipped": false
+        },
+        {
+          "to": "w0355_t0338_h3250_q150",
+          "return": 0.1875659629371694,
+          "skipped": false
+        },
+        {
+          "to": "w0326_t0338_h3250_q150",
+          "return": 0.2136827215079657,
+          "skipped": false
+        },
+        {
+          "to": "w0299_t0295_h2750_q150",
+          "return": 0.16988557470809773,
+          "skipped": false
+        },
+        {
+          "to": "w0274_t0258_h2500_q150",
+          "return": 0.17382369578332843,
+          "skipped": false
+        }
+      ]
+    },
+    {
+      "from": "w0387_t0387_h3750_q150",
       "to": null,
       "returns": [
         {
-          "to": "w0355_t0444_h3500_q150",
-          "return": 0.14123006494386076
+          "to": "w0355_t0387_h3500_q150",
+          "return": 0.12507796590197143,
+          "skipped": false
         },
         {
-          "to": "w0299_t0258_h2500_q150",
-          "return": 0.15893553158811147
+          "to": "w0355_t0338_h3250_q150",
+          "return": 0.12345097869538668,
+          "skipped": false
+        },
+        {
+          "to": "w0326_t0338_h3250_q150",
+          "return": 0.18705181305285556,
+          "skipped": false
+        },
+        {
+          "to": "w0299_t0295_h2750_q150",
+          "return": 0.14249404297704837,
+          "skipped": false
+        },
+        {
+          "to": "w0274_t0258_h2500_q150",
+          "return": 0.1533938882877207,
+          "skipped": false
         }
       ]
     }
   ],
+  "walk_stop": "w0387_t0387_h3750_q150",
+  "objective_step": null,
+  "objective_unreachable": false,
+  "cutoff_sensitivity": [
+    {
+      "cutoff": 0.05,
+      "rule": "marginal_return",
+      "meets_objective": true,
+      "recommended": "w0274_t0258_h2500_q150",
+      "walk_stop": "w0274_t0258_h2500_q150",
+      "r_th_k_per_w": 0.011922336813755739,
+      "dp_pa": 4663.913800398466
+    },
+    {
+      "cutoff": 0.1,
+      "rule": "marginal_return",
+      "meets_objective": true,
+      "recommended": "w0274_t0258_h2500_q150",
+      "walk_stop": "w0274_t0258_h2500_q150",
+      "r_th_k_per_w": 0.011922336813755739,
+      "dp_pa": 4663.913800398466
+    },
+    {
+      "cutoff": 0.15,
+      "rule": "marginal_return",
+      "meets_objective": true,
+      "recommended": "w0326_t0338_h3250_q150",
+      "walk_stop": "w0326_t0338_h3250_q150",
+      "r_th_k_per_w": 0.012788455292314227,
+      "dp_pa": 2644.3267767664925
+    },
+    {
+      "cutoff": 0.2,
+      "rule": "marginal_return",
+      "meets_objective": true,
+      "recommended": "w0387_t0387_h3750_q150",
+      "walk_stop": "w0387_t0387_h3750_q150",
+      "r_th_k_per_w": 0.014048739455188577,
+      "dp_pa": 1599.8922253279345
+    },
+    {
+      "cutoff": 0.25,
+      "rule": "marginal_return",
+      "meets_objective": true,
+      "recommended": "w0387_t0387_h3750_q150",
+      "walk_stop": "w0387_t0387_h3750_q150",
+      "r_th_k_per_w": 0.014048739455188577,
+      "dp_pa": 1599.8922253279345
+    },
+    {
+      "cutoff": 0.3,
+      "rule": "marginal_return",
+      "meets_objective": true,
+      "recommended": "w0422_t0387_h3750_q150",
+      "walk_stop": "w0422_t0387_h3750_q150",
+      "r_th_k_per_w": 0.014899946079497331,
+      "dp_pa": 1293.392427256276
+    },
+    {
+      "cutoff": 0.35,
+      "rule": "marginal_return_then_objective",
+      "meets_objective": true,
+      "recommended": "w0422_t0387_h3750_q150",
+      "walk_stop": "w0502_t0444_h4000_q150",
+      "r_th_k_per_w": 0.014899946079497331,
+      "dp_pa": 1293.392427256276
+    },
+    {
+      "cutoff": 0.4,
+      "rule": "marginal_return_then_objective",
+      "meets_objective": true,
+      "recommended": "w0422_t0387_h3750_q150",
+      "walk_stop": "w0547_t0444_h4000_q150",
+      "r_th_k_per_w": 0.014899946079497331,
+      "dp_pa": 1293.392427256276
+    },
+    {
+      "cutoff": 0.45,
+      "rule": "marginal_return_then_objective",
+      "meets_objective": true,
+      "recommended": "w0422_t0387_h3750_q150",
+      "walk_stop": "w0547_t0444_h4000_q150",
+      "r_th_k_per_w": 0.014899946079497331,
+      "dp_pa": 1293.392427256276
+    },
+    {
+      "cutoff": 0.5,
+      "rule": "marginal_return_then_objective",
+      "meets_objective": true,
+      "recommended": "w0422_t0387_h3750_q150",
+      "walk_stop": "w0547_t0444_h4000_q150",
+      "r_th_k_per_w": 0.014899946079497331,
+      "dp_pa": 1293.392427256276
+    },
+    {
+      "cutoff": 0.55,
+      "rule": "marginal_return_then_objective",
+      "meets_objective": true,
+      "recommended": "w0422_t0387_h3750_q150",
+      "walk_stop": "w0547_t0444_h4000_q150",
+      "r_th_k_per_w": 0.014899946079497331,
+      "dp_pa": 1293.392427256276
+    },
+    {
+      "cutoff": 0.6,
+      "rule": "marginal_return_then_objective",
+      "meets_objective": true,
+      "recommended": "w0422_t0387_h3750_q150",
+      "walk_stop": "w0547_t0444_h4000_q150",
+      "r_th_k_per_w": 0.014899946079497331,
+      "dp_pa": 1293.392427256276
+    }
+  ],
+  "cutoff_stable_range": [
+    0.2,
+    0.25
+  ],
   "references": {
-    "lowest_dp_meeting_threshold": "w0502_t0444_h4000_q150",
-    "lowest_dp_meeting_objective": "w0422_t0444_h4000_q150",
-    "lowest_r_th_within_budget": "w0299_t0258_h2500_q150"
+    "lowest_dp_meeting_threshold": "w0547_t0444_h4000_q150",
+    "lowest_dp_meeting_objective": "w0422_t0387_h3750_q150",
+    "lowest_r_th_within_budget": "w0274_t0258_h2500_q150"
   },
   "parity": {
-    "mean_pct": 0.4234795709049666,
-    "mean_abs_pct": 1.0763194908010199,
+    "mean_pct": 0.14549229312839335,
+    "mean_abs_pct": 1.032263094415188,
     "max_abs_pct": 2.946223740499443
   },
   "confidence": {
     "checks": [
       {
         "check": "Mesh independence, R_th (production vs 2\u00d7 finer)",
-        "value": "0.001%",
+        "value": "0.002%",
         "limit": "< 1.0%",
         "pass": true
       },
@@ -67,7 +358,7 @@
       },
       {
         "check": "Linear solver residual, worst run",
-        "value": "4.8e-12",
+        "value": "5.3e-12",
         "limit": "< 1e-08",
         "pass": true
       },
@@ -92,61 +383,61 @@
     ],
     "all_pass": true,
     "mesh_study": {
-      "design_id": "w0422_t0444_h4000_q150",
+      "design_id": "w0387_t0387_h3750_q150",
       "levels": [
         {
           "cells_across_half_channel": 4,
-          "n_dofs": 4995,
-          "min_quality_sicn": 0.859316012147108,
-          "r_th_k_per_w": 0.01492756347408154,
-          "dp_pa": 1294.2537632547242
+          "n_dofs": 5125,
+          "min_quality_sicn": 0.8427548996582794,
+          "r_th_k_per_w": 0.014048126441344016,
+          "dp_pa": 1599.9042538547828
         },
         {
           "cells_across_half_channel": 8,
-          "n_dofs": 18559,
-          "min_quality_sicn": 0.7643034519307813,
-          "r_th_k_per_w": 0.01492809414969658,
-          "dp_pa": 1294.2438453190478
+          "n_dofs": 18649,
+          "min_quality_sicn": 0.8889276702324215,
+          "r_th_k_per_w": 0.014048739455188577,
+          "dp_pa": 1599.8922253279345
         },
         {
           "cells_across_half_channel": 16,
-          "n_dofs": 71883,
-          "min_quality_sicn": 0.839148527469598,
-          "r_th_k_per_w": 0.01492831450249792,
-          "dp_pa": 1294.2430318867212
+          "n_dofs": 72585,
+          "min_quality_sicn": 0.883747547881729,
+          "r_th_k_per_w": 0.014048969655330661,
+          "dp_pa": 1599.8912757061532
         }
       ],
-      "r_th_change_pct": 0.0014760728768381526,
-      "dp_change_pct": 6.285004490180768e-05
+      "r_th_change_pct": 0.0016385553370246164,
+      "dp_change_pct": 5.9355394688154206e-05
     }
   },
   "flow_sensitivity": [
     {
       "flow_lpm": 1.0,
-      "design_id": "w0422_t0444_h4000_q100",
-      "dp_pa": 862.8292302126986,
-      "r_th_k_per_w": 0.017428302418649545,
-      "base_avg_temp_c": 57.42830241864955,
-      "base_max_temp_c": 64.92892732957253,
-      "reynolds": 79.20170907115238
+      "design_id": "w0387_t0387_h3750_q100",
+      "dp_pa": 1066.59481688529,
+      "r_th_k_per_w": 0.01654894772414154,
+      "base_avg_temp_c": 56.54894772414154,
+      "base_max_temp_c": 64.04957254847712,
+      "reynolds": 75.85991312153536
     },
     {
       "flow_lpm": 1.5,
-      "design_id": "w0422_t0444_h4000_q150",
-      "dp_pa": 1294.2438453190478,
-      "r_th_k_per_w": 0.01492809414969658,
-      "base_avg_temp_c": 54.92809414969658,
-      "base_max_temp_c": 59.92851079166659,
-      "reynolds": 118.80256360672854
+      "design_id": "w0387_t0387_h3750_q150",
+      "dp_pa": 1599.8922253279345,
+      "r_th_k_per_w": 0.014048739455188577,
+      "base_avg_temp_c": 54.04873945518858,
+      "base_max_temp_c": 59.04915601057119,
+      "reynolds": 113.78986968230303
     },
     {
       "flow_lpm": 2.0,
-      "design_id": "w0422_t0444_h4000_q200",
-      "dp_pa": 1725.6584604253972,
-      "r_th_k_per_w": 0.0136779900152201,
-      "base_avg_temp_c": 53.677990015220104,
-      "base_max_temp_c": 57.428302522713636,
-      "reynolds": 158.40341814230476
+      "design_id": "w0387_t0387_h3750_q200",
+      "dp_pa": 2133.18963377058,
+      "r_th_k_per_w": 0.012798635320712097,
+      "base_avg_temp_c": 52.798635320712094,
+      "base_max_temp_c": 56.54894774161823,
+      "reynolds": 151.7198262430707
     }
   ],
   "designs": [
@@ -199,6 +490,52 @@
     {
       "one_d": {
         "design": {
+          "w_ch_m": 0.0009173807074949286,
+          "t_fin_m": 0.000443502685462079,
+          "h_fin_m": 0.004,
+          "flow_lpm": 1.5
+        },
+        "n_channels": 44,
+        "reynolds": 167.54236982862912,
+        "dp_pa": 215.86365948937376,
+        "r_th_k_per_w": 0.03271854627760132,
+        "r_th_max_k_per_w": 0.03771896281550724,
+        "r_base": 0.0014273830899509765,
+        "r_conv": 0.02629074664974441,
+        "r_caloric": 0.005000416537905927,
+        "fin_efficiency": 0.9035299855539369,
+        "nusselt": 5.491691864884516,
+        "f_re_fanning": 18.56462931436077,
+        "feasible": true,
+        "violations": []
+      },
+      "cfd": {
+        "design_id": "w0917_t0444_h4000_q150",
+        "n_channels": 44,
+        "reynolds": 167.54236982862912,
+        "dp_pa": 215.85381978937357,
+        "pump_power_w": 0.00539634549473434,
+        "f_re_fanning": 18.56378308399712,
+        "nu_eff": 5.146119365960997,
+        "r_th_k_per_w": 0.03195031115603773,
+        "r_th_max_k_per_w": 0.03695077208251511,
+        "base_avg_temp_c": 71.95031115603774,
+        "base_max_temp_c": 76.95077208251512,
+        "coolant_rise_k": 10.000833075811855,
+        "energy_residual_rel": 1.031590812772265e-13,
+        "n_dofs": 6991,
+        "linear_residual_rel": 1.5805587888332176e-12,
+        "base_flux_error_rel": 1.8255393396948705e-07
+      },
+      "ratios": {
+        "capacity_kw": 0.6259719945237701,
+        "capacity_kw_per_kpa": 2.899981085044419,
+        "kw_per_pumping_w": 185.3105960275862
+      }
+    },
+    {
+      "one_d": {
+        "design": {
           "w_ch_m": 0.0008415873624838957,
           "t_fin_m": 0.000443502685462079,
           "h_fin_m": 0.004,
@@ -240,6 +577,52 @@
         "capacity_kw": 0.6874633966949776,
         "capacity_kw_per_kpa": 2.6065399401652947,
         "kw_per_pumping_w": 151.6613075079427
+      }
+    },
+    {
+      "one_d": {
+        "design": {
+          "w_ch_m": 0.000772056010014267,
+          "t_fin_m": 0.000443502685462079,
+          "h_fin_m": 0.004,
+          "flow_lpm": 1.5
+        },
+        "n_channels": 49,
+        "reynolds": 155.02778828601075,
+        "dp_pa": 316.7189596636236,
+        "r_th_k_per_w": 0.026534794082780498,
+        "r_th_max_k_per_w": 0.03153521062068643,
+        "r_base": 0.0014349676943322196,
+        "r_conv": 0.02009940985054235,
+        "r_caloric": 0.005000416537905927,
+        "fin_efficiency": 0.8853821716077369,
+        "nusselt": 5.8007159209114265,
+        "f_re_fanning": 19.19899209511037,
+        "feasible": true,
+        "violations": []
+      },
+      "cfd": {
+        "design_id": "w0772_t0444_h4000_q150",
+        "n_channels": 49,
+        "reynolds": 155.02778828601078,
+        "dp_pa": 316.699358297007,
+        "pump_power_w": 0.007917483957425175,
+        "f_re_fanning": 19.1978038919061,
+        "nu_eff": 5.265398621070509,
+        "r_th_k_per_w": 0.026165121339953454,
+        "r_th_max_k_per_w": 0.03116555048470928,
+        "base_avg_temp_c": 66.16512133995346,
+        "base_max_temp_c": 71.16555048470929,
+        "coolant_rise_k": 10.000833075811855,
+        "energy_residual_rel": 5.956274939933337e-13,
+        "n_dofs": 8021,
+        "linear_residual_rel": 1.8498322192210223e-12,
+        "base_flux_error_rel": -4.2858157023317744e-09
+      },
+      "ratios": {
+        "capacity_kw": 0.7643763520202187,
+        "capacity_kw_per_kpa": 2.4135708898512234,
+        "kw_per_pumping_w": 126.3027503910734
       }
     },
     {
@@ -291,6 +674,52 @@
     {
       "one_d": {
         "design": {
+          "w_ch_m": 0.0006497525811577471,
+          "t_fin_m": 0.000443502685462079,
+          "h_fin_m": 0.004,
+          "flow_lpm": 1.5
+        },
+        "n_channels": 54,
+        "reynolds": 144.37352477540176,
+        "dp_pa": 471.82615541527684,
+        "r_th_k_per_w": 0.02201880338723941,
+        "r_th_max_k_per_w": 0.027019219925145336,
+        "r_base": 0.0014477674234772671,
+        "r_conv": 0.015570619425856216,
+        "r_caloric": 0.005000416537905927,
+        "fin_efficiency": 0.8646339121941945,
+        "nusselt": 6.092212728151173,
+        "f_re_fanning": 19.789419368276594,
+        "feasible": true,
+        "violations": []
+      },
+      "cfd": {
+        "design_id": "w0650_t0444_h4000_q150",
+        "n_channels": 54,
+        "reynolds": 144.37352477540176,
+        "dp_pa": 471.7661275496312,
+        "pump_power_w": 0.011794153188740782,
+        "f_re_fanning": 19.786901668497958,
+        "nu_eff": 5.340046984230579,
+        "r_th_k_per_w": 0.021896124539412146,
+        "r_th_max_k_per_w": 0.026896544463009143,
+        "base_avg_temp_c": 61.89612453941214,
+        "base_max_temp_c": 66.89654446300915,
+        "coolant_rise_k": 10.000833075811855,
+        "energy_residual_rel": 4.1047917065384353e-13,
+        "n_dofs": 10063,
+        "linear_residual_rel": 2.4037116213096397e-12,
+        "base_flux_error_rel": 6.8181453816151816e-09
+      },
+      "ratios": {
+        "capacity_kw": 0.9134036465677203,
+        "capacity_kw_per_kpa": 1.9361365584086525,
+        "kw_per_pumping_w": 84.78777441644934
+      }
+    },
+    {
+      "one_d": {
+        "design": {
           "w_ch_m": 0.0005960704825991501,
           "t_fin_m": 0.000443502685462079,
           "h_fin_m": 0.004,
@@ -332,6 +761,98 @@
         "capacity_kw": 0.9973401915140825,
         "capacity_kw_per_kpa": 1.7390806428984706,
         "kw_per_pumping_w": 69.74874401715775
+      }
+    },
+    {
+      "one_d": {
+        "design": {
+          "w_ch_m": 0.0005960704825991501,
+          "t_fin_m": 0.0003872983346207417,
+          "h_fin_m": 0.00375,
+          "flow_lpm": 1.5
+        },
+        "n_channels": 61,
+        "reynolds": 136.73653278818423,
+        "dp_pa": 575.6631806384639,
+        "r_th_k_per_w": 0.02006251174985319,
+        "r_th_max_k_per_w": 0.025062928287759117,
+        "r_base": 0.0014248458132867935,
+        "r_conv": 0.01363724939866047,
+        "r_caloric": 0.005000416537905927,
+        "fin_efficiency": 0.8534533113713968,
+        "nusselt": 6.127391693717934,
+        "f_re_fanning": 19.860234088642656,
+        "feasible": true,
+        "violations": []
+      },
+      "cfd": {
+        "design_id": "w0596_t0387_h3750_q150",
+        "n_channels": 61,
+        "reynolds": 136.73653278818423,
+        "dp_pa": 575.5841968803215,
+        "pump_power_w": 0.01438960492200804,
+        "f_re_fanning": 19.857509168969717,
+        "nu_eff": 5.281405699902332,
+        "r_th_k_per_w": 0.02001786953134344,
+        "r_th_max_k_per_w": 0.025018286918789982,
+        "base_avg_temp_c": 60.017869531343436,
+        "base_max_temp_c": 65.01828691878998,
+        "coolant_rise_k": 10.000833075811855,
+        "energy_residual_rel": 9.360648256517833e-14,
+        "n_dofs": 10255,
+        "linear_residual_rel": 2.41732564007984e-12,
+        "base_flux_error_rel": -1.322439935336206e-10
+      },
+      "ratios": {
+        "capacity_kw": 0.9991073210205782,
+        "capacity_kw_per_kpa": 1.7358143716171515,
+        "kw_per_pumping_w": 69.49461124332608
+      }
+    },
+    {
+      "one_d": {
+        "design": {
+          "w_ch_m": 0.0005468235610436519,
+          "t_fin_m": 0.000443502685462079,
+          "h_fin_m": 0.004,
+          "flow_lpm": 1.5
+        },
+        "n_channels": 60,
+        "reynolds": 132.87761102149778,
+        "dp_pa": 699.8187182591817,
+        "r_th_k_per_w": 0.018448992411596424,
+        "r_th_max_k_per_w": 0.02344940894950235,
+        "r_base": 0.0014384163092997263,
+        "r_conv": 0.012010159564390771,
+        "r_caloric": 0.005000416537905927,
+        "fin_efficiency": 0.8412304528481835,
+        "nusselt": 6.361752119617509,
+        "f_re_fanning": 20.32989735237693,
+        "feasible": true,
+        "violations": []
+      },
+      "cfd": {
+        "design_id": "w0547_t0444_h4000_q150",
+        "n_channels": 60,
+        "reynolds": 132.87761102149778,
+        "dp_pa": 699.6728371570775,
+        "pump_power_w": 0.01749182092892694,
+        "f_re_fanning": 20.3256594722602,
+        "nu_eff": 5.367175902709163,
+        "r_th_k_per_w": 0.018474978432556313,
+        "r_th_max_k_per_w": 0.023475395826212043,
+        "base_avg_temp_c": 58.47497843255631,
+        "base_max_temp_c": 63.47539582621204,
+        "coolant_rise_k": 10.000833075811855,
+        "energy_residual_rel": 7.613765617975331e-13,
+        "n_dofs": 12933,
+        "linear_residual_rel": 3.0158283701973873e-12,
+        "base_flux_error_rel": 3.8028891147234845e-10
+      },
+      "ratios": {
+        "capacity_kw": 1.0825452420965385,
+        "capacity_kw_per_kpa": 1.5472163339871168,
+        "kw_per_pumping_w": 57.16957680182165
       }
     },
     {
@@ -383,139 +904,369 @@
     {
       "one_d": {
         "design": {
-          "w_ch_m": 0.00042217841672115476,
+          "w_ch_m": 0.0004601997984827784,
           "t_fin_m": 0.000443502685462079,
           "h_fin_m": 0.004,
           "flow_lpm": 1.5
         },
-        "n_channels": 69,
-        "reynolds": 118.80256360672854,
-        "dp_pa": 1294.6503765938096,
-        "r_th_k_per_w": 0.014790776315338894,
-        "r_th_max_k_per_w": 0.01979119285324482,
-        "r_base": 0.001430892840038705,
-        "r_conv": 0.008359466937394262,
+        "n_channels": 66,
+        "reynolds": 123.14390300983621,
+        "dp_pa": 1051.6934820542208,
+        "r_th_k_per_w": 0.015834111361811176,
+        "r_th_max_k_per_w": 0.020834527899717105,
+        "r_base": 0.0014329951704330096,
+        "r_conv": 0.009400699653472242,
         "r_caloric": 0.005000416537905927,
-        "fin_efficiency": 0.801172757453848,
-        "nusselt": 6.72020218653696,
-        "f_re_fanning": 21.04214845292789,
+        "fin_efficiency": 0.8151749320450111,
+        "nusselt": 6.606983870876938,
+        "f_re_fanning": 20.817889118921833,
         "feasible": true,
         "violations": []
       },
       "cfd": {
-        "design_id": "w0422_t0444_h4000_q150",
-        "n_channels": 69,
-        "reynolds": 118.80256360672854,
-        "dp_pa": 1294.2438453190478,
-        "pump_power_w": 0.03235609613297619,
-        "f_re_fanning": 21.035541038610518,
-        "nu_eff": 5.317122814957602,
-        "r_th_k_per_w": 0.01492809414969658,
-        "r_th_max_k_per_w": 0.01992851079166659,
-        "base_avg_temp_c": 54.92809414969658,
-        "base_max_temp_c": 59.92851079166659,
+        "design_id": "w0460_t0444_h4000_q150",
+        "n_channels": 66,
+        "reynolds": 123.14390300983621,
+        "dp_pa": 1051.39576017854,
+        "pump_power_w": 0.026284894004463502,
+        "f_re_fanning": 20.81199582291691,
+        "nu_eff": 5.345853707896877,
+        "r_th_k_per_w": 0.015944589321060403,
+        "r_th_max_k_per_w": 0.020945006069659648,
+        "base_avg_temp_c": 55.944589321060405,
+        "base_max_temp_c": 60.94500606965965,
         "coolant_rise_k": 10.000833075811855,
-        "energy_residual_rel": 3.924252602871547e-12,
-        "n_dofs": 18559,
-        "linear_residual_rel": 4.510889493924955e-12,
-        "base_flux_error_rel": -1.5616885562508287e-10
+        "energy_residual_rel": 2.4356921279888864e-12,
+        "n_dofs": 16237,
+        "linear_residual_rel": 3.754866198430638e-12,
+        "base_flux_error_rel": -4.760346561383244e-10
       },
       "ratios": {
-        "capacity_kw": 1.339755751768655,
-        "capacity_kw_per_kpa": 1.0351648621812746,
-        "kw_per_pumping_w": 30.906077046199503
+        "capacity_kw": 1.2543440033029267,
+        "capacity_kw_per_kpa": 1.1930274505671619,
+        "kw_per_pumping_w": 38.044665496090175
+      }
+    },
+    {
+      "one_d": {
+        "design": {
+          "w_ch_m": 0.00042217841672115476,
+          "t_fin_m": 0.0003872983346207417,
+          "h_fin_m": 0.00375,
+          "flow_lpm": 1.5
+        },
+        "n_channels": 74,
+        "reynolds": 117.41310462782583,
+        "dp_pa": 1293.7693435770652,
+        "r_th_k_per_w": 0.014759652569760239,
+        "r_th_max_k_per_w": 0.019760069107666166,
+        "r_base": 0.0014268490763773899,
+        "r_conv": 0.008332386955476922,
+        "r_caloric": 0.005000416537905927,
+        "fin_efficiency": 0.8011460742793707,
+        "nusselt": 6.63605843199456,
+        "f_re_fanning": 20.875537651271017,
+        "feasible": true,
+        "violations": []
+      },
+      "cfd": {
+        "design_id": "w0422_t0387_h3750_q150",
+        "n_channels": 74,
+        "reynolds": 117.41310462782583,
+        "dp_pa": 1293.392427256276,
+        "pump_power_w": 0.0323348106814069,
+        "f_re_fanning": 20.869455940581954,
+        "nu_eff": 5.255044926409598,
+        "r_th_k_per_w": 0.014899946079497331,
+        "r_th_max_k_per_w": 0.019900362655796346,
+        "base_avg_temp_c": 54.89994607949733,
+        "base_max_temp_c": 59.90036265579634,
+        "coolant_rise_k": 10.000833075811855,
+        "energy_residual_rel": 1.8847641847230534e-12,
+        "n_dofs": 16563,
+        "linear_residual_rel": 4.0281972909922634e-12,
+        "base_flux_error_rel": 3.6513680967686923e-11
+      },
+      "ratios": {
+        "capacity_kw": 1.342286736696347,
+        "capacity_kw_per_kpa": 1.0378031511625534,
+        "kw_per_pumping_w": 30.926421986908924
+      }
+    },
+    {
+      "one_d": {
+        "design": {
+          "w_ch_m": 0.00038729833462074176,
+          "t_fin_m": 0.0003872983346207417,
+          "h_fin_m": 0.00375,
+          "flow_lpm": 1.5
+        },
+        "n_channels": 77,
+        "reynolds": 113.78986968230306,
+        "dp_pa": 1600.4059531316946,
+        "r_th_k_per_w": 0.013887146486583386,
+        "r_th_max_k_per_w": 0.018887563024489313,
+        "r_base": 0.0014330052711020152,
+        "r_conv": 0.007453724677575445,
+        "r_caloric": 0.005000416537905927,
+        "fin_efficiency": 0.7864474961949356,
+        "nusselt": 6.747698226559714,
+        "f_re_fanning": 21.096521499767988,
+        "feasible": true,
+        "violations": []
+      },
+      "cfd": {
+        "design_id": "w0387_t0387_h3750_q150",
+        "n_channels": 77,
+        "reynolds": 113.78986968230303,
+        "dp_pa": 1599.8922253279345,
+        "pump_power_w": 0.039997305633198366,
+        "f_re_fanning": 21.08974954941637,
+        "nu_eff": 5.218213754221921,
+        "r_th_k_per_w": 0.014048739455188577,
+        "r_th_max_k_per_w": 0.019049156010571187,
+        "base_avg_temp_c": 54.04873945518858,
+        "base_max_temp_c": 59.04915601057119,
+        "coolant_rise_k": 10.000833075811855,
+        "energy_residual_rel": 3.124862555381469e-12,
+        "n_dofs": 18649,
+        "linear_residual_rel": 4.472967773565153e-12,
+        "base_flux_error_rel": 2.178035529709632e-12
+      },
+      "ratios": {
+        "capacity_kw": 1.4236152690989983,
+        "capacity_kw_per_kpa": 0.8898194806885794,
+        "kw_per_pumping_w": 25.001684092690105
       }
     },
     {
       "one_d": {
         "design": {
           "w_ch_m": 0.0003553000202259836,
-          "t_fin_m": 0.000443502685462079,
+          "t_fin_m": 0.0003872983346207417,
           "h_fin_m": 0.0035,
           "flow_lpm": 1.5
         },
-        "n_channels": 75,
-        "reynolds": 125.36944971506013,
-        "dp_pa": 2277.507529239809,
-        "r_th_k_per_w": 0.013699781413555831,
-        "r_th_max_k_per_w": 0.01870019795146176,
-        "r_base": 0.0014266365542909929,
-        "r_conv": 0.007272728321358912,
+        "n_channels": 80,
+        "reynolds": 117.53385910786888,
+        "dp_pa": 2135.1633086623215,
+        "r_th_k_per_w": 0.013421130204976723,
+        "r_th_max_k_per_w": 0.018421546742882648,
+        "r_base": 0.0014386997512222939,
+        "r_conv": 0.0069820139158485025,
         "r_caloric": 0.005000416537905927,
-        "fin_efficiency": 0.8146430081739598,
+        "fin_efficiency": 0.7943366218678629,
         "nusselt": 6.76926684691416,
         "f_re_fanning": 21.139149368182192,
         "feasible": true,
         "violations": []
       },
       "cfd": {
-        "design_id": "w0355_t0444_h3500_q150",
-        "n_channels": 75,
-        "reynolds": 125.36944971506017,
-        "dp_pa": 2276.764417564878,
-        "pump_power_w": 0.05691911043912195,
-        "f_re_fanning": 21.132252026025494,
-        "nu_eff": 5.462620171325367,
-        "r_th_k_per_w": 0.013783526637950856,
-        "r_th_max_k_per_w": 0.018783943201090496,
-        "base_avg_temp_c": 53.78352663795086,
-        "base_max_temp_c": 58.783943201090494,
+        "design_id": "w0355_t0387_h3500_q150",
+        "n_channels": 80,
+        "reynolds": 117.53385910786889,
+        "dp_pa": 2134.4666709579337,
+        "pump_power_w": 0.053361666773948345,
+        "f_re_fanning": 21.132252317999285,
+        "nu_eff": 5.297822943201412,
+        "r_th_k_per_w": 0.013551200336279106,
+        "r_th_max_k_per_w": 0.018551616882097374,
+        "base_avg_temp_c": 53.55120033627911,
+        "base_max_temp_c": 58.55161688209738,
         "coolant_rise_k": 10.000833075811855,
-        "energy_residual_rel": 4.326425218081909e-12,
-        "n_dofs": 21923,
-        "linear_residual_rel": 4.827735523962269e-12,
-        "base_flux_error_rel": -8.960210351460773e-11
+        "energy_residual_rel": 5.371822453525965e-12,
+        "n_dofs": 20253,
+        "linear_residual_rel": 4.675783467195453e-12,
+        "base_flux_error_rel": -3.2339686484306185e-12
       },
       "ratios": {
-        "capacity_kw": 1.4510074616849526,
-        "capacity_kw_per_kpa": 0.6373111993892119,
-        "kw_per_pumping_w": 17.568791786891218
+        "capacity_kw": 1.4758840179239507,
+        "capacity_kw_per_kpa": 0.6914532974467033,
+        "kw_per_pumping_w": 18.740044313762127
+      }
+    },
+    {
+      "one_d": {
+        "design": {
+          "w_ch_m": 0.0003553000202259836,
+          "t_fin_m": 0.00033821666681390484,
+          "h_fin_m": 0.00325,
+          "flow_lpm": 1.5
+        },
+        "n_channels": 86,
+        "reynolds": 116.91528733956238,
+        "dp_pa": 2150.236778190349,
+        "r_th_k_per_w": 0.01341960593265903,
+        "r_th_max_k_per_w": 0.018420022470564956,
+        "r_base": 0.001433041513943221,
+        "r_conv": 0.0069861478808098815,
+        "r_caloric": 0.005000416537905927,
+        "fin_efficiency": 0.7973801942292044,
+        "nusselt": 6.674779230282012,
+        "f_re_fanning": 20.95224910550654,
+        "feasible": true,
+        "violations": []
+      },
+      "cfd": {
+        "design_id": "w0355_t0338_h3250_q150",
+        "n_channels": 86,
+        "reynolds": 116.91528733956238,
+        "dp_pa": 2149.5873865620283,
+        "pump_power_w": 0.05373968466405071,
+        "f_re_fanning": 20.945921330211455,
+        "nu_eff": 5.253197044525913,
+        "r_th_k_per_w": 0.013545748108143468,
+        "r_th_max_k_per_w": 0.01854616464846435,
+        "base_avg_temp_c": 53.54574810814347,
+        "base_max_temp_c": 58.54616464846435,
+        "coolant_rise_k": 10.000833075811855,
+        "energy_residual_rel": 3.777808679217287e-12,
+        "n_dofs": 18425,
+        "linear_residual_rel": 4.548232737845542e-12,
+        "base_flux_error_rel": -2.1781465520120946e-12
+      },
+      "ratios": {
+        "capacity_kw": 1.4764780682712053,
+        "capacity_kw_per_kpa": 0.6868658038753337,
+        "kw_per_pumping_w": 18.608222326785487
+      }
+    },
+    {
+      "one_d": {
+        "design": {
+          "w_ch_m": 0.00032594538392787523,
+          "t_fin_m": 0.00033821666681390484,
+          "h_fin_m": 0.00325,
+          "flow_lpm": 1.5
+        },
+        "n_channels": 90,
+        "reynolds": 112.63614469489995,
+        "dp_pa": 2645.1993409277457,
+        "r_th_k_per_w": 0.01264631777530005,
+        "r_th_max_k_per_w": 0.01764673431320598,
+        "r_base": 0.001429873349845315,
+        "r_conv": 0.006216027887548809,
+        "r_caloric": 0.005000416537905927,
+        "fin_efficiency": 0.782527527965712,
+        "nusselt": 6.784286894739275,
+        "f_re_fanning": 21.168822570719815,
+        "feasible": true,
+        "violations": []
+      },
+      "cfd": {
+        "design_id": "w0326_t0338_h3250_q150",
+        "n_channels": 90,
+        "reynolds": 112.63614469489995,
+        "dp_pa": 2644.3267767664925,
+        "pump_power_w": 0.06610816941916231,
+        "f_re_fanning": 21.161839673202284,
+        "nu_eff": 5.212922892363399,
+        "r_th_k_per_w": 0.012788455292314227,
+        "r_th_max_k_per_w": 0.01778887183120584,
+        "base_avg_temp_c": 52.788455292314225,
+        "base_max_temp_c": 57.78887183120584,
+        "coolant_rise_k": 10.000833075811855,
+        "energy_residual_rel": 2.9893275854675493e-12,
+        "n_dofs": 20961,
+        "linear_residual_rel": 5.263481774621062e-12,
+        "base_flux_error_rel": -6.944445019030354e-13
+      },
+      "ratios": {
+        "capacity_kw": 1.5639105382821223,
+        "capacity_kw_per_kpa": 0.5914210573454491,
+        "kw_per_pumping_w": 15.12672350159097
       }
     },
     {
       "one_d": {
         "design": {
           "w_ch_m": 0.0002990160069124603,
-          "t_fin_m": 0.0002579251884157727,
-          "h_fin_m": 0.0025,
+          "t_fin_m": 0.00029535503637712193,
+          "h_fin_m": 0.00275,
           "flow_lpm": 1.5
         },
-        "n_channels": 107,
-        "reynolds": 121.03807382796327,
-        "dp_pa": 3795.4678475802366,
-        "r_th_k_per_w": 0.012500581468536987,
-        "r_th_max_k_per_w": 0.017500998006442912,
-        "r_base": 0.001434237316641757,
-        "r_conv": 0.0060659276139893034,
+        "n_channels": 100,
+        "reynolds": 118.89167872349957,
+        "dp_pa": 3664.925995162301,
+        "r_th_k_per_w": 0.012385703020687885,
+        "r_th_max_k_per_w": 0.017386119558593812,
+        "r_base": 0.001437992083144666,
+        "r_conv": 0.0059472943996372925,
         "r_caloric": 0.005000416537905927,
-        "fin_efficiency": 0.8109317478417314,
-        "nusselt": 6.553936915122183,
-        "f_re_fanning": 20.712600237171948,
+        "fin_efficiency": 0.801290454780131,
+        "nusselt": 6.681835298360066,
+        "f_re_fanning": 20.966220511947014,
         "feasible": true,
         "violations": []
       },
       "cfd": {
-        "design_id": "w0299_t0258_h2500_q150",
-        "n_channels": 107,
-        "reynolds": 121.03807382796327,
-        "dp_pa": 3794.4521982934307,
-        "pump_power_w": 0.09486130495733577,
-        "f_re_fanning": 20.707057643082475,
-        "nu_eff": 5.2724932699734515,
-        "r_th_k_per_w": 0.012582308734041123,
-        "r_th_max_k_per_w": 0.017582725271971432,
-        "base_avg_temp_c": 52.58230873404113,
-        "base_max_temp_c": 57.58272527197143,
+        "design_id": "w0299_t0295_h2750_q150",
+        "n_channels": 100,
+        "reynolds": 118.89167872349957,
+        "dp_pa": 3663.8121636415694,
+        "pump_power_w": 0.09159530409103923,
+        "f_re_fanning": 20.959848531364692,
+        "nu_eff": 5.289859149357484,
+        "r_th_k_per_w": 0.012484235414859988,
+        "r_th_max_k_per_w": 0.017484651952865027,
+        "base_avg_temp_c": 52.48423541485999,
+        "base_max_temp_c": 57.48465195286503,
         "coolant_rise_k": 10.000833075811855,
-        "energy_residual_rel": 3.635531289347682e-12,
-        "n_dofs": 17683,
-        "linear_residual_rel": 4.389423667731075e-12,
-        "base_flux_error_rel": -2.227551476607914e-12
+        "energy_residual_rel": 3.0569613507225313e-12,
+        "n_dofs": 19997,
+        "linear_residual_rel": 5.117851197224745e-12,
+        "base_flux_error_rel": -2.350231120828994e-12
       },
       "ratios": {
-        "capacity_kw": 1.5895334014409055,
-        "capacity_kw_per_kpa": 0.4189098500584101,
-        "kw_per_pumping_w": 10.54170613033158
+        "capacity_kw": 1.6020204149782369,
+        "capacity_kw_per_kpa": 0.43725506205698667,
+        "kw_per_pumping_w": 10.91759026211727
+      }
+    },
+    {
+      "one_d": {
+        "design": {
+          "w_ch_m": 0.00027431151597366127,
+          "t_fin_m": 0.0002579251884157727,
+          "h_fin_m": 0.0025,
+          "flow_lpm": 1.5
+        },
+        "n_channels": 112,
+        "reynolds": 116.66428300880797,
+        "dp_pa": 4665.316691487554,
+        "r_th_k_per_w": 0.01182344911716828,
+        "r_th_max_k_per_w": 0.016823865655074207,
+        "r_base": 0.001433808974150323,
+        "r_conv": 0.00538922360511203,
+        "r_caloric": 0.005000416537905927,
+        "fin_efficiency": 0.796667634020581,
+        "nusselt": 6.669984848781538,
+        "f_re_fanning": 20.94275462426838,
+        "feasible": true,
+        "violations": []
+      },
+      "cfd": {
+        "design_id": "w0274_t0258_h2500_q150",
+        "n_channels": 112,
+        "reynolds": 116.66428300880797,
+        "dp_pa": 4663.913800398466,
+        "pump_power_w": 0.11659784500996166,
+        "f_re_fanning": 20.936457001666053,
+        "nu_eff": 5.2439549570788495,
+        "r_th_k_per_w": 0.011922336813755739,
+        "r_th_max_k_per_w": 0.016922753351669692,
+        "base_avg_temp_c": 51.922336813755734,
+        "base_max_temp_c": 56.92275335166969,
+        "coolant_rise_k": 10.000833075811855,
+        "energy_residual_rel": 3.831990937896989e-12,
+        "n_dofs": 20271,
+        "linear_residual_rel": 5.324104896844674e-12,
+        "base_flux_error_rel": -2.280287070277609e-12
+      },
+      "ratios": {
+        "capacity_kw": 1.677523484903096,
+        "capacity_kw_per_kpa": 0.3596814942762825,
+        "kw_per_pumping_w": 8.576487840873593
       }
     }
   ]

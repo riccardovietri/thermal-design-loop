@@ -11,15 +11,16 @@ requirements:
   r_th_threshold_mk_w: 20    # must meet (SPEC Amendment 3)
   r_th_objective_mk_w: 15    # want: average interface 55 °C at 1 kW and 40 °C inlet
   marginal_return_cutoff: 0.25   # a doubling of ΔP must buy at least about 16% lower R_th
+  min_dp_ratio: 1.10             # selection-rule guard: ignore a point less than 10% higher in ΔP (SPEC Amendment 4)
 design_space:
-  w_ch_mm: {min: 0.15, max: 1.0, levels: 12, spacing: geometric}
-  t_fin_mm: {min: 0.15, max: 1.0, levels: 8, spacing: geometric}
-  h_fin_mm: {min: 1.0, max: 4.0, levels: 7, spacing: linear}
+  w_ch_mm: {min: 0.15, max: 1.0, levels: 23, spacing: geometric}   # nests the earlier 12 levels (SPEC Amendment 4)
+  t_fin_mm: {min: 0.15, max: 1.0, levels: 15, spacing: geometric}  # nests the earlier 8 levels
+  h_fin_mm: {min: 1.0, max: 4.0, levels: 13, spacing: linear}     # 0.25 mm steps, nests the earlier 0.5 mm
   flow_lpm: [1.5]           # rated flow, 1.5 LPM per kW; not a design variable
 constraints:
   min_feature_mm: 0.15
   max_aspect_ratio: 10
 study:
-  n_cfd: 10
+  n_cfd: all                         # every design on the 1D Pareto front within budget (SPEC Amendment 4)
   mesh_cells_across_half_channel: 8
   flow_sensitivity_lpm: [1.0, 2.0]   # reported for the recommended design
