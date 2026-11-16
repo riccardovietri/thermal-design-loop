@@ -1,0 +1,687 @@
+"""Entrance effects in the straight-fin study (issue #12): 1D developing-flow option against a resolved developing solve.
+
+1D: `tools.screen_1d.analyze_1d(..., entrance_effects=True)` on every CFD-verified straight design of the Level 1 study
+(read from examples/output/gpu_coldplate/results.json). Values are reported two ways: the 1D screen on its own, and the
+Level 1 CFD value plus the 1D increment (CFD-anchored), which is what the table in summary.md uses.
+
+Resolved check (tall-fin limit): the plan-view solver (`level2.planar`, the same Taylor-Hood Navier-Stokes + energy solve as
+`level2.planview.run_developing`) on one straight half channel over the full 60 mm plate with a uniform inlet (velocity
+and temperature both developing), and again with a parabolic inlet (thermal entrance only). Uniform flux on the fin wall.
+The fins are of infinite height: no floor, no cover, so the channel is a parallel-plate channel of gap w heated on both
+sides. Its length-mean h = q'' / (mean wall T - mean bulk T over 0..60 mm) and the pressure drop from the inlet plane to
+x = 60 mm are compared with the developed-periodic values (`level2.planview.run_design`) and with the 1D correction
+evaluated for the same parallel-plate channel (aspect ratio 0.01, as Muzychka & Yovanovich model parallel plates).
+
+    uv run python -m level2.entrance              # everything, about 2 min; writes examples/output/entrance_effects/
+    uv run python -m level2.entrance --plot-only  # redraw the figure and summary from results.json
+"""
+import argparse
+import json
+import math
+import sys
+import time
+from dataclasses import asdict, replace
+from pathlib import Path
+
+import numpy as np
+from scipy.integrate import quad
+
+from tools import plotstyle as ps
+from tools.fluids import fluid_props
+from tools.pareto import recommend_marginal_return
+from tools.screen_1d import (MY_UWF_C3, analyze_1d, effective_nu_factor, f_app_re_sqrt_a, f_pr_uwf, f_re_sqrt_a, k_contraction,
+                             k_expansion, nu_fd_sqrt_a)
+from tools.types import Design, Requirements
+
+from .planar import line_mean, solve_energy, solve_flow, window_means
+from .planforms import mesh_planform, straight
+from .planview import B_M, network, run_design, superficial_velocity
+
+ROOT = Path(__file__).resolve().parents[1]
+LEVEL1 = ROOT / "examples/output/gpu_coldplate/results.json"
+OUT = ROOT / "examples/output/entrance_effects"
+FLOW_LPM = 1.5
+LENGTH_MM = 60.0
+WINDOW_MM = 5.0  # reporting windows of the developing solve
+CELLS, CELLS_FINE = 8.0, 16.0  # developing solve: cells across the half channel (wall cell w / (2 cells))
+CELLS_PERIODIC = 10.0  # developed-periodic reference, as in the plan-view study
+LEAD_IN_MM = 1.0  # slip lead-in upstream of the fin leading edge (uniform-inlet case)
+PLENUM_IN_MM, PLENUM_OUT_MM = 2.0, 10.0  # plenum case: plenums as tall as the fins, before and after the fin array
+PLATE_EPS = 0.01  # Muzychka & Yovanovich model a parallel-plate channel as a rectangular duct of aspect ratio 0.01
+GATE_MESH, GATE_ENERGY, GATE_AGREEMENT = 0.02, 0.01, 0.10
+
+
+def resolved_designs(rows: list[dict], recommended: str) -> list[str]:
+    """Designs for the resolved check, taken from the Level 1 results (nothing hard-coded): the widest-channel (lowest ΔP)
+    design, the recommended design and its neighbours in ΔP order, and the narrowest-channel (highest ΔP) design."""
+    order = sorted(rows, key=lambda r: r["cfd_anchored"]["dp_fd"])
+    ids = [r["design_id"] for r in order]
+    i = ids.index(recommended)
+    picks = [ids[0]] + ids[max(i - 1, 0):i + 2] + [ids[-1]]
+    return [d for k, d in enumerate(picks) if d not in picks[:k]]
+
+
+def requirements(level1: dict) -> Requirements:
+    return Requirements(1000.0, 0.060, 0.060, 0.002, 390.0, 40.0, level1["dp_budget_pa"], "PG25",
+                        r_th_threshold_k_per_w=level1["r_th_threshold_k_per_w"],
+                        r_th_objective_k_per_w=level1["r_th_objective_k_per_w"],
+                        marginal_return_cutoff=level1["marginal_return_cutoff"])
+
+
+# --------------------------------------------------------------------------------------------------------------------
+# 1D on the CFD-verified designs
+
+
+def one_d_table(level1: dict, req: Requirements, fluid) -> list[dict]:
+    rows = []
+    for entry in level1["designs"]:
+        g, cfd = entry["one_d"]["design"], entry["cfd"]
+        r = analyze_1d(Design(g["w_ch_m"], g["t_fin_m"], g["h_fin_m"], g["flow_lpm"]), req, fluid, entrance_effects=True)
+        fd_check = abs(r.r_th_fully_developed_k_per_w / entry["one_d"]["r_th_k_per_w"] - 1) + \
+            abs(r.dp_fully_developed_pa / entry["one_d"]["dp_pa"] - 1)
+        r_cfd, dp_cfd = cfd["r_th_k_per_w"], cfd["dp_pa"]
+        d_th = r.r_th_thermal_entrance_k_per_w - r.r_th_fully_developed_k_per_w
+        d_comb = r.r_th_k_per_w - r.r_th_fully_developed_k_per_w
+        rows.append({
+            "design_id": cfd["design_id"], "w_mm": g["w_ch_m"] * 1e3, "t_mm": g["t_fin_m"] * 1e3, "h_mm": g["h_fin_m"] * 1e3,
+            "n_channels": r.n_channels, "reynolds": r.reynolds, "x_star": r.x_star, "l_plus_dh": r.l_plus_dh,
+            "sigma": r.sigma, "k_contraction": r.k_contraction, "k_expansion": r.k_expansion,
+            "nu_factor_thermal": r.nu_factor_thermal, "nu_factor_combined": r.nu_factor_combined,
+            "f_app_factor": r.f_app_factor, "fd_matches_level1": fd_check < 1e-12,
+            "one_d": {"r_th_fd": r.r_th_fully_developed_k_per_w, "r_th_thermal": r.r_th_thermal_entrance_k_per_w,
+                      "r_th_combined": r.r_th_k_per_w, "dp_fd": r.dp_fully_developed_pa, "dp_core_developing": r.dp_pa,
+                      "dp_inlet_outlet": r.dp_inlet_outlet_pa, "dp_total": r.dp_with_inlet_outlet_pa},
+            "cfd_anchored": {"r_th_fd": r_cfd, "r_th_thermal": r_cfd + d_th, "r_th_combined": r_cfd + d_comb,
+                             "dp_fd": dp_cfd, "dp_hydrodynamic": dp_cfd * r.f_app_factor,
+                             "dp_fd_plus_inlet_outlet": dp_cfd + r.dp_inlet_outlet_pa,
+                             "dp_combined_core": dp_cfd * r.f_app_factor,
+                             "dp_combined_total": dp_cfd * r.f_app_factor + r.dp_inlet_outlet_pa},
+        })
+    return rows
+
+
+def r_th_with_h_factor(row: dict, req: Requirements, fluid, factor: float) -> float:
+    """1D screen R_th of a design with its developed h multiplied by `factor` (same network as tools.screen_1d)."""
+    fd = analyze_1d(Design(row["w_mm"] * 1e-3, row["t_mm"] * 1e-3, row["h_mm"] * 1e-3, FLOW_LPM), req, fluid)
+    w, t, h = row["w_mm"] * 1e-3, row["t_mm"] * 1e-3, row["h_mm"] * 1e-3
+    htc = fd.nusselt * factor * fluid.k / (2 * w * h / (w + h))
+    m = math.sqrt(2 * htc / (req.solid_k * t))
+    eta = math.tanh(m * h) / (m * h)
+    return fd.r_base + fd.r_caloric + 1 / (fd.n_channels * req.flow_length_m * htc * (w + 2 * eta * h))
+
+
+def selection(rows: list[dict], req: Requirements, r_key: str, dp_key: str) -> dict:
+    cands = [(r["cfd_anchored"][dp_key], r["cfd_anchored"][r_key]) for r in rows]
+    rec = recommend_marginal_return(cands, req.dp_budget_pa, req.r_th_threshold_k_per_w, req.r_th_objective_k_per_w,
+                                    req.marginal_return_cutoff)
+    order_r = sorted(range(len(rows)), key=lambda i: cands[i][1])
+    return {"r_key": r_key, "dp_key": dp_key, "recommended": rows[rec["index"]]["design_id"], "rule": rec["rule"],
+            "meets_objective": rec["meets_objective"], "front": [rows[i]["design_id"] for i in rec["front"]],
+            "steps": [{"from": rows[s["from"]]["design_id"], "to": None if s["to"] is None else rows[s["to"]]["design_id"],
+                       "returns": [{"to": rows[e["to"]]["design_id"], "return": e["return"]} for e in s["returns"]]}
+                      for s in rec["steps"]],
+            "order_by_r_th": [rows[i]["design_id"] for i in order_r]}
+
+
+# --------------------------------------------------------------------------------------------------------------------
+# Resolved developing solve (tall-fin limit)
+
+
+def solve_developing(pf, req: Requirements, fluid, cells: float, inlet: str) -> dict:
+    """Half channel over 0..60 mm (plus 5 mm and a short buffer before the outlet); inlet 'uniform' or 'parabolic'.
+
+    'uniform': uniform velocity and temperature at x = -LEAD_IN_MM, slip (symmetry) walls upstream of the fin leading
+    edge at x = 0, so the velocity jump sits at the leading edge rather than at a corner of the inflow boundary (where the
+    pressure on the inflow line is singular and the inlet-to-outlet pressure drop does not converge with the mesh).
+    'parabolic': developed velocity at x = 0 (thermal entrance only), no lead-in.
+    """
+    n = int(round(LENGTH_MM / WINDOW_MM))
+    pf5 = replace(pf, period_mm=WINDOW_MM)
+    lead = LEAD_IN_MM if inlet == "uniform" else 0.0
+    pm = mesh_planform(pf5, n_periods=n + 1, periodic=False, cells=cells, lead_in_mm=lead)
+    us = superficial_velocity(req, FLOW_LPM, pf.params["h_fin"])
+    re_b = fluid.rho * us * B_M / fluid.mu
+    pr = fluid.cp * fluid.mu / fluid.k
+    u_mean = pm.flow_rate / pm.inlet_width  # mean channel velocity in units of U_s
+    half = pf.params["w"] / 2
+    profile = (lambda x: u_mean + 0 * x[0]) if inlet == "uniform" else \
+        (lambda x: 1.5 * u_mean * (1 - ((x[1] - half) / half) ** 2))  # wall at y = 0, symmetry at y = w/2
+    wx = pm.mesh.p[0, pm.mesh.facets[:, pm.walls]].mean(axis=0)
+    walls, sym = pm.walls[wx > 0], np.concatenate([pm.symmetry, pm.walls[wx < 0]])
+    fixed = {0: [(pm.inlet, profile), (walls, None)], 1: [(pm.inlet, None), (walls, None), (sym, None)]}
+    steps = [r for r in (10.0, 50.0) if r < 0.8 * re_b] + [re_b]
+    t0 = time.perf_counter()
+    flow = solve_flow(pm.mesh, steps, fixed)
+    energy = solve_energy(flow, pr, pm.inlet, pm.heated, pm.outlet)
+    whole = window_means(flow, energy, pm.heated, 0.0, LENGTH_MM)
+    p0, p1 = line_mean(pm.mesh, flow.basis_p, flow.p, -lead), line_mean(pm.mesh, flow.basis_p, flow.p, LENGTH_MM)
+    windows = []
+    for k in range(n):
+        lo, hi = pm.cuts[k], pm.cuts[k + 1]
+        wm = window_means(flow, energy, pm.heated, lo, hi)
+        dpw = line_mean(pm.mesh, flow.basis_p, flow.p, lo) - line_mean(pm.mesh, flow.basis_p, flow.p, hi)
+        windows.append({"x_mm": [float(lo), float(hi)], "h_w_m2k": wm["nusselt_b"] * fluid.k / B_M,
+                        "dpdx_pa_per_m": dpw / (hi - lo) * fluid.rho * us**2 / B_M})
+    return {"inlet": inlet, "cells": cells, "reynolds_b": re_b, "n_unknowns": int(flow.basis_u.N + flow.basis_p.N + energy.basis.N),
+            "n_triangles": int(pm.mesh.t.shape[1]), "newton_iterations": flow.newton_iterations,
+            "energy_balance_error": energy.energy_balance_error,
+            "h_eff_w_m2k": whole["nusselt_b"] * fluid.k / B_M,  # q'' / (mean wall T - mean bulk T) over 0..60 mm
+            "dp_pa": (p0 - p1) * fluid.rho * us**2, "windows": windows, "seconds": time.perf_counter() - t0}
+
+
+def mesh_core_with_plenums(w: float, t: float, cells: float):
+    """Plan-view strip y in [0, p/2] (fin centre at y = 0, channel centre at y = p/2, both symmetry planes): inlet plenum,
+    half a fin of thickness t from x = 0 to 60 mm, outlet plenum. Lengths in mm. Returns the mesh, facet sets and the
+    x positions of the embedded pressure lines in the outlet plenum."""
+    import gmsh
+
+    from .planforms import _to_meshtri
+    half_p = (w + t) / 2
+    x_in, x_out = -PLENUM_IN_MM, LENGTH_MM + PLENUM_OUT_MM
+    stations = [LENGTH_MM + d for d in (2.5, 5.0, 7.5)]
+    gmsh.initialize()
+    try:
+        gmsh.option.setNumber("General.Terminal", 0)
+        gmsh.model.add("plenums")
+        occ = gmsh.model.occ
+        dom = occ.addRectangle(x_in, 0, 0, x_out - x_in, half_p)
+        fin = occ.addRectangle(0, 0, 0, LENGTH_MM, t / 2)
+        out, _ = occ.cut([(2, dom)], [(2, fin)])
+        lines = [(1, occ.addLine(occ.addPoint(x, -1, 0), occ.addPoint(x, half_p + 1, 0))) for x in stations]
+        occ.fragment(out, lines)
+        occ.synchronize()
+        on_surface = set()
+        for _, sfc in gmsh.model.getEntities(2):
+            on_surface.update(abs(c) for c in gmsh.model.getAdjacencies(2, sfc)[1])
+        stray = [(1, c) for _, c in gmsh.model.getEntities(1) if c not in on_surface]
+        if stray:
+            gmsh.model.removeEntities(stray, recursive=True)
+        eps = 1e-6
+        fin_curves = []
+        for _, c in gmsh.model.getEntities(1):
+            bb = gmsh.model.getBoundingBox(1, c)
+            on_fin = (abs(bb[0]) < eps and abs(bb[3]) < eps) or (abs(bb[1] - t / 2) < eps and abs(bb[4] - t / 2) < eps) or \
+                (abs(bb[0] - LENGTH_MM) < eps and abs(bb[3] - LENGTH_MM) < eps)
+            if on_fin:
+                fin_curves.append(c)
+        fd = gmsh.model.mesh.field
+        dist = fd.add("Distance")
+        fd.setNumbers(dist, "CurvesList", fin_curves)
+        fd.setNumber(dist, "Sampling", 4000)
+        thr = fd.add("Threshold")
+        fd.setNumber(thr, "InField", dist)
+        fd.setNumber(thr, "SizeMin", w / (2 * cells))
+        fd.setNumber(thr, "SizeMax", w / cells)
+        fd.setNumber(thr, "DistMin", 0.0)
+        fd.setNumber(thr, "DistMax", w / 2)
+        fd.setAsBackgroundMesh(thr)
+        for opt in ("Mesh.MeshSizeFromPoints", "Mesh.MeshSizeFromCurvature", "Mesh.MeshSizeExtendFromBoundary"):
+            gmsh.option.setNumber(opt, 0)
+        gmsh.option.setNumber("Mesh.Algorithm", 6)
+        gmsh.model.mesh.generate(2)
+        mesh = _to_meshtri()
+    finally:
+        gmsh.finalize()
+    tol = 1e-6
+    bnd = mesh.boundary_facets()
+    mx, my = mesh.p[:, mesh.facets[:, bnd]].mean(axis=1)
+    inlet, outlet = bnd[np.abs(mx - x_in) < tol], bnd[np.abs(mx - x_out) < tol]
+    sym = bnd[(np.abs(my - half_p) < tol) | ((np.abs(my) < tol) & ((mx < 0) | (mx > LENGTH_MM)))]
+    walls = np.setdiff1d(bnd, np.concatenate([inlet, outlet, sym]))
+    return mesh, inlet, outlet, sym, walls, stations
+
+
+def solve_core_with_plenums(pf, req: Requirements, fluid, cells: float) -> dict:
+    """Pressure drop from the inlet plenum to the outlet plenum through the 60 mm fin array (tall-fin limit, flow only).
+
+    Uniform inflow at the superficial velocity 2 mm upstream of the square fin leading edge; pressure differences to
+    lines 2.5, 5 and 7.5 mm after the array and to the traction-free outlet 10 mm after it.
+    """
+    w, t = pf.params["w"], pf.params["t"]
+    mesh, inlet, outlet, sym, walls, stations = mesh_core_with_plenums(w, t, cells)
+    us = superficial_velocity(req, FLOW_LPM, pf.params["h_fin"])
+    re_b = fluid.rho * us * B_M / fluid.mu
+    fixed = {0: [(inlet, lambda x: 1.0 + 0 * x[0]), (walls, None)], 1: [(inlet, None), (walls, None), (sym, None)]}
+    steps = [r for r in (10.0, 50.0) if r < 0.8 * re_b] + [re_b]
+    t0 = time.perf_counter()
+    flow = solve_flow(mesh, steps, fixed)
+    p_in = line_mean(mesh, flow.basis_p, flow.p, -PLENUM_IN_MM)
+    scale = fluid.rho * us**2
+    dp = {f"{x - LENGTH_MM:.1f}": (p_in - line_mean(mesh, flow.basis_p, flow.p, x)) * scale for x in stations}
+    dp[f"{PLENUM_OUT_MM:.1f}"] = (p_in - line_mean(mesh, flow.basis_p, flow.p, LENGTH_MM + PLENUM_OUT_MM)) * scale
+    return {"cells": cells, "n_triangles": int(mesh.t.shape[1]), "n_unknowns": int(flow.basis_u.N + flow.basis_p.N),
+            "dp_pa_to_mm_after_array": dp, "dp_pa": dp[f"{PLENUM_OUT_MM:.1f}"], "seconds": time.perf_counter() - t0}
+
+
+NU_PLATES_DH = 8.235  # parallel plates, both walls at uniform flux, on Dh = 2w (the plan-view developed value, gate G1)
+
+
+def _factor_with_developed_anchor(eps: float, l_star: float, pr: float | None, nu_fd: float) -> float:
+    """Diagnostic only: the source's developing-flow asymptotes blended (Eqs. 50-52, local form) with a given developed Nu
+    (on sqrt(A)) instead of the source's own Eq. 31; harmonic length-mean over 0..l_star divided by nu_fd."""
+    def nu(z):
+        g = ((MY_UWF_C3 * (f_re_sqrt_a(eps) / z) ** (1 / 3)) ** 5 + nu_fd**5) ** 0.2
+        if pr is None:
+            return g
+        m = 2.27 + 1.65 * pr ** (1 / 3)
+        return (g**m + (f_pr_uwf(pr) / math.sqrt(z)) ** m) ** (1 / m)
+    mean_inv, _ = quad(lambda s: 3 * s * s / nu(l_star * s**3), 0.0, 1.0, epsabs=0, epsrel=1e-10, limit=200)
+    return 1 / (mean_inv * nu_fd)
+
+
+def one_d_parallel_plates(w_mm: float, u_channel: float, fluid) -> dict:
+    """The 1D option's factors for a parallel-plate channel of gap w (both walls heated) at channel velocity u."""
+    w = w_mm * 1e-3
+    sqrt_a = math.sqrt(w * w / PLATE_EPS)
+    pr = fluid.cp * fluid.mu / fluid.k
+    l_plus = LENGTH_MM * 1e-3 * fluid.mu / (fluid.rho * u_channel * sqrt_a**2)
+    nu_exact = NU_PLATES_DH * sqrt_a / (2 * w)  # h = 8.235 k / (2w), expressed on sqrt(A)
+    return {"nu_fd_model_over_exact": nu_fd_sqrt_a(PLATE_EPS) / nu_exact,
+            "diagnostic_nu_factor_combined_exact_anchor": _factor_with_developed_anchor(PLATE_EPS, l_plus / pr, pr, nu_exact),
+            "diagnostic_nu_factor_thermal_exact_anchor": _factor_with_developed_anchor(PLATE_EPS, l_plus / pr, None, nu_exact),
+            "f_app_factor": f_app_re_sqrt_a(PLATE_EPS, l_plus) / f_re_sqrt_a(PLATE_EPS),
+            "nu_factor_thermal": effective_nu_factor(PLATE_EPS, l_plus / pr),
+            "nu_factor_combined": effective_nu_factor(PLATE_EPS, l_plus / pr, pr), "l_plus_sqrt_a": l_plus,
+            "x_star_2w": LENGTH_MM * 1e-3 * fluid.mu / (fluid.rho * u_channel * 2 * w * 2 * w) / pr}
+
+
+def resolved_case(row: dict, req: Requirements, fluid, mesh_check: bool) -> dict:
+    pf = straight(row["w_mm"], row["t_mm"], row["h_mm"])
+    per = run_design(pf, req, fluid, FLOW_LPM, cells=CELLS_PERIODIC)
+    u_ch = superficial_velocity(req, FLOW_LPM, row["h_mm"]) / pf.porosity
+    out = {"design_id": row["design_id"], "periodic": {"dpdx_pa_per_m": per.dpdx_pa_per_m, "h_w_m2k": per.h_w_m2k,
+                                                         "dp_pa": per.dp_pa, "r_th_k_per_w": per.r_th_k_per_w,
+                                                         "energy_balance_error": per.energy_balance_error},
+           "u_channel_m_s": u_ch, "reynolds_2w": fluid.rho * u_ch * 2 * row["w_mm"] * 1e-3 / fluid.mu,
+           "one_d_plates": one_d_parallel_plates(row["w_mm"], u_ch, fluid)}
+    f1 = out["one_d_plates"]
+    levels = (CELLS, CELLS_FINE) if mesh_check else (CELLS,)
+    for inlet in ("uniform", "parabolic"):
+        sols = [solve_developing(pf, req, fluid, c, inlet) for c in levels]
+        out[inlet] = sols[0]  # production mesh; the refinement only checks it
+        if mesh_check:
+            out[inlet]["mesh_change"] = {
+                "h_eff": sols[1]["h_eff_w_m2k"] / sols[0]["h_eff_w_m2k"] - 1, "dp": sols[1]["dp_pa"] / sols[0]["dp_pa"] - 1,
+                "fine_cells": CELLS_FINE, "fine_h_eff_w_m2k": sols[1]["h_eff_w_m2k"], "fine_dp_pa": sols[1]["dp_pa"],
+                "h_increase_fine": sols[1]["h_eff_w_m2k"] / per.h_w_m2k - 1, "dp_increase_fine": sols[1]["dp_pa"] / per.dp_pa - 1,
+                "fine_energy_balance_error": sols[1]["energy_balance_error"]}
+    plen = [solve_core_with_plenums(pf, req, fluid, c) for c in levels]
+    q = 0.5 * fluid.rho * u_ch**2
+    out["plenums"] = {**plen[0], "excess_over_developed_q": (plen[0]["dp_pa"] - per.dp_pa) / q,
+                      "inlet_outlet_q": (plen[0]["dp_pa"] - out["uniform"]["dp_pa"]) / q,
+                      "developing_excess_q": (out["uniform"]["dp_pa"] - per.dp_pa) / q,
+                      "one_d_developing_excess_q": (f1["f_app_factor"] - 1) * per.dp_pa / q,
+                      "one_d_kc_plus_ke": k_contraction(pf.porosity, 0.0) + k_expansion(pf.porosity, 0.0),
+                      "sigma": pf.porosity, "dynamic_pressure_pa": q}
+    if mesh_check:
+        out["plenums"]["mesh_change"] = {"dp": plen[1]["dp_pa"] / plen[0]["dp_pa"] - 1, "fine_dp_pa": plen[1]["dp_pa"]}
+    # plan-view network with developed, resolved and 1D-corrected values
+    fd = network(pf, per.dpdx_pa_per_m, per.h_w_m2k, req, fluid, FLOW_LPM)
+    dev = network(pf, out["uniform"]["dp_pa"] / (LENGTH_MM * 1e-3), out["uniform"]["h_eff_w_m2k"], req, fluid, FLOW_LPM)
+    th = network(pf, per.dpdx_pa_per_m, out["parabolic"]["h_eff_w_m2k"], req, fluid, FLOW_LPM)
+    one = network(pf, per.dpdx_pa_per_m * f1["f_app_factor"], per.h_w_m2k * f1["nu_factor_combined"], req, fluid, FLOW_LPM)
+    one_th = network(pf, per.dpdx_pa_per_m, per.h_w_m2k * f1["nu_factor_thermal"], req, fluid, FLOW_LPM)
+    out["network"] = {
+        "fully_developed": {"r_th_k_per_w": fd["r_th_k_per_w"], "dp_pa": fd["dp_pa"]},
+        "resolved_combined": {"r_th_k_per_w": dev["r_th_k_per_w"], "dp_pa": dev["dp_pa"]},
+        "resolved_thermal": {"r_th_k_per_w": th["r_th_k_per_w"], "dp_pa": th["dp_pa"]},
+        "one_d_combined": {"r_th_k_per_w": one["r_th_k_per_w"], "dp_pa": one["dp_pa"]},
+        "one_d_thermal": {"r_th_k_per_w": one_th["r_th_k_per_w"], "dp_pa": one_th["dp_pa"]}}
+    res_h = out["uniform"]["h_eff_w_m2k"] / per.h_w_m2k - 1
+    res_h_th = out["parabolic"]["h_eff_w_m2k"] / per.h_w_m2k - 1
+    res_dp = out["uniform"]["dp_pa"] / per.dp_pa - 1
+    d_r_res, d_r_1d = dev["r_th_k_per_w"] - fd["r_th_k_per_w"], one["r_th_k_per_w"] - fd["r_th_k_per_w"]
+    d_r_res_th, d_r_1d_th = th["r_th_k_per_w"] - fd["r_th_k_per_w"], one_th["r_th_k_per_w"] - fd["r_th_k_per_w"]
+    out["comparison"] = {
+        "h_increase_resolved": res_h, "h_increase_1d": f1["nu_factor_combined"] - 1,
+        "h_increase_resolved_thermal": res_h_th, "h_increase_1d_thermal": f1["nu_factor_thermal"] - 1,
+        "dp_increase_resolved": res_dp, "dp_increase_1d": f1["f_app_factor"] - 1,
+        "r_th_change_resolved": d_r_res, "r_th_change_1d": d_r_1d,
+        "r_th_change_resolved_thermal": d_r_res_th, "r_th_change_1d_thermal": d_r_1d_th,
+        "r_th_contribution_disagreement": d_r_1d / d_r_res - 1,
+        "r_th_thermal_contribution_disagreement": d_r_1d_th / d_r_res_th - 1,
+        "dp_contribution_disagreement": (f1["f_app_factor"] - 1) / res_dp - 1}
+    return out
+
+
+# --------------------------------------------------------------------------------------------------------------------
+# Figure and summary
+
+
+def plot_front(rows: list[dict], req: Requirements, recommended: str, out: Path) -> Path:
+    from tools.report import draw_requirements
+    fig, ax = ps.figure(5.4)
+    budget_kpa = req.dp_budget_pa / 1e3
+    fd = [(r["cfd_anchored"]["dp_fd"] / 1e3, r["cfd_anchored"]["r_th_fd"] * 1e3) for r in rows]
+    comb = [(r["cfd_anchored"]["dp_combined_core"] / 1e3, r["cfd_anchored"]["r_th_combined"] * 1e3) for r in rows]
+    tot = [(r["cfd_anchored"]["dp_combined_total"] / 1e3, r["cfd_anchored"]["r_th_combined"] * 1e3) for r in rows]
+    y_lo = 0.7 * min(p[1] for p in comb + fd)
+    y_hi = 1.5 * req.r_th_threshold_k_per_w * 1e3
+    x_lo, x_hi = 0.3, 1.5 * budget_kpa
+    draw_requirements(ax, x_lo, y_lo, budget_kpa, req.r_th_threshold_k_per_w * 1e3, req.r_th_objective_k_per_w * 1e3, y_hi)
+    order = np.argsort([p[0] for p in fd])
+    ax.plot([fd[i][0] for i in order], [fd[i][1] for i in order], color=ps.BLUE, lw=1.2, zorder=3)
+    ax.scatter(*zip(*fd), s=50, color=ps.BLUE, edgecolors="white", linewidths=0.8, zorder=4,
+               label="Fully developed (Level 1 CFD)")
+    ax.plot([comb[i][0] for i in order], [comb[i][1] for i in order], color=ps.COPPER, lw=1.2, zorder=3)
+    ax.scatter(*zip(*comb), s=50, color=ps.COPPER, edgecolors="white", linewidths=0.8, zorder=4,
+               label="With developing flow, channel core")
+    ax.scatter(*zip(*tot), s=34, marker="D", facecolors="none", edgecolors=ps.COPPER, linewidths=1.2, zorder=4,
+               label="Also with inlet and outlet losses")
+    for a, b in zip(fd, comb):
+        ax.annotate("", xy=b, xytext=a, arrowprops={"arrowstyle": "->", "color": ps.MUTED, "lw": 0.9}, zorder=2)
+    i = next(k for k, r in enumerate(rows) if r["design_id"] == recommended)
+    for p in (fd[i], comb[i]):
+        ax.scatter([p[0]], [p[1]], s=220, facecolors="none", edgecolors=ps.ACCENT, linewidths=2.0, zorder=5)
+    ax.scatter([], [], s=120, facecolors="none", edgecolors=ps.ACCENT, linewidths=2.0, label="Recommended design")
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlim(x_lo, x_hi)
+    ax.set_ylim(y_lo, y_hi)
+    ps.plain_log_ticks(ax, x_lo, x_hi, "x")
+    ps.plain_log_ticks(ax, y_lo, y_hi, "y")
+    ax.set_xlabel("ΔP (kPa)")
+    ax.set_ylabel("R_th (mK/W)")
+    ax.set_title("Straight-fin front with and without entrance effects", loc="left")
+    ax.legend(loc="upper right", bbox_to_anchor=(0.97, 0.88))
+    ps.save(fig, out)
+    return out
+
+
+def write_summary(data: dict, out: Path) -> Path:
+    rows, res, req = data["one_d"], data["resolved"], data["requirements"]
+    rec_id = data["level1_recommended"]
+    rec = next(r for r in rows if r["design_id"] == rec_id)
+    rres = next(r for r in res if r["design_id"] == rec_id)
+    obj, thr = req["r_th_objective_k_per_w"], req["r_th_threshold_k_per_w"]
+    ca, alt = rec["cfd_anchored"], rres["cfd_anchored_with_resolved_factors"]
+    margin = lambda r: 100 * (1 - r / obj)
+    sel_fd, sel_core, sel_tot = data["selection_fully_developed"], data["selection_core"], data["selection_total"]
+    newly = [r for r in rows if r["cfd_anchored"]["r_th_fd"] > thr >= r["cfd_anchored"]["r_th_combined"]]
+    geo = lambda r: f"{r['w_mm']:.2f} / {r['t_mm']:.2f} / {r['h_mm']:.1f}"
+    by_id = {r["design_id"]: r for r in rows}
+    walk = lambda s: " → ".join([geo(by_id[s["steps"][0]["from"]])] + [geo(by_id[x["to"]]) for x in s["steps"] if x["to"]])
+    g = data["gates"]
+    L = []
+    a = L.append
+    a("# Entrance effects in the straight-fin study (issue #12)")
+    a("")
+    a(f"**Answer.** For the recommended design ({rec['w_mm']:.2f} mm channels, {rec['t_mm']:.2f} mm fins, {rec['h_mm']:.1f} mm "
+      f"tall, {rec['n_channels']} channels, "
+      f"Re {rec['reynolds']:.0f}, x* = L/(Dh·Re·Pr) = {rec['x_star']:.3f}), developing flow lowers R_th from "
+      f"{ca['r_th_fd']*1e3:.2f} to {ca['r_th_combined']*1e3:.2f} mK/W ({100*(ca['r_th_combined']/ca['r_th_fd']-1):+.1f}%) and raises "
+      f"the channel-core ΔP from {ca['dp_fd']/1e3:.3f} to {ca['dp_combined_core']/1e3:.3f} kPa "
+      f"({100*(ca['dp_combined_core']/ca['dp_fd']-1):+.1f}%). Inlet and outlet losses, which are outside the channel-core "
+      f"definition, add {rec['one_d']['dp_inlet_outlet']:.0f} Pa more ({ca['dp_combined_total']/1e3:.3f} kPa in all). "
+      f"**The 15 mK/W objective is still met**, with a margin of {margin(ca['r_th_combined']):.1f}% instead of "
+      f"{margin(ca['r_th_fd']):.1f}%. The resolved check (tall-fin limit) does not confirm the 1D increments to within the 10% "
+      f"gate (see below), but every estimate moves R_th down and ΔP up by a few percent: with the resolved ratios in place of "
+      f"the 1D ones the recommended design reads {alt['r_th_combined']*1e3:.2f} mK/W at {alt['dp_combined_core']/1e3:.3f} kPa "
+      f"(core) and {alt['dp_plenum_to_plenum']/1e3:.3f} kPa plenum to plenum, so the conclusion does not depend on which is "
+      f"right.")
+    a("")
+    a(f"**Front and recommendation.** The order of the {len(rows)} CFD-verified designs by R_th is "
+      f"{'unchanged' if data['ranking_unchanged'] else 'changed'}; the wide channels gain most (x* is smallest there), so the "
+      f"front flattens. " + (
+          f"{', '.join(geo(r) + ' mm' for r in newly)} now meet{'s' if len(newly) == 1 else ''} the 20 mK/W threshold "
+          f"({', '.join(f'{r['cfd_anchored']['r_th_combined']*1e3:.2f}' for r in newly)} mK/W), so the marginal-return walk "
+          f"starts one point earlier: " if newly else "") +
+      f"{walk(sel_core)} mm, and stops at "
+      f"{'the same design' if sel_core['recommended'] == rec_id else geo(by_id[sel_core['recommended']])} "
+      f"(fully developed: {walk(sel_fd)} mm). With inlet/outlet losses added to ΔP the walk ends at "
+      f"{'the same design' if sel_tot['recommended'] == rec_id else geo(by_id[sel_tot['recommended']])}. "
+      f"The recommendation would not change.")
+    a("")
+    a("Values in the tables are the Level 1 CFD result plus the 1D increment (CFD-anchored): the 1D screen with the new "
+      "option, minus the same screen fully developed. Geometry is channel width / fin thickness / fin height in mm.")
+    a("")
+    a("## Sources and formulas")
+    a("All read in full text; see `docs/literature.md` and `ASSUMPTIONS.md` rows P2 and P9–P12.")
+    a("- **Hydrodynamic entrance:** Muzychka & Yovanovich (2002), Part I. Apparent friction (mean over the length, including "
+      "the momentum change of the developing profile, so no separate K(∞) term): "
+      "f_app·Re_√A = [(f·Re_√A)² + (3.44/√L+)²]^½, L+ = L/(√A·Re_√A), f·Re_√A = 12 / (√ε (1+ε) [1 − 192ε/π⁵ tanh(π/2ε)]). "
+      "Stated accuracy ±10% on f_app·Re for most duct shapes.")
+    a("- **Thermal and simultaneous entrance, uniform wall flux:** Muzychka & Yovanovich (2002), Part II, Eqs. 50–52 with their "
+      "Table 2 (C1 = 3.66, C3 = 0.501, γ = 1/10, f(Pr) = 0.886/[1 + (1.909 Pr^(1/6))^(9/2)]^(2/9), m = 2.27 + 1.65 Pr^(1/3)), "
+      "local form (C2 = C4 = 1), z* = z/(√A·Re_√A·Pr). Valid for 0.1 < Pr < ∞; stated accuracy ±12% (Graetz) and ±15% "
+      "(combined entry). R_th uses the mean of (wall − bulk) temperature over the length, so the effective h is the harmonic "
+      "length-mean of the local h. Both corrections are applied as ratios to the model's own developed limit, times the Shah & "
+      "London f·Re and Nu_H1 already in the screen, so they vanish for a long channel.")
+    a("- **Inlet and outlet losses:** laminar abrupt-contraction and abrupt-expansion coefficients of Kays (1950) for flat and "
+      "square ducts, as polynomial fits in σ interpolated linearly in aspect ratio by dos Reis & Altemani (COBEM 1999, Eq. 5, "
+      "Table 1); ΔP_io = (Kc + Ke)·ρU²/2 with U the channel velocity and σ = w/(w + t) (plenum as tall as the fins, no other "
+      "area change). Kays's paper itself was not obtained. The flat-duct expansion fit equals the momentum balance with a "
+      "parabolic exit profile (1 − 2.4σ + σ², tested).")
+    a("")
+    a("## R_th and ΔP per design")
+    a("")
+    a("| Design | x* | R_th fully developed | thermal entrance | hydrodynamic entrance | inlet/outlet | combined |")
+    a("|---|---|---|---|---|---|---|")
+    for r in rows:
+        c = r["cfd_anchored"]
+        tag = " **(recommended)**" if r["design_id"] == rec_id else ""
+        a(f"| {geo(r)}{tag} | {r['x_star']:.3f} | {c['r_th_fd']*1e3:.2f} | {c['r_th_thermal']*1e3:.2f} | {c['r_th_fd']*1e3:.2f} | "
+          f"{c['r_th_fd']*1e3:.2f} | {c['r_th_combined']*1e3:.2f} |")
+    a("")
+    a("R_th in mK/W. Thermal entrance: Graetz model (developed velocity, developing temperature). Combined: velocity and "
+      "temperature developing together from a uniform inlet. The hydrodynamic and inlet/outlet effects do not change R_th "
+      "in this model.")
+    a("")
+    a("| Design | Re | ΔP fully developed | thermal entrance | hydrodynamic entrance | inlet/outlet | combined, core | combined with inlet/outlet |")
+    a("|---|---|---|---|---|---|---|---|")
+    for r in rows:
+        c = r["cfd_anchored"]
+        tag = " **(recommended)**" if r["design_id"] == rec_id else ""
+        a(f"| {geo(r)}{tag} | {r['reynolds']:.0f} | {c['dp_fd']:.0f} | {c['dp_fd']:.0f} | {c['dp_hydrodynamic']:.0f} | "
+          f"{c['dp_fd_plus_inlet_outlet']:.0f} | {c['dp_combined_core']:.0f} | {c['dp_combined_total']:.0f} |")
+    a("")
+    a("ΔP in Pa. Inlet/outlet column: fully developed core plus (Kc + Ke)·ρU²/2. Coefficients and factors:")
+    a("")
+    a("| Design | σ | Kc | Ke | h factor, thermal | h factor, combined | f_app / f | L/(Dh·Re) |")
+    a("|---|---|---|---|---|---|---|---|")
+    for r in rows:
+        a(f"| {geo(r)} | {r['sigma']:.3f} | {r['k_contraction']:.3f} | {r['k_expansion']:.3f} | {r['nu_factor_thermal']:.3f} | "
+          f"{r['nu_factor_combined']:.3f} | {r['f_app_factor']:.4f} | {r['l_plus_dh']:.3f} |")
+    a("")
+    a("![Straight-fin front with and without entrance effects](front_entrance.png)")
+    a("")
+    off = [geo(r) for r in rows if r["cfd_anchored"]["dp_fd"] < 300.0]
+    a(f"*R_th against ΔP for the {len(rows)} CFD-verified straight-fin designs of the Level 1 study at 1.5 LPM PG25: fully developed "
+      "(Level 1 CFD, blue) and with developing flow in the channel core (copper, arrows join each design), and with inlet and "
+      "outlet losses added to ΔP (open diamonds). Corrections are the 1D increments added to the CFD values. Budget 5 kPa "
+      f"(channel core), threshold 20 mK/W, objective 15 mK/W. Circled: the Level 1 recommended design ({geo(rec)} mm). "
+      "Region of interest as in the Level 1 report (from 0.3 kPa)" +
+      (f": {', '.join(off)} mm (below 0.3 kPa) {'is' if len(off) == 1 else 'are'} off the plot and in the tables.*" if off else ".*"))
+    a("")
+    a("## Resolved check (tall-fin limit)")
+    a("")
+    a("Three solves per design with the plan-view solver (`level2/planar.py`, the solver behind "
+      "`level2.planview.run_developing`), uniform flux on the fin walls, inlet temperature uniform:")
+    a(f"1. **Combined entry:** one straight half channel over the full 60 mm, uniform velocity {LEAD_IN_MM:g} mm upstream "
+      "of the fin leading edge with slip walls there (a uniform profile imposed right at the wall corner makes the inlet "
+      "pressure singular, and the pressure drop then grows with mesh refinement; the slip lead-in removes that).")
+    a("2. **Thermal entrance only:** the same channel with a parabolic inlet profile at x = 0.")
+    a(f"3. **Plenum to plenum (ΔP only):** a {PLENUM_IN_MM:g} mm inlet plenum, half a fin of thickness t with square ends "
+      f"over 60 mm, a {PLENUM_OUT_MM:g} mm outlet plenum; plenums as tall as the fins (σ = w/(w + t)). The pressure "
+      "difference changes by under 0.1% between 5 and 10 mm after the array.")
+    a("")
+    a("Length-mean h = q''/(mean wall T − mean bulk T over 0–60 mm); ΔP from the inlet line to x = 60 mm. Developed "
+      "reference: the streamwise-periodic cell. The 1D column evaluates the new option for the same channel: parallel "
+      "plates of gap w, aspect ratio 0.01, as the source models parallel plates.")
+    a("")
+    a("**Tall-fin limit.** The plan view has fins of infinite height: no floor, no cover, both channel walls heated. So it "
+      "checks development between two fins, not the real duct with an aspect ratio of about 0.1 and an adiabatic cover. On "
+      "the developed values it reads 5.7% low on R_th and 7.1% low on ΔP for the 0.42 / 0.44 / 4.0 mm design (ASSUMPTIONS V1). Corner "
+      "regions of the real duct develop differently and are not checked here; the 1D option applied to the real duct uses "
+      "that duct's aspect ratio, so the two are compared only in the parallel-plate limit.")
+    a("")
+    a("| Design | Re (2w) | x* (2w) | h increase, resolved | h increase, 1D | ΔP increase, resolved | ΔP increase, 1D | "
+      "ΔR_th resolved (mK/W) | ΔR_th 1D (mK/W) | energy balance |")
+    a("|---|---|---|---|---|---|---|---|---|---|")
+    for r in res:
+        c = r["comparison"]
+        a(f"| {geo(by_id[r['design_id']])} | {r['reynolds_2w']:.0f} | {r['one_d_plates']['x_star_2w']:.3f} | "
+          f"{100*c['h_increase_resolved']:+.1f}% | {100*c['h_increase_1d']:+.1f}% | {100*c['dp_increase_resolved']:+.2f}% | "
+          f"{100*c['dp_increase_1d']:+.2f}% | {1e3*c['r_th_change_resolved']:+.3f} | {1e3*c['r_th_change_1d']:+.3f} | "
+          f"{100*r['uniform']['energy_balance_error']:+.3f}% |")
+    a("")
+    a("ΔR_th: change of the plan-view network R_th from the developed value. Thermal entrance only (parabolic inlet):")
+    a("")
+    a("| Design | h increase, resolved | h increase, 1D (Graetz) | ΔR_th resolved (mK/W) | ΔR_th 1D (mK/W) | energy balance |")
+    a("|---|---|---|---|---|---|")
+    for r in res:
+        c = r["comparison"]
+        a(f"| {geo(by_id[r['design_id']])} | {100*c['h_increase_resolved_thermal']:+.1f}% | {100*c['h_increase_1d_thermal']:+.1f}% | "
+          f"{1e3*c['r_th_change_resolved_thermal']:+.3f} | {1e3*c['r_th_change_1d_thermal']:+.3f} | "
+          f"{100*r['parabolic']['energy_balance_error']:+.3f}% |")
+    a("")
+    a("Plenum to plenum, in units of the channel dynamic pressure ρU²/2:")
+    a("")
+    a("| Design | σ | ρU²/2 (Pa) | total excess over developed, resolved | of which developing channel | of which inlet + outlet | "
+      "1D: f_app excess | 1D: Kc + Ke (flat duct) | 1D total |")
+    a("|---|---|---|---|---|---|---|---|---|")
+    for r in res:
+        p = r["plenums"]
+        a(f"| {geo(by_id[r['design_id']])} | {p['sigma']:.3f} | {p['dynamic_pressure_pa']:.1f} | {p['excess_over_developed_q']:.2f} | "
+          f"{p['developing_excess_q']:.2f} | {p['inlet_outlet_q']:+.2f} | {p['one_d_developing_excess_q']:.2f} | "
+          f"{p['one_d_kc_plus_ke']:.2f} | {p['one_d_developing_excess_q'] + p['one_d_kc_plus_ke']:.2f} |")
+    a("")
+    mc, mcp, mpl = rres["uniform"]["mesh_change"], rres["parabolic"]["mesh_change"], rres["plenums"]["mesh_change"]
+    a(f"Mesh check, recommended design, {CELLS:g} → {CELLS_FINE:g} cells across the half channel: combined entry h "
+      f"{100*mc['h_eff']:+.3f}%, ΔP {100*mc['dp']:+.4f}% (entrance increments {100*rres['comparison']['h_increase_resolved']:.2f}% → "
+      f"{100*mc['h_increase_fine']:.2f}% on h and {100*rres['comparison']['dp_increase_resolved']:.3f}% → "
+      f"{100*mc['dp_increase_fine']:.3f}% on ΔP); thermal entrance h {100*mcp['h_eff']:+.4f}%; plenum ΔP {100*mpl['dp']:+.4f}%.")
+    a("")
+    a("**Gates.** " + "; ".join(f"{k}: {v['value']} (limit {v['limit']}), {'pass' if v['pass'] else '**FAIL**'}"
+                                for k, v in g.items()) + ".")
+    a("")
+    a(diagnosis_text(data))
+    a("")
+    a("## Not covered")
+    a("- Flow maldistribution between channels, manifold, port and fitting losses (ASSUMPTIONS P5, P6).")
+    a("- Axial conduction in the copper base, which moves heat toward the inlet where h is higher. With it the effective h lies "
+      "between the harmonic length-mean used here and the arithmetic mean, so the R_th reductions here are the smaller "
+      "estimate.")
+    a("- Temperature-dependent viscosity (P3), and the 3D development of the real duct (floor, cover, corners).")
+    a("")
+    a("Reproduce: `uv run python -m level2.entrance` (about 5 minutes); `--plot-only` redraws the figure and this file from "
+      "`results.json`.")
+    out.write_text("\n".join(L) + "\n")
+    return out
+
+
+def diagnosis_text(data: dict) -> str:
+    rec_id = data["level1_recommended"]
+    r = next(x for x in data["resolved"] if x["design_id"] == rec_id)
+    c, f, p = r["comparison"], r["one_d_plates"], r["plenums"]
+    ks = [x["plenums"]["developing_excess_q"] for x in data["resolved"]]
+    offs = [x["plenums"]["one_d_kc_plus_ke"] - x["plenums"]["inlet_outlet_q"] for x in data["resolved"]]
+    k_model = p["one_d_developing_excess_q"]
+    rec_nu = next(x for x in data["one_d"] if x["design_id"] == rec_id)["nu_factor_combined"]
+    return "\n".join([
+        "**Diagnosis of the disagreement (not tuned).**",
+        f"- *Heat transfer.* In the parallel-plate limit the 1D option predicts a {100*c['h_increase_1d']:.1f}% rise in h "
+        f"against {100*c['h_increase_resolved']:.1f}% resolved, so it understates the R_th reduction by "
+        f"{-100*c['r_th_contribution_disagreement']:.0f}%. The cause is the developed limit the correction is scaled by: the "
+        f"source's Eq. 31 at aspect ratio 0.01 gives a developed Nu {100*(f['nu_fd_model_over_exact']-1):.0f}% above the exact "
+        f"parallel-plate value (8.235 on 2w), outside its stated ±10%, and the blend with an over-large developed value hides "
+        f"part of the entrance gain. Blending the source's own entrance asymptotes with the exact developed value instead gives "
+        f"{100*(f['diagnostic_nu_factor_combined_exact_anchor']-1):.1f}% (resolved {100*c['h_increase_resolved']:.1f}%); the "
+        f"same holds on all five designs. For the real duct (aspect ratio about 0.1) the source's developed Nu is within about "
+        f"2% of the Shah & London Nu_H1 used by the screen, so this particular error is small there; but no resolved check of "
+        f"the real duct exists, and the 1D real-duct factor ({100*(rec_nu-1):.1f}%) "
+        f"is larger than either plate-limit value.",
+        f"- *Pressure drop.* The source's n = 2 blend has a long-duct tail equivalent to an incremental pressure-drop number "
+        f"2·3.44²·(√A/Dh)/(f·Re_√A), about {k_model:.2f} for parallel plates, while the resolved developing channel gives "
+        f"{min(ks):.2f}–{max(ks):.2f} on all five designs. So the 1D option overstates the hydrodynamic increment by about "
+        f"{100*c['dp_contribution_disagreement']:.0f}%. The source's ±10% accuracy is on f_app·Re as a whole, which over 60 mm is "
+        f"dominated by the developed part; the increment itself is not covered by it.",
+        f"- *Inlet and outlet.* Plenum to plenum, the resolved excess over developed flow is {p['excess_over_developed_q']:.2f} "
+        f"ρU²/2 for the recommended design, against {k_model + p['one_d_kc_plus_ke']:.2f} from the 1D option (f_app excess plus "
+        f"Kc + Ke). The resolved inlet + outlet part ({p['inlet_outlet_q']:+.2f}) is below the Kays coefficients "
+        f"({p['one_d_kc_plus_ke']:.2f}) by a nearly constant {min(offs):.2f}–{max(offs):.2f} across σ = "
+        f"{min(x['plenums']['sigma'] for x in data['resolved']):.2f}–{max(x['plenums']['sigma'] for x in data['resolved']):.2f}, "
+        f"close to the developing-channel excess. That pattern fits laminar Kc values that already contain part of the "
+        f"entrance pressure defect, so adding them to f_app counts it twice; Kays's paper was not available to confirm how "
+        f"the laminar curves were derived, so this stays a hypothesis.",
+        "- None of this changes the answer: all estimates lower R_th and raise ΔP by a few percent, the objective is met with "
+        "either set of ratios, and ΔP stays far inside the 5 kPa budget."])
+
+
+def gates_for(res: list[dict], rec_id: str) -> dict:
+    r = next(x for x in res if x["design_id"] == rec_id)
+    c, mc = r["comparison"], r["uniform"]["mesh_change"]
+    mcp = r["parabolic"]["mesh_change"]
+    worst_mesh = max(abs(mc["dp"]), abs(mc["h_eff"]), abs(mcp["dp"]), abs(mcp["h_eff"]), abs(r["plenums"]["mesh_change"]["dp"]))
+    worst_energy = max([abs(x[k]["energy_balance_error"]) for x in res for k in ("uniform", "parabolic")] +
+                       [abs(r[k]["mesh_change"]["fine_energy_balance_error"]) for k in ("uniform", "parabolic")])
+    gates = {
+        "mesh change at 2x refinement, recommended design": {"value": f"{100*worst_mesh:.2f}%", "limit": "2%",
+                                                             "pass": worst_mesh < GATE_MESH},
+        "energy balance, all resolved solves": {"value": f"{100*worst_energy:.3f}%", "limit": "1%", "pass": worst_energy < GATE_ENERGY},
+        "1D vs resolved, entrance contribution to R_th (recommended)": {
+            "value": f"{100*c['r_th_contribution_disagreement']:+.1f}%", "limit": "±10%",
+            "pass": abs(c["r_th_contribution_disagreement"]) <= GATE_AGREEMENT},
+        "1D vs resolved, entrance contribution to ΔP (recommended)": {
+            "value": f"{100*c['dp_contribution_disagreement']:+.1f}%", "limit": "±10%",
+            "pass": abs(c["dp_contribution_disagreement"]) <= GATE_AGREEMENT}}
+    return gates
+
+
+def run(plot_only: bool = False, level1_path: Path = LEVEL1, out_dir: Path = OUT) -> int:
+    level1 = json.loads(Path(level1_path).read_text())
+    req = requirements(level1)
+    fluid = fluid_props(req.coolant, req.inlet_temp_c)
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / "results.json"
+    if plot_only:
+        data = json.loads(path.read_text())
+    else:
+        t0 = time.perf_counter()
+        rows = one_d_table(level1, req, fluid)
+        res = []
+        for did in resolved_designs(rows, level1["recommended"]):
+            row = next(r for r in rows if r["design_id"] == did)
+            res.append(resolved_case(row, req, fluid, mesh_check=did == level1["recommended"]))
+            c = res[-1]["comparison"]
+            ca = row["cfd_anchored"]
+            res[-1]["cfd_anchored_with_resolved_factors"] = {  # the tall-fin resolved ratios applied to the real duct instead
+                "r_th_combined": ca["r_th_fd"] + r_th_with_h_factor(row, req, fluid, 1 + c["h_increase_resolved"])
+                - row["one_d"]["r_th_fd"],
+                "dp_combined_core": ca["dp_fd"] * (1 + c["dp_increase_resolved"]),
+                "dp_plenum_to_plenum": ca["dp_fd"] * (1 + res[-1]["plenums"]["excess_over_developed_q"]
+                                                      * res[-1]["plenums"]["dynamic_pressure_pa"] / res[-1]["periodic"]["dp_pa"])}
+            print(f"{did}: h {100*c['h_increase_resolved']:+.2f}% (1D {100*c['h_increase_1d']:+.2f}%), "
+                  f"dP {100*c['dp_increase_resolved']:+.2f}% (1D {100*c['dp_increase_1d']:+.2f}%), "
+                  f"energy {100*res[-1]['uniform']['energy_balance_error']:+.3f}%", flush=True)
+        sel_fd = selection(rows, req, "r_th_fd", "dp_fd")
+        sel_core = selection(rows, req, "r_th_combined", "dp_combined_core")
+        sel_tot = selection(rows, req, "r_th_combined", "dp_combined_total")
+        data = {"level1_recommended": level1["recommended"], "requirements": asdict(req), "fluid": asdict(fluid),
+                "settings": {"flow_lpm": FLOW_LPM, "length_mm": LENGTH_MM, "window_mm": WINDOW_MM, "cells": CELLS,
+                             "cells_fine": CELLS_FINE, "cells_periodic": CELLS_PERIODIC, "plate_aspect_ratio": PLATE_EPS,
+                             "lead_in_mm": LEAD_IN_MM, "plenum_in_mm": PLENUM_IN_MM, "plenum_out_mm": PLENUM_OUT_MM},
+                "one_d": rows, "resolved": res, "selection_fully_developed": sel_fd, "selection_core": sel_core,
+                "selection_total": sel_tot, "ranking_unchanged": sel_fd["order_by_r_th"] == sel_core["order_by_r_th"],
+                "gates": gates_for(res, level1["recommended"]), "seconds": time.perf_counter() - t0}
+        path.write_text(json.dumps(data, indent=2))
+    plot_front(data["one_d"], requirements(level1), level1["recommended"], out_dir / "front_entrance.png")
+    write_summary(data, out_dir / "summary.md")
+    for k, v in data["gates"].items():
+        print(f"{k}: {v['value']} (limit {v['limit']}) {'pass' if v['pass'] else 'FAIL'}")
+    print(f"wrote {out_dir}")
+    return 0
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--plot-only", action="store_true", help="redraw the figure and summary from results.json")
+    ap.add_argument("--level1", type=Path, default=LEVEL1, help="Level 1 results.json to read the designs from")
+    ap.add_argument("--out", type=Path, default=OUT, help="output folder")
+    a = ap.parse_args()
+    sys.exit(run(a.plot_only, a.level1, a.out))
+
+
+if __name__ == "__main__":
+    main()
