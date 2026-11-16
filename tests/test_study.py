@@ -23,7 +23,8 @@ def test_run_study_end_to_end(tmp_path):
     path = tmp_path / "smoke.yaml"
     path.write_text(yaml.safe_dump(cfg))
     study = run_study(path, tmp_path / "out", tmp_path / "runs")
-    for name in ("pareto.png", "parity.png", "fields_recommended.png", "report.md", "results.json"):
+    for name in ("pareto.png", "parity.png", "fields_recommended.png", "report.md", "results.json", "cutoff_sensitivity.png",
+                 "local_return.png"):
         assert (tmp_path / "out" / name).stat().st_size > 0
     assert study["confidence"]["all_pass"]
     assert study["parity"]["max_abs_pct"] < 10
@@ -31,7 +32,7 @@ def test_run_study_end_to_end(tmp_path):
     rec = results["recommended"]
     assert (tmp_path / "runs" / rec / "results.json").exists()
     assert all(d["cfd"]["dp_pa"] <= cfg["requirements"]["dp_budget_kpa"] * 1e3 for d in results["designs"])
-    assert results["rule"] in ("marginal_return", "fallback_lowest_r_th")
+    assert results["rule"] in ("marginal_return", "marginal_return_then_objective", "fallback_lowest_r_th")
     assert results["r_th_threshold_k_per_w"] == pytest.approx(cfg["requirements"]["r_th_threshold_mk_w"] / 1e3)
     assert results["marginal_return_cutoff"] == cfg["requirements"]["marginal_return_cutoff"]
     if results["rule"] == "marginal_return":

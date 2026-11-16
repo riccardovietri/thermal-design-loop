@@ -14,9 +14,11 @@ import yaml
 from tools.check_confidence import check_confidence, mesh_independence
 from tools.fluids import fluid_props
 from tools.mesh import mesh
-from tools.pareto import capacity_ratios, pareto_indices, recommend_marginal_return, spread_along_front
+from tools.pareto import (capacity_ratios, cutoff_sensitivity, pareto_indices, recommend_marginal_return_objective,
+                          spread_along_front, stable_cutoff_range)
 from tools.postprocess import plot_fields
-from tools.report import parity_stats, plot_pareto, plot_parity, write_report
+from tools.report import (parity_stats, plot_cutoff_sensitivity, plot_local_returns, plot_pareto, plot_parity,
+                          write_report)
 from tools.run_cfd import run_cfd
 from tools.screen_1d import screen_1d
 from tools.types import CfdResult, Design, DesignSpace, Requirements, Screen1DResult, to_dict
@@ -38,7 +40,8 @@ def load(path: Path) -> tuple[str, Requirements, DesignSpace, dict]:
     r, s, c = cfg["requirements"], cfg["design_space"], cfg["constraints"]
     req = Requirements(r["heat_load_w"], r["footprint_width_mm"] / 1e3, r["flow_length_mm"] / 1e3, r["base_thickness_mm"] / 1e3,
                        r["solid_k_w_mk"], r["inlet_temp_c"], r["dp_budget_kpa"] * 1e3, r["coolant"],
-                       _mk(r.get("r_th_threshold_mk_w")), _mk(r.get("r_th_objective_mk_w")), float(r.get("marginal_return_cutoff", 0.25)))
+                       _mk(r.get("r_th_threshold_mk_w")), _mk(r.get("r_th_objective_mk_w")), float(r.get("marginal_return_cutoff", 0.25)),
+                       float(r.get("min_dp_ratio", 1.10)))
     mm = lambda key: tuple(v / 1e3 for v in _levels(s[key]))
     space = DesignSpace(mm("w_ch_mm"), mm("t_fin_mm"), mm("h_fin_mm"), _levels(s["flow_lpm"]), c["min_feature_mm"] / 1e3, c["max_aspect_ratio"])
     return cfg["name"], req, space, cfg["study"]
@@ -58,7 +61,8 @@ def run_study(config: Path, out_dir: Path | None = None, runs_dir: Path | None =
     if not feasible:
         raise SystemExit("No feasible design in the 1D sweep; relax the constraints or widen the design space.")
     front = [feasible[i] for i in pareto_indices([s.dp_pa for s in feasible], [s.r_th_k_per_w for s in feasible])]
-    shortlist = [front[i] for i in spread_along_front([s.dp_pa for s in front], opts["n_cfd"])]
+    whole_front = opts["n_cfd"] in ("all", None)
+    shortlist = front if whole_front else [front[i] for i in spread_along_front([s.dp_pa for s in front], opts["n_cfd"])]
 
     t0 = time.perf_counter()
     pairs, qualities = [], []
@@ -73,8 +77,10 @@ def run_study(config: Path, out_dir: Path | None = None, runs_dir: Path | None =
     ok = [(s, c) for s, c in pairs if c.dp_pa <= req.dp_budget_pa]
     if not ok:
         raise SystemExit("No CFD-verified design meets the pressure-drop budget.")
-    rec = recommend_marginal_return([(c.dp_pa, c.r_th_k_per_w) for _, c in pairs], req.dp_budget_pa, req.r_th_threshold_k_per_w,
-                                    req.r_th_objective_k_per_w, req.marginal_return_cutoff)
+    rec = recommend_marginal_return_objective([(c.dp_pa, c.r_th_k_per_w) for _, c in pairs], req.dp_budget_pa,
+                                              req.r_th_threshold_k_per_w, req.r_th_objective_k_per_w,
+                                              req.marginal_return_cutoff, req.min_dp_ratio)
+    cut = selection_extras(pairs, req)
     recommended = pairs[rec["index"]]
     lowest = min(ok, key=lambda p: p[1].r_th_k_per_w)
 
@@ -106,6 +112,7 @@ def run_study(config: Path, out_dir: Path | None = None, runs_dir: Path | None =
     study = {
         "name": name, "requirements": req, "fluid": fluid, "pairs": pairs, "recommended": recommended, "rule": rec["rule"],
         "selection": rec, "references": references, "ratios": ratios, "lowest_r_th": lowest, "flow_sensitivity": sensitivity,
+        "solved_whole_front": whole_front, **cut,
         "n_sweep": len(sweep), "n_feasible": len(feasible), "t_screen_s": t_screen, "t_cfd_s": t_cfd, "confidence": confidence,
         "parity": parity_stats([s.r_th_k_per_w for s, _ in pairs], [c.r_th_k_per_w for _, c in pairs]),
         "dp_max_abs_pct": max(100 * abs(s.dp_pa / c.dp_pa - 1) for s, c in pairs),
@@ -114,15 +121,28 @@ def run_study(config: Path, out_dir: Path | None = None, runs_dir: Path | None =
                 req.r_th_objective_k_per_w)
     plot_parity(pairs, out_dir / "parity.png")
     plot_fields(runs_dir / recommended[1].design_id, out_dir / "fields_recommended.png")
+    plot_selection(cut, pairs, recommended[1], req, out_dir)
     write_report(study, out_dir / "report.md")
     (out_dir / "results.json").write_text(json.dumps({
         "recommended": recommended[1].design_id, "rule": rec["rule"],
         "meets_threshold": rec["meets_threshold"], "meets_objective": rec["meets_objective"],
         "dp_budget_pa": req.dp_budget_pa, "r_th_threshold_k_per_w": threshold,
         "r_th_objective_k_per_w": req.r_th_objective_k_per_w, "marginal_return_cutoff": req.marginal_return_cutoff,
+        "min_dp_ratio": req.min_dp_ratio,
         "selection_steps": [{"from": pairs[st["from"]][1].design_id, "to": pairs[st["to"]][1].design_id if st["to"] is not None else None,
-                             "returns": [{"to": pairs[e["to"]][1].design_id, "return": e["return"]} for e in st["returns"]]}
+                             "returns": [{"to": pairs[e["to"]][1].design_id, "return": e["return"], "skipped": e["skipped"]}
+                                         for e in st["returns"]]}
                             for st in rec["steps"]],
+        "walk_stop": pairs[rec["walk_stop"]][1].design_id if rec["walk_stop"] is not None else None,
+        "objective_step": ({k: pairs[v][1].design_id for k, v in rec["objective_step"].items()}
+                           if rec["objective_step"] else None),
+        "objective_unreachable": rec["objective_unreachable"],
+        "cutoff_sensitivity": [{**{k: r[k] for k in ("cutoff", "rule", "meets_objective")},
+                                "recommended": pairs[r["index"]][1].design_id,
+                                "walk_stop": pairs[r["walk_stop"]][1].design_id if r["walk_stop"] is not None else None,
+                                "r_th_k_per_w": pairs[r["index"]][1].r_th_k_per_w, "dp_pa": pairs[r["index"]][1].dp_pa}
+                               for r in cut["cutoff_sensitivity"]],
+        "cutoff_stable_range": cut["cutoff_stable_range"],
         "references": {k: (v[1].design_id if v is not None else None) for k, v in references.items()},
         "parity": study["parity"], "confidence": confidence, "flow_sensitivity": sensitivity,
         "designs": [{"one_d": to_dict(s), "cfd": to_dict(c), "ratios": ratios[c.design_id]} for s, c in pairs],
@@ -130,9 +150,32 @@ def run_study(config: Path, out_dir: Path | None = None, runs_dir: Path | None =
     return study
 
 
+def selection_extras(pairs, req) -> dict:
+    """Cut-off sensitivity of the rule over the CFD-verified designs, and the CFD front within budget for the local-return plot."""
+    cands = [(c.dp_pa, c.r_th_k_per_w) for _, c in pairs]
+    rows = cutoff_sensitivity(cands, req.dp_budget_pa, req.r_th_threshold_k_per_w, req.r_th_objective_k_per_w,
+                              min_dp_ratio=req.min_dp_ratio)
+    inb = [i for i, (dp, _) in enumerate(cands) if dp <= req.dp_budget_pa]
+    front = [inb[k] for k in pareto_indices([cands[i][0] for i in inb], [cands[i][1] for i in inb])]
+    return {"cutoff_sensitivity": rows, "cutoff_stable_range": stable_cutoff_range(rows, req.marginal_return_cutoff),
+            "local_front": front}
+
+
+def plot_selection(cut: dict, pairs, recommended, req, out_dir: Path) -> list[Path]:
+    rows = [{"cutoff": r["cutoff"], "r_th_k_per_w": pairs[r["index"]][1].r_th_k_per_w, "dp_pa": pairs[r["index"]][1].dp_pa}
+            for r in cut["cutoff_sensitivity"]]
+    f = cut["local_front"]
+    return [plot_cutoff_sensitivity(rows, out_dir / "cutoff_sensitivity.png", req.marginal_return_cutoff, req.r_th_threshold_k_per_w,
+                                    req.r_th_objective_k_per_w, req.dp_budget_pa, "Straight fins: recommended design against cut-off"),
+            plot_local_returns([pairs[i][1].dp_pa for i in f], [pairs[i][1].r_th_k_per_w for i in f], out_dir / "local_return.png",
+                               req.marginal_return_cutoff, req.min_dp_ratio, recommended.dp_pa, req.r_th_threshold_k_per_w,
+                               "Straight fins: return between neighbouring front points")]
+
+
 def plot_only(config: Path, out_dir: Path | None = None, runs_dir: Path | None = None) -> list[Path]:
     """Redraw pareto.png, parity.png and fields_recommended.png from a finished study's results.json and run directories,
-    without any CFD. The 1D screen (analytic, milliseconds) is re-run because its 672 designs are not saved."""
+    without any CFD, plus cutoff_sensitivity.png and local_return.png. The 1D screen (analytic, milliseconds) is re-run because
+    its designs are not saved."""
     name, req, space, _ = load(config)
     out_dir = Path(out_dir or Path("out") / name)
     runs_dir = Path(runs_dir or Path("runs") / name)
@@ -142,7 +185,9 @@ def plot_only(config: Path, out_dir: Path | None = None, runs_dir: Path | None =
     front = [feasible[i] for i in pareto_indices([s.dp_pa for s in feasible], [s.r_th_k_per_w for s in feasible])]
     pairs = [(Screen1DResult(**{**d["one_d"], "design": Design(**d["one_d"]["design"])}), CfdResult(**d["cfd"])) for d in saved["designs"]]
     cfd = [c for _, c in pairs]
-    return [plot_pareto(sweep, front, cfd, saved["recommended"], req.dp_budget_pa, out_dir / "pareto.png", req.r_th_threshold_k_per_w,
+    rec = next(c for c in cfd if c.design_id == saved["recommended"])
+    return plot_selection(selection_extras(pairs, req), pairs, rec, req, out_dir) + [
+            plot_pareto(sweep, front, cfd, saved["recommended"], req.dp_budget_pa, out_dir / "pareto.png", req.r_th_threshold_k_per_w,
                         req.r_th_objective_k_per_w),
             plot_parity(pairs, out_dir / "parity.png"),
             plot_fields(runs_dir / saved["recommended"], out_dir / "fields_recommended.png")]
@@ -168,6 +213,12 @@ def main() -> None:
         frm = study["pairs"][st["from"]][1].design_id
         rets = ", ".join(f"{study['pairs'][e['to']][1].design_id} {e['return']:.3f}" for e in st["returns"]) or "none"
         print(f"  from {frm}: returns {rets}")
+    if study["selection"]["objective_step"]:
+        st = study["selection"]["objective_step"]
+        print(f"  objective clause: walk stopped at {study['pairs'][st['from']][1].design_id}; continued to "
+              f"{study['pairs'][st['to']][1].design_id}")
+    rng = study["cutoff_stable_range"]
+    print(f"recommendation unchanged for cut-offs {rng[0]:.2f}-{rng[1]:.2f}" if rng else "cut-off in use not in the sweep")
     print(f"meets threshold: {study['selection']['meets_threshold']}, meets objective: {study['selection']['meets_objective']}")
     print(f"1D vs CFD R_th: mean |diff| {study['parity']['mean_abs_pct']:.1f}%, max {study['parity']['max_abs_pct']:.1f}%")
     print(f"confidence checks: {'all pass' if study['confidence']['all_pass'] else 'FAILURES, see report'}")

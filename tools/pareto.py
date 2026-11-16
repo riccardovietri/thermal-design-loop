@@ -102,6 +102,97 @@ def recommend_marginal_return(candidates, dp_budget_pa: float, r_th_threshold: f
         pos += nxt + 1
 
 
+def recommend_marginal_return_objective(candidates, dp_budget_pa: float, r_th_threshold: float | None,
+                                        r_th_objective: float | None = None, cutoff: float = 0.25,
+                                        min_dp_ratio: float | None = 1.10, objective_clause: bool = True) -> dict:
+    """Recommendation rule of SPEC Amendment 4: the Amendment 3 marginal-return walk with a minimum-ΔP-ratio guard and an
+    objective clause, over (dp_pa, r_th_k_per_w) pairs.
+
+    Guard: from the current point i, a further front point j with ΔP_j / ΔP_i < min_dp_ratio is ignored (its return is still
+    computed and listed, flagged "skipped"), so two nearly coincident designs cannot produce a large return. None or 1.0 turns
+    the guard off.
+    Clause: if the walk stops at a point that misses the objective and a further point on the eligible front meets it, continue
+    to the lowest-ΔP front point that meets it ("marginal_return_then_objective"). If none does, stay at the stop point
+    ("marginal_return", objective_unreachable True).
+    With min_dp_ratio None and objective_clause False this is recommend_marginal_return.
+
+    Returns the keys of recommend_marginal_return (each listed return also carries "skipped") plus "walk_stop" (where the
+    walk stopped), "objective_step" ({"from", "to"} or None), "objective_unreachable", "cutoff" and "min_dp_ratio".
+    """
+    pts = [(float(dp), float(r)) for dp, r in candidates]
+    in_budget = [i for i, (dp, _) in enumerate(pts) if dp <= dp_budget_pa]
+    if not in_budget:
+        raise ValueError("No candidate meets the pressure-drop budget.")
+    eligible = [i for i in in_budget if r_th_threshold is not None and pts[i][1] <= r_th_threshold]
+    meets_obj = lambda i: r_th_objective is not None and pts[i][1] <= r_th_objective
+
+    def result(index, rule, front, steps, walk_stop=None, objective_step=None, unreachable=False):
+        r = pts[index][1]
+        return {"index": index, "rule": rule, "meets_threshold": r_th_threshold is not None and r <= r_th_threshold,
+                "meets_objective": meets_obj(index), "front": front, "steps": steps, "walk_stop": walk_stop,
+                "objective_step": objective_step, "objective_unreachable": unreachable, "cutoff": cutoff,
+                "min_dp_ratio": min_dp_ratio}
+
+    if not eligible:
+        best = min(in_budget, key=lambda i: (pts[i][1], pts[i][0]))
+        return result(best, "fallback_lowest_r_th", [], [])
+    front = [eligible[k] for k in pareto_indices([pts[i][0] for i in eligible], [pts[i][1] for i in eligible])]
+    pos, steps = 0, []
+    while True:
+        i = front[pos]
+        returns = [{"to": j, "return": marginal_return(*pts[i], *pts[j]),
+                    "skipped": min_dp_ratio is not None and pts[j][0] / pts[i][0] < min_dp_ratio} for j in front[pos + 1:]]
+        nxt = next((k for k, e in enumerate(returns) if not e["skipped"] and e["return"] >= cutoff), None)
+        steps.append({"from": i, "returns": returns, "to": None if nxt is None else returns[nxt]["to"]})
+        if nxt is None:
+            break
+        pos += nxt + 1
+    stop = front[pos]
+    if r_th_objective is None or meets_obj(stop) or not objective_clause:
+        return result(stop, "marginal_return", front, steps, stop)
+    target = next((j for j in front[pos + 1:] if meets_obj(j)), None)
+    if target is None:
+        return result(stop, "marginal_return", front, steps, stop, unreachable=True)
+    return result(target, "marginal_return_then_objective", front, steps, stop, {"from": stop, "to": target})
+
+
+CUTOFF_SWEEP = tuple(round(0.05 * k, 2) for k in range(1, 13))  # 0.05 to 0.60 in steps of 0.05
+
+
+def cutoff_sensitivity(candidates, dp_budget_pa: float, r_th_threshold: float | None, r_th_objective: float | None = None,
+                       cutoffs=CUTOFF_SWEEP, min_dp_ratio: float | None = 1.10, objective_clause: bool = True) -> list[dict]:
+    """The Amendment 4 rule re-run at each cut-off: [{"cutoff", "index", "rule", "walk_stop", "meets_objective"}, ...]."""
+    out = []
+    for c in cutoffs:
+        sel = recommend_marginal_return_objective(candidates, dp_budget_pa, r_th_threshold, r_th_objective, float(c),
+                                                  min_dp_ratio, objective_clause)
+        out.append({"cutoff": float(c), "index": sel["index"], "rule": sel["rule"], "walk_stop": sel["walk_stop"],
+                    "meets_objective": sel["meets_objective"]})
+    return out
+
+
+def stable_cutoff_range(rows: list[dict], cutoff: float, key: str = "index") -> tuple[float, float] | None:
+    """Lowest and highest swept cut-off of the contiguous run, containing `cutoff`, over which rows[...][key] is unchanged.
+    None if `cutoff` is not one of the swept values."""
+    cs = [r["cutoff"] for r in rows]
+    k = next((n for n, c in enumerate(cs) if abs(c - cutoff) < 1e-9), None)
+    if k is None:
+        return None
+    lo = hi = k
+    while lo > 0 and rows[lo - 1][key] == rows[k][key]:
+        lo -= 1
+    while hi < len(rows) - 1 and rows[hi + 1][key] == rows[k][key]:
+        hi += 1
+    return cs[lo], cs[hi]
+
+
+def local_returns(x_front, y_front) -> list[dict]:
+    """Return e between consecutive points of a front sorted by x: [{"i", "j", "x_i", "x_j", "dp_ratio", "return"}, ...]."""
+    return [{"i": k, "j": k + 1, "x_i": float(x_front[k]), "x_j": float(x_front[k + 1]),
+             "dp_ratio": float(x_front[k + 1] / x_front[k]),
+             "return": marginal_return(x_front[k], y_front[k], x_front[k + 1], y_front[k + 1])} for k in range(len(x_front) - 1)]
+
+
 def capacity_ratios(dp_pa: float, r_th_k_per_w: float, heat_load_w: float, flow_m3_s: float,
                     r_th_threshold: float) -> dict:
     """Ratios reported for each CFD-verified design (SPEC Amendment 3).

@@ -12,9 +12,11 @@ Next: (1) an industry photo for the write-up (needs a licensed image); (2) turn 
 - Plan view: the pin advantage (2.6–5.8% at equal ΔP) is smaller than the plan view's tall-fin bias measured on straight fins (−5.7% on
   R_th, no floor or cover). Treat it as unconfirmed until a 3D or end-wall check?
 - Pins at Re_d,max 50–136 may shed vortices; steady symmetric solutions were computed. Accept, or add an unsteady check?
-- Marginal-return rule on the offset strips stops at the first eligible point (all returns 0.19–0.23 < 0.25), so the per-topology
-  pick (18.4 mK/W) misses the objective while other offset designs meet it. Acceptable as stated, or should a pick that misses the
-  objective walk on to the lowest-ΔP point meeting it?
+- Level 1 pick changed with the denser grid (Amendment 4): 0.39 / 0.39 / 3.75 mm, 14.05 mK/W at 1.60 kPa (was 0.42 / 0.44 / 4.0 mm,
+  14.93 at 1.29). It holds only for cut-offs 0.20–0.25; at 0.30 and above the pick is 0.42 / 0.39 / 3.75 mm (14.90 at 1.29). Accept
+  the new pick, and update `docs/index.html` (case study) to match?
+- Cross-topology pick (pins 0.8 × 0.9 mm) holds only at a cut-off of exactly 0.25 among the swept values; circular pins win at every
+  cut-off. Is the 0.25 cut-off still the right call, given that it now decides which pin array is named?
 - Non-straight planforms have no known volume process at 0.15 mm in copper (ASSUMPTIONS V11). Keep them as a modelling comparison only?
 - Next topology: manifold microchannels via a depth-averaged 2D model? Needs Riccardo's OK as new scope.
 
@@ -46,6 +48,10 @@ Next: (1) an industry photo for the write-up (needs a licensed image); (2) turn 
   `level2/entrance.py`, `examples/output/entrance_effects/summary.md`. Recommended design 14.93 → 14.44 mK/W, core ΔP
   1.294 → 1.320 kPa; objective still met; recommendation unchanged. Resolved-check gate on the 1D increments fails
   (−36% R_th, +41% ΔP, tall-fin limit), reported untuned. `uv run pytest` → 64 passed.
+
+- 2026-11-15: SPEC Amendment 4 (issue #13): `tools.pareto.recommend_marginal_return_objective` (objective clause, ΔP-ratio guard
+  1.10), denser Level 1 study (4,485 designs, all 18 front designs solved, about 5 s), cut-off sensitivity and local-return figures;
+  plan view re-selected from saved results (offset strips now 14.58 mK/W at 1.57 kPa via the clause). Details in `docs/build-log.md`.
 
 ## Result of the example study
 Rated flow 1.5 LPM, 672 designs screened (258 feasible within 5 kPa), 8 solved. 1D vs CFD on R_th: mean |diff| 1.1%, max 2.9%.

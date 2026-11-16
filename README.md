@@ -1,7 +1,7 @@
 # Thermal design loop
 
-A design loop for a liquid cold plate, run the way a thermal engineer would: a 1D physics model screens 672 fin geometries,
-a conjugate CFD model checks the 8 along the Pareto front, and the output is a recommendation with the evidence for trusting it.
+A design loop for a liquid cold plate, run the way a thermal engineer would: a 1D physics model screens 4,485 fin geometries,
+a conjugate CFD model checks all 18 on the Pareto front, and the output is a recommendation with the evidence for trusting it.
 
 **[Read the case study: Choosing a cold plate for a 1 kW chip](https://riccardovietri.github.io/thermal-design-loop/)**
 
@@ -11,14 +11,14 @@ a conjugate CFD model checks the 8 along the Pareto front, and the output is a r
 |---|---|
 | **Operating point** | 1 kW over 60 × 60 mm, 25% propylene glycol at 40 °C inlet, 1.5 LPM |
 | **Requirement** | Channel pressure drop ≤ 5 kPa; thermal resistance ≤ 20 mK/W (must), ≤ 15 mK/W (objective) |
-| **Recommended design** | Straight copper fins: 0.42 mm channels, 0.44 mm fins, 4.0 mm tall. 14.9 mK/W at 1.29 kPa |
-| **1D screen vs CFD** | Thermal resistance agrees within 1.1% on average, 2.9% at worst |
+| **Recommended design** | Straight copper fins: 0.39 mm channels, 0.39 mm fins, 3.75 mm tall. 14.0 mK/W at 1.60 kPa |
+| **1D screen vs CFD** | Thermal resistance agrees within 1.0% on average, 2.9% at worst (18 designs) |
 | **Main limitation** | Fully developed 2D flow: no entrance effects, manifolds or flow maldistribution, and no comparison with a measurement yet |
 
 *Grey dots: the 1D screen; blue: designs checked with CFD; ring: the recommendation. Shading marks the 5 kPa budget with the
 20 mK/W threshold (light) and the 15 mK/W objective (darker).*
 
-One command, about three seconds on a laptop, no LLM in the loop:
+One command, about five seconds on a laptop, no LLM in the loop:
 
 ```bash
 uv sync
@@ -35,37 +35,46 @@ is worth its pressure drop, and how far can a hand-calculation-level model be tr
 
 ```mermaid
 flowchart LR
-    A[Requirements<br/>requirements.yaml] --> B[1D screen<br/>672 designs, 2 ms]
-    B --> C[CFD on the shortlist<br/>up to 10 designs along the 1D Pareto front]
+    A[Requirements<br/>requirements.yaml] --> B[1D screen<br/>4,485 designs, 15 ms]
+    B --> C[CFD on the shortlist<br/>every design on the 1D Pareto front]
     C --> D[Confidence checks<br/>mesh, residuals, energy balance]
     D --> E[Pareto front, parity plot,<br/>recommendation, report.md]
 ```
 
 1. **Screen.** A 1D resistance network (Shah & London laminar duct correlations, fin efficiency, coolant heating) evaluates every
    combination of channel width, fin thickness and fin height at rated flow, and discards designs that break the pressure or manufacturing limits.
-2. **Verify.** Up to ten designs spread along the 1D Pareto front are solved with a 2D conjugate finite-element model of the channel cross-section
+2. **Verify.** Every design on the 1D Pareto front within the budget (18 here) is solved with a 2D conjugate finite-element model of the channel cross-section
    (gmsh + scikit-fem): fluid velocity, and temperature in the fluid, fin and base together.
 3. **Decide.** Mesh independence, solver residual and energy balance are checked and reported. Among CFD-verified designs within the
    pressure budget that meet the threshold, the rule starts at the lowest pressure drop and moves along the front while a further design
-   returns at least 0.25 in log-log terms (a doubling of pressure drop must buy at least about 16% lower resistance); it recommends the point
-   where that stops and says whether it meets the objective. If nothing meets the threshold, the lowest resistance within budget is
-   recommended and flagged.
+   returns at least 0.25 in log-log terms (a doubling of pressure drop must buy at least about 16% lower resistance), ignoring designs
+   less than 10% further in pressure drop; it recommends the point where that stops. If that point misses the objective and a further
+   design meets it, the rule continues to the lowest pressure drop that does, and says so. If nothing meets the threshold, the lowest
+   resistance within budget is recommended and flagged.
 
 ## What it found
 
 | | Channel / fin / height | R_th | ΔP |
 |---|---|---|---|
-| Recommended (marginal return, meets the 15 mK/W objective) | 0.42 / 0.44 / 4.0 mm | 14.9 mK/W | 1.29 kPa |
-| Lowest ΔP meeting the 20 mK/W threshold | 0.50 / 0.44 / 4.0 mm | 17.1 mK/W | 0.86 kPa |
-| Lowest resistance within 5 kPa | 0.30 / 0.26 / 2.5 mm | 12.6 mK/W | 3.79 kPa |
+| Recommended (marginal return, meets the 15 mK/W objective) | 0.39 / 0.39 / 3.75 mm | 14.0 mK/W | 1.60 kPa |
+| Lowest ΔP meeting the 15 mK/W objective | 0.42 / 0.39 / 3.75 mm | 14.9 mK/W | 1.29 kPa |
+| Lowest ΔP meeting the 20 mK/W threshold | 0.55 / 0.44 / 4.0 mm | 18.5 mK/W | 0.70 kPa |
+| Lowest resistance within 5 kPa | 0.27 / 0.26 / 2.5 mm | 11.9 mK/W | 4.66 kPa |
 
-From the 0.50 mm design, moving to 0.42 mm channels returns 0.33 (14% lower resistance for 1.5× the pressure drop); going further
-returns 0.14–0.16, below the 0.25 cut-off, so the rule stops there. The report lists every step, and for each design the heat load it
-could carry at a 20 K rise (1.34 kW for the recommended one) and the heat moved per watt of pumping power.
+The rule walks the front from 0.55 mm channels in four steps, with returns of 0.38, 0.35, 0.33 and finally 0.28 from 0.42 mm to 0.39 mm
+channels (6% lower resistance for 1.24× the pressure drop); every further design returns 0.19 or less, so it stops there. The report
+lists every step, and for each design the heat load it could carry at a 20 K rise (1.42 kW for the recommended one) and the heat moved
+per watt of pumping power.
 
-All at the 1.5 LPM rated flow. The recommended design averages 54.9 °C at the chip interface; at 1.0 LPM it rises to 17.4 mK/W
-(57.4 °C), at 2.0 LPM it falls to 13.7 mK/W (53.7 °C).
-The 1D screen and the CFD agree on thermal resistance to 1.1% on average and 2.9% at worst.
+The cut-off of 0.25 is a judgment, so the report re-runs the rule from 0.05 to 0.60: the pick holds from 0.20 to 0.25; from 0.30 up it
+is the 0.42 mm design at 1.29 kPa, below 0.20 it moves to higher pressure drop. Returns between neighbouring designs fall gradually
+(about 0.7 at 0.2 kPa, 0.28–0.41 from 0.7 to 1.6 kPa, mostly below 0.2 beyond), so there is no sharp knee for the cut-off to find.
+An earlier, coarser grid (672 designs, 8 solved) recommended 0.42 / 0.44 / 4.0 mm (14.9 mK/W at 1.29 kPa): it had no design between
+1.29 and 2.28 kPa, and the denser grid adds one whose return clears the cut-off.
+
+All at the 1.5 LPM rated flow. The recommended design averages 54.0 °C at the chip interface; at 1.0 LPM it rises to 16.6 mK/W
+(56.5 °C), at 2.0 LPM it falls to 12.8 mK/W (52.8 °C).
+The 1D screen and the CFD agree on thermal resistance to 1.0% on average and 2.9% at worst.
 For straight fins in laminar flow, a correct 1D model is enough; the CFD is the evidence for that statement, not a replacement for it.
 
 ![1D vs CFD](examples/output/gpu_coldplate/parity.png)
@@ -102,7 +111,9 @@ cross-section CFD.*
 The honest headline: staggered circular pins are the best planform in this model, but only by 3–6% at equal pressure drop,
 which is inside the 6% this model reads low on straight fins because it has no floor or cover. The same marginal-return rule picks
 pins of 0.4 mm diameter at 0.8 × 0.9 mm pitch (12.7 mK/W at 1.42 kPa) across all topologies, and 0.4 mm straight fins and channels
-(13.4 mK/W at 1.31 kPa) among straight fins. Nobody has shown a volume process for 0.15 mm pin or wavy features in copper, so a
+(13.4 mK/W at 1.31 kPa) among straight fins. For offset strips the walk stops at its first point (18.4 mK/W), and the objective
+clause continues to the lowest-pressure design that meets 15 mK/W (14.6 mK/W at 1.57 kPa). Across planforms the pick names a
+different pin array at 0.20 and at 0.30, but it is circular pins at every cut-off from 0.05 to 0.60. Nobody has shown a volume process for 0.15 mm pin or wavy features in copper, so a
 non-straight pick carries manufacturing risk this model does not assess. Wavy fins and offset strips do not beat straight fins here: in 2D a wavy channel at these
 Reynolds numbers adds pressure drop without new flow structure (the Dean vortices that help real wavy fins are 3D), and the 0.15 mm
 gap between strip rows halves the fin density. Straight fins remain a sound choice; pins are worth a 3D check.

@@ -65,6 +65,26 @@ Change a row and DECISIONS.md together.
 | V10 | Numerics | Streamwise-periodic cell (one period), Taylor-Hood P2–P1, P2 temperature, no stabilisation; wall cell ref_gap/20, core ref_gap/10, graded over ref_gap/2 | checked | Straight channel: f·Re 24.0000, Nu 8.2353 (exact 8.2353). Mesh 10 → 20 cells on one design per topology: dp/dx ≤ 0.43%, h ≤ 0.55%. Energy balance ≤ 0.75% (diamond pins, sharp corners; falls to 0.24% at 2× refinement) and ≤ 0.24% elsewhere; thermal undershoot ≤ 0.3% of the wall-to-bulk difference. Diamond pins: the two windows of a two-period cell differ by 1.7% in h (corner sensitivity; the cell means agree to 0.09%) | — |
 | V11 | Manufacturability of non-straight planforms | Wavy, zigzag, offset-strip and pin planforms are assumed makeable at the same 0.15 mm limits as skived straight fins | open | They cannot be made by skiving. OCP lists pin and offset fins with 0.1–1.0 mm internal features as options, but no volume process or feature limit at 0.15 mm in copper was found (docs/literature.md, second pass) | A non-straight recommendation carries unassessed manufacturing risk |
 
+### Added 2026-11-15 (SPEC Amendment 4)
+| ID | Assumption | Value | Status | Basis | Effect if wrong |
+|---|---|---|---|---|---|
+| R10 | Minimum ΔP ratio between compared points in the recommendation rule | 1.10 (a further point less than 10% higher in ΔP is ignored when computing returns); `min_dp_ratio` in the requirements file | chosen | Judgment; Riccardo approved (SPEC Amendment 4). Over a ΔP step of a few per cent, a small difference in R_th (within the plan view's or the 1D model's error) gives a return of order 1, which says nothing about the trade | A higher ratio can skip a real step on a densely sampled front; a lower one lets near-duplicates drive the walk. Fired once in the committed results: across plan-view topologies (straight w 0.5 at 0.75 kPa to circular pins at 0.80 kPa, ratio 1.06, return 0.82); the pick is unchanged |
+| R11 | Objective clause in the recommendation rule | If the walk stops at a design that misses the objective and a further eligible design meets it, take the lowest-ΔP such design | chosen | Riccardo, SPEC Amendment 4 | Fires on plan-view offset strips (18.36 → 14.58 mK/W, 0.50 → 1.57 kPa); not on Level 1 at the cut-off in use |
+
+Note on R9 (2026-11-15): the cut-off now has a sensitivity study (0.05 to 0.60, `examples/output/gpu_coldplate/report.md` and
+`examples/output/level2_planview/summary.md`). Level 1: the pick (0.39 / 0.39 / 3.75 mm, 14.05 mK/W at 1.60 kPa) holds from 0.20 to
+0.25; at 0.30 and above the pick is 0.42 / 0.39 / 3.75 mm (14.90 mK/W at 1.29 kPa), from 0.35 up through the objective clause; at
+0.15 and below it moves to higher ΔP (12.79 mK/W at 2.64 kPa, then 11.92 at 4.66). Across plan-view topologies the pick (circular
+pins d 0.4, 0.8 × 0.9 mm, 12.65 mK/W at 1.42 kPa) holds only at 0.25: 0.20 picks a denser pin array (11.88 at 1.86 kPa) and 0.30 a
+sparser one (13.78 at 1.03 kPa). Every pick from 0.05 to 0.60 meets the objective at both levels. The cut-off is a judgment that sets
+where on the front the pick lands; it does not decide which topology wins (circular pins at every cut-off).
+
+Note on V1 and V6 (2026-11-15): `validation/level2_planview_straight.py` takes the Level 1 recommended design from
+`examples/output/gpu_coldplate/results.json`, so after Amendment 4 gate G3 runs on 0.387 / 0.387 / 3.75 mm instead of
+0.422 / 0.444 / 4.0 mm. The plan view reads ΔP 7.06% and R_th 5.63% below the Level 1 CFD (was 7.1% and 5.7%), and the length-mean
+h of the developing straight channel over 60 mm is 6.9% above the developed value (was about 8%). The rows above keep the values
+measured on the earlier design.
+
 ## Entrance effects (issue #12; 1D option `entrance_effects=True`, off by default)
 | ID | Assumption | Value | Status | Basis | Effect if wrong |
 |---|---|---|---|---|---|

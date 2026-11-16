@@ -168,6 +168,36 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
   pins 10.61 mK/W (d 0.3, H 3, 4.19 kPa) vs straight 11.63 (3.10 kPa). Wavy fins +2.4 to +4.3%, diamond pins +2 to +7%, offset strips
   +2 to +12%. The pin advantage remains inside the plan view's own 6% tall-fin bias.
 
+## 2026-11-15 — Selection rule: objective clause, ΔP-ratio guard, denser Level 1 study, cut-off sensitivity (issue #13, SPEC Amendment 4)
+- New code: `tools.pareto.recommend_marginal_return_objective` (the Amendment 3 walk plus a guard that ignores a further point less
+  than `min_dp_ratio` = 1.10 × the current ΔP, and an objective clause), `cutoff_sensitivity`, `stable_cutoff_range`, `local_returns`;
+  `tools.report.plot_cutoff_sensitivity` and `plot_local_returns`. `recommend_marginal_return` stays; with the guard and clause off the
+  new function reproduces it on every test case.
+- Level 1 grid 23 × 15 × 13 = 4,485 designs (nests the earlier 12 × 8 × 7), 1,783 feasible within 5 kPa, 18 on the 1D front, all 18
+  solved with CFD (2.4 s of CFD, about 5 s for the whole study). Five earlier designs are solved again and reproduce their earlier CFD
+  numbers exactly. 1D vs CFD on R_th: mean |difference| 1.0%, max 2.9%, mean signed +0.1%. Re 113–177. All confidence checks pass.
+- The earlier pick (0.42 / 0.44 / 4.0 mm, 14.93 mK/W at 1.29 kPa) is no longer on the 1D front: 0.42 / 0.39 / 3.75 mm sits at almost
+  the same point (14.90 mK/W at 1.29 kPa) and edges it in 1D (14.76 vs 14.79 mK/W). It is not solved in the new study.
+- New Level 1 pick: 0.39 / 0.39 / 3.75 mm, 14.05 mK/W at 1.60 kPa (interface 54.0 °C average, 59.0 °C peak; capacity 1.42 kW at 20 K).
+  Walk: 0.55 / 0.44 / 4.0 (18.47, 0.70 kPa) → 0.50 / 0.44 / 4.0 (e 0.378) → 0.46 / 0.44 / 4.0 (0.346) → 0.42 / 0.39 / 3.75 (0.327)
+  → 0.39 / 0.39 / 3.75 (0.277) → stop (best further 0.187). Why it changed: the earlier grid had no front point between 1.29 and
+  2.28 kPa, and the return to 2.28 kPa was 0.141; the denser grid adds a point 24% higher in ΔP whose return is 0.277. The rule is
+  sensitive to how finely the front is sampled, in both directions; the guard handles points that are too close, not points that are
+  too far apart.
+- Local returns between neighbouring CFD front points fall from about 0.7 at 0.2 kPa to 0.28–0.38 between 0.7 and 1.6 kPa, then drop to
+  0.13 (1.6 → 2.1 kPa), recover to 0.28 (2.15 → 2.64 kPa) and fall to 0.07 and 0.19. The falloff is gradual, not a knee: between
+  0.7 and 1.6 kPa every step returns 0.28–0.41, and the pick moves by one front point (1.29 ↔ 1.60 kPa) as the cut-off crosses 0.277.
+- Cut-off sensitivity, Level 1: 0.05–0.10 → 0.27 / 0.26 / 2.5 mm (11.92, 4.66 kPa); 0.15 → 0.33 / 0.34 / 3.25 (12.79, 2.64);
+  0.20–0.25 → 0.39 / 0.39 / 3.75 (14.05, 1.60); 0.30–0.60 → 0.42 / 0.39 / 3.75 (14.90, 1.29), through the objective clause from 0.35 up.
+- Plan view (re-selection from saved results, no solves; all design numbers unchanged): the objective clause fires on offset strips
+  (walk stops at l 2.0 / t 0.4 / p_t 1.6, 18.36 mK/W at 0.50 kPa; continues to l 1.0 / t 0.3 / p_t 1.2 / H 3, 14.58 mK/W at
+  1.57 kPa). The guard fires once, across topologies: from straight w 0.5 (0.75 kPa) the 0.82 return to sparse pins at 0.80 kPa
+  (ratio 1.06) is skipped; the walk goes to pins S_T 0.9 / S_L 0.9 (e 0.404) and then to the same pick as before, circular pins d 0.4,
+  0.8 × 0.9 mm, 12.65 mK/W at 1.42 kPa. Other per-topology picks unchanged.
+- Cut-off sensitivity, plan view across topologies: 0.05–0.10 → pins d 0.3 (10.61, 4.19 kPa); 0.15–0.20 → pins 0.8 × 0.7 (11.88,
+  1.86); 0.25 → pins 0.8 × 0.9 (12.65, 1.42); 0.30–0.40 → pins 0.9 × 0.9 (13.78, 1.03); 0.45–0.60 → pins 1.0 × 0.9 (14.90, 0.80),
+  through the objective clause from 0.50. Circular pins win at every cut-off; which pin array is a cut-off choice.
+
 ## 2026-11-15 (Sun) — entrance effects (issue #12)
 - Sources (full text): Muzychka & Yovanovich (2002) Parts I and II (MUN repository); dos Reis & Altemani (COBEM 1999) for Kays's laminar
   Kc, Ke fits. Not obtained: Shah & London (1978), Kays (1950), Shah (1978). The decoded Part I/II text needed a Type 3 font map

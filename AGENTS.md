@@ -14,7 +14,7 @@ Instructions for any coding agent (or person) picking this project up cold.
 
 ## Commands
 - `uv sync` then `uv run pytest` (must pass before any commit).
-- `uv run python run_study.py examples/gpu_coldplate.yaml --out examples/output/gpu_coldplate` — the whole Level 1 study, about 3 s (regenerates the committed example output).
+- `uv run python run_study.py examples/gpu_coldplate.yaml --out examples/output/gpu_coldplate` — the whole Level 1 study, about 5 s (regenerates the committed example output).
   `--plot-only` redraws its three figures from `results.json` and `runs/` without CFD.
 - `uv run python validation/duct_fully_developed.py` — Level 1 solver validation against Shah & London.
 - `uv run python validation/level2_thermal_entrance.py` — Level 2 solver validation (developing flow between plates), about 20 s.
