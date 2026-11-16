@@ -5,6 +5,8 @@ import numpy as np
 import pytest
 
 from tools.pareto import (capacity_ratios, knee_index, marginal_return, pareto_indices, recommend, recommend_marginal_return,
+                          recommend_marginal_return_objective, cutoff_sensitivity, stable_cutoff_range, local_returns,
+                          CUTOFF_SWEEP,
                           spread_along_front)
 from tools.screen_1d import analyze_1d, f_re_fanning, nu_h1, screen_1d
 from tools.types import Design, DesignSpace, Fluid, Requirements
@@ -162,6 +164,85 @@ def test_marginal_return_single_candidate_and_dominated_points():
     assert rec["front"] == [0] and rec["index"] == 0
     assert rec["steps"] == [{"from": 0, "returns": [], "to": None}]
     assert rec["meets_threshold"] and not rec["meets_objective"]
+
+
+# Amendment 4: objective clause and minimum-ΔP-ratio guard (recommend_marginal_return_objective)
+OFFSET_STRIP_LIKE = [(500.0, 18.36e-3), (790.0, 16.55e-3), (990.0, 15.86e-3), (1050.0, 15.74e-3), (1570.0, 14.58e-3),
+                     (2290.0, 13.53e-3)]
+
+
+def test_objective_clause_fires_when_walk_stops_short():
+    # every return from the first point is 0.19-0.23 < 0.25, so the walk stops at 18.36 mK/W; the lowest-ΔP point meeting
+    # 15 mK/W further along is 14.58 mK/W at 1.57 kPa
+    rec = recommend_marginal_return_objective(OFFSET_STRIP_LIKE, 5e3, 20e-3, 15e-3, 0.25)
+    assert all(e["return"] < 0.25 for e in rec["steps"][0]["returns"])
+    assert rec["walk_stop"] == 0 and rec["index"] == 4
+    assert rec["rule"] == "marginal_return_then_objective"
+    assert rec["objective_step"] == {"from": 0, "to": 4}
+    assert rec["meets_objective"] and not rec["objective_unreachable"]
+    assert recommend_marginal_return(OFFSET_STRIP_LIKE, 5e3, 20e-3, 15e-3, 0.25)["index"] == 0
+
+
+def test_objective_clause_does_not_fire_when_stop_meets_objective():
+    cands = [(500.0, 18e-3), (1000.0, 14e-3), (2000.0, 13e-3), (4000.0, 12e-3)]
+    rec = recommend_marginal_return_objective(cands, 5e3, 20e-3, 15e-3, 0.25)
+    assert rec["index"] == 1 and rec["walk_stop"] == 1 and rec["rule"] == "marginal_return"
+    assert rec["objective_step"] is None and rec["meets_objective"]
+
+
+def test_objective_clause_no_later_design_meets_objective():
+    # neither point meets 15 mK/W: stay at the stop point and flag it
+    cands = [(1000.0, 18e-3), (2000.0, 17.5e-3), (9000.0, 8e-3)]
+    rec = recommend_marginal_return_objective(cands, 5e3, 20e-3, 15e-3, 0.25)
+    assert rec["index"] == 0 and rec["rule"] == "marginal_return"
+    assert rec["objective_unreachable"] and not rec["meets_objective"] and rec["objective_step"] is None
+
+
+def test_guard_skips_nearly_coincident_point():
+    # 0 -> 1 is a 5% ΔP step for 11% lower R_th, a return of 2.3; the guard (ΔP ratio < 1.10) ignores it, and 0 -> 2 returns
+    # ln(19/15.5)/ln(3) = 0.185, so the walk stops at 0. Without the guard it would move to 1.
+    cands = [(1000.0, 19e-3), (1050.0, 17e-3), (3000.0, 15.5e-3)]
+    rec = recommend_marginal_return_objective(cands, 5e3, 20e-3, 15e-3, 0.25, min_dp_ratio=1.10)
+    first = rec["steps"][0]["returns"]
+    assert first[0]["skipped"] and first[0]["return"] == pytest.approx(np.log(19 / 17) / np.log(1.05))
+    assert not first[1]["skipped"] and first[1]["return"] == pytest.approx(np.log(19 / 15.5) / np.log(3))
+    assert rec["walk_stop"] == 0 and rec["index"] == 0 and rec["objective_unreachable"]
+    assert recommend_marginal_return_objective(cands, 5e3, 20e-3, 15e-3, 0.25, min_dp_ratio=None)["walk_stop"] == 1
+
+
+@pytest.mark.parametrize("cands", [
+    [(500.0, 18e-3), (1000.0, 14e-3), (2000.0, 13e-3), (4000.0, 12e-3)],
+    [(1000.0, 19e-3), (2000.0, 18.6e-3), (4000.0, 9.5e-3)],
+    [(1000.0, 19e-3), (2000.0, 15e-3), (4000.0, 10e-3)],
+    [(500.0, 30e-3), (2000.0, 24e-3), (4500.0, 21e-3), (9000.0, 15e-3)],
+    [(1000.0, 18e-3), (2000.0, 17.5e-3), (9000.0, 8e-3)],
+    [(3000.0, 16e-3), (4000.0, 17e-3), (6000.0, 10e-3)],
+    [(1000.0, 19e-3), (1050.0, 17e-3), (3000.0, 15.5e-3)],
+    OFFSET_STRIP_LIKE,
+])
+def test_guard_and_clause_off_reproduce_amendment_3_rule(cands):
+    old = recommend_marginal_return(cands, 5e3, 20e-3, 15e-3, 0.25)
+    new = recommend_marginal_return_objective(cands, 5e3, 20e-3, 15e-3, 0.25, min_dp_ratio=None, objective_clause=False)
+    strip = lambda steps: [{**st, "returns": [{"to": e["to"], "return": e["return"]} for e in st["returns"]]} for st in steps]
+    assert {k: new[k] for k in old if k != "steps"} == {k: v for k, v in old.items() if k != "steps"}
+    assert strip(new["steps"]) == old["steps"]
+
+
+def test_cutoff_sensitivity_and_stable_range():
+    # 0->1 returns ln(18/14)/ln(2) = 0.363; 1->2 0.107, 1->3 0.111, 2->3 0.115; at 0.40 the clause continues to 1
+    cands = [(500.0, 18e-3), (1000.0, 14e-3), (2000.0, 13e-3), (4000.0, 12e-3)]
+    rows = cutoff_sensitivity(cands, 5e3, 20e-3, 15e-3, (0.05, 0.10, 0.15, 0.25, 0.35, 0.40))
+    assert [r["index"] for r in rows] == [3, 3, 1, 1, 1, 1]
+    assert rows[-1]["rule"] == "marginal_return_then_objective" and rows[-1]["walk_stop"] == 0
+    assert stable_cutoff_range(rows, 0.25) == (0.15, 0.40)
+    assert stable_cutoff_range(rows, 0.30) is None
+    assert CUTOFF_SWEEP[0] == 0.05 and CUTOFF_SWEEP[-1] == 0.6 and len(CUTOFF_SWEEP) == 12
+
+
+def test_local_returns():
+    lr = local_returns([1000.0, 2000.0, 4000.0], [20e-3, 15e-3, 14e-3])
+    assert [e["dp_ratio"] for e in lr] == [2.0, 2.0]
+    assert lr[0]["return"] == pytest.approx(np.log(20 / 15) / np.log(2))
 
 
 def test_capacity_ratios_hand_calculation():

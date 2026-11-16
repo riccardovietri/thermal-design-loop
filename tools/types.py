@@ -25,6 +25,7 @@ class Requirements:
     r_th_threshold_k_per_w: float | None = None  # must meet (SPEC Amendment 3)
     r_th_objective_k_per_w: float | None = None  # want
     marginal_return_cutoff: float = 0.25
+    min_dp_ratio: float = 1.10  # selection-rule guard (SPEC Amendment 4)
 
 
 @dataclass(frozen=True)
