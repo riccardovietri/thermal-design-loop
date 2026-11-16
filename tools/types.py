@@ -103,3 +103,27 @@ class Screen1DResult:
     f_re_fanning: float
     feasible: bool
     violations: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class Screen1DEntranceResult(Screen1DResult):
+    """Screen1DResult with developing-flow and inlet/outlet terms (`analyze_1d(..., entrance_effects=True)`).
+
+    dp_pa is the channel-core pressure drop with hydrodynamically developing flow; r_th_k_per_w uses the simultaneously
+    developing (combined-entry) heat transfer. The fully developed values and each contribution are kept separately.
+    """
+    dp_fully_developed_pa: float = 0.0
+    dp_hydrodynamic_entrance_pa: float = 0.0  # extra core pressure drop of developing flow (f_app vs f)
+    dp_inlet_outlet_pa: float = 0.0  # abrupt contraction + abrupt expansion, outside the channel core
+    dp_with_inlet_outlet_pa: float = 0.0  # dp_pa + dp_inlet_outlet_pa
+    r_th_fully_developed_k_per_w: float = 0.0
+    r_th_thermal_entrance_k_per_w: float = 0.0  # thermal entrance only (Graetz: developed velocity)
+    nusselt_fully_developed: float = 0.0
+    nu_factor_thermal: float = 1.0  # effective h / developed h, thermal entrance only
+    nu_factor_combined: float = 1.0  # effective h / developed h, simultaneously developing
+    f_app_factor: float = 1.0  # apparent / developed friction factor over the channel length
+    k_contraction: float = 0.0
+    k_expansion: float = 0.0
+    sigma: float = 0.0  # free-flow / frontal area, w / (w + t)
+    x_star: float = 0.0  # L / (Dh Re Pr)
+    l_plus_dh: float = 0.0  # L / (Dh Re)
