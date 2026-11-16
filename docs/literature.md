@@ -101,3 +101,72 @@ excerpts and have not been checked against the full text. Do not cite a *snippet
 Read the full text of Kong 2024/2025, Jung 2020 and Robinson 2009; obtain the OCP documents in readable form; find a primary
 NVIDIA or partner coolant specification; search for accelerator case-temperature limits and for equal-pumping-power comparisons.
 (OCP documents, case-temperature limits and equal-pumping-power comparisons: superseded by second pass.)
+
+## Third pass (2026-11-15, entrance effects, issue #12)
+Full text read unless marked. PDFs fetched from the publishers' or authors' institutional pages and read with pypdf.
+
+- **Muzychka, Y.S. and Yovanovich, M.M. (2002)**, "Laminar flow friction and heat transfer in non-circular ducts and channels,
+  Part I: hydrodynamic problem", in *Compact Heat Exchangers: A Festschrift on the 60th Birthday of Ramesh K. Shah*, Grenoble,
+  August 2002, pp. 123–130. Full text: Memorial University repository, https://hdl.handle.net/20.500.14783/9794 (copy of
+  http://www.mhtlab.uwaterloo.ca/pdf_papers/mhtl02-11.pdf). Used: apparent friction f_app·Re_√A = [(f·Re_√A)² + (3.44/√L+)²]^½
+  (Eq. 43), L+ = L/(√A·Re_√A), f·Re_√A from the first term of the rectangular-duct series (Eq. 32); Table 1 (exact and Eq. 32
+  values for 0.001 ≤ ε ≤ 1); worked values L+_h = 0.059 (ε = 1) and 0.00083 (ε = 0.01) from Eq. 44. Stated accuracy ±10% or
+  better for most duct shapes; parallel plates modelled as ε = 0.01. The model has no separate K(∞) term: Siegel's short-duct
+  solution already carries the momentum change of the accelerating core. Source of Shah & London data: their book, not read here.
+- **Muzychka, Y.S. and Yovanovich, M.M. (2002)**, "... Part II: thermal problem", same volume, pp. 131–139. Full text: Memorial
+  University repository, https://research.library.mun.ca/2486 (now
+  https://memorial.scholaris.ca/items/6a2d925d-d1d4-4904-b6a2-ef3e49d4c888). Used: Graetz model (Eq. 50) and combined
+  entry model (Eqs. 51–52, m = 2.27 + 1.65 Pr^(1/3)), developed limit Nu_√A = C1·f·Re_√A/(8√π·ε^γ) (Eq. 31), flat-plate function
+  f(Pr) for uniform flux (Eq. 48), constants of Table 2 (uniform flux: C1 = 3.66, C3 = 0.501; local C2 = C4 = 1, mean 3/2 and 2;
+  γ = 1/10 upper bound, −3/10 lower bound); worked values z*_t = 0.0366 (H) and 0.0358 (T) for the circular duct (Eq. 53).
+  Stated accuracy ±12% (Graetz) and ±15% (combined entry); valid 0.1 < Pr < ∞.
+- **dos Reis, E. and Altemani, C.A.C. (1999)**, "Pressure drop and heat transfer in airflow cooled finned heat sinks using
+  correlations", COBEM 1999 (15th Brazilian Congress of Mechanical Engineering). Full text:
+  https://abcm.org.br/anais/cobem/1999/english/..\pdf\AACGEC.pdf (the URL as indexed). Used: polynomial fits to the laminar abrupt-contraction and
+  abrupt-expansion coefficients of Kays (1950) for a flat duct and a square duct, interpolated linearly in aspect ratio (Eq. 5,
+  Table 1); the pressure-drop sum ΔP = ρU²/2 (Kc + 4f·L/Dh + Ke) with an apparent friction factor (Eq. 2). Secondary source: the
+  original Kays (1950), "Loss coefficients for abrupt changes in flow cross section with low Reynolds number flow in single and
+  multiple-tube systems", Trans. ASME 72, 1067–1074, was **not** obtained, nor Kays & London, *Compact Heat Exchangers* (Internet
+  Archive copy is lending-only). The subscripts of the Table 1 coefficients are lost in the PDF text; the order A0, A1, A2 is
+  inferred from the row order and checked: the flat-duct expansion fit equals the momentum balance with a parabolic exit profile.
+- **Qu, W. and Mudawar, I. (2002)**, "Experimental and numerical study of pressure drop and heat transfer in a single-phase
+  micro-channel heat sink", Int. J. Heat Mass Transfer 45, 2549–2565, https://engineering.purdue.edu/mudawar/files/articles-all/2002/2002_1.pdf.
+  Full text. Includes contraction and expansion losses in a measured micro-channel plate (Eqs. 18–22) with coefficients
+  "close to unity" for their geometry; no correlation given. Not used for numbers.
+- **Phillips, R.J. (1988)**, "Microchannel heat sinks", Lincoln Laboratory Journal 1(1),
+  https://archive.ll.mit.edu/publications/journal/pdf/vol01_no1/1.1.3.microchannelheatsinks.pdf. Full text. Laminar apparent
+  friction and developing Nu for rectangular channels are given only as figures; loss coefficients set to zero in the examples.
+  Not used for numbers.
+- **Johnson, B.J. (2004)**, "Pressure losses for fluid flow through abrupt area contraction in compact heat exchangers",
+  undergraduate research report, University of Washington, https://faculty.washington.edu/finlayso/che499/Bryan_Sp04.pdf. Full
+  text. 2D FEMLAB contraction coefficients against the Kays & London "Laminar" line: 17–37% different at Re = 100 depending on σ.
+  Unreviewed student work; noted as a warning that the laminar Kc depends on Re, not used for numbers.
+- **Wanted, not obtained:** Shah & London (1978) tables of apparent friction and developing Nu for parallel plates and
+  rectangular ducts (book); Shah (1978), "A correlation for laminar hydrodynamic entry length solutions for circular and non-circular ducts", J. Fluids
+  Eng. 100, 177–179; Kays (1950);
+  Muzychka & Yovanovich (2009), J. Fluids Eng. 131, 111105 (no open copy found). Phillips's MIT thesis (1987, DSpace handle 1721.1/14921)
+  could not be fetched (rate-limited).
+
+## Fourth pass (2026-11-15, incremental pressure drop K(∞), issue #12)
+Looked for a tabulated K(∞) for parallel plates or rectangular ducts by aspect ratio. Full text read unless marked.
+
+- **Ray, B., Durst, F. and Ray, S. (2017)**, "Pressure drop and flow development in the entrance region of micro-channels with
+  second order velocity slip condition and the requirement for development length", arXiv:1707.04947,
+  https://arxiv.org/pdf/1707.04947. Finite-volume Navier–Stokes solves of pipe and parallel-plate channel flow from a uniform
+  inlet, 10⁻² ≤ Re ≤ 10⁴. K(x) = 2(Δp_x − Δp_fd)/(ρu_av²) (their Eq. 17); K_fd = K0/[Re(1 + K2·Re)] + K1 (Eq. 24). **Used:**
+  Table 2, channel, Kn = 0.0001, C2 = 0: K0 = 80.3390, K1 = 0.6802 (Re on Dh = 4b, b the half gap). K1 is taken as K(∞); the K0
+  term is not used (see ASSUMPTIONS P9). The same table gives K1 = 1.2655 for the pipe. Preprint; journal version not checked.
+- **Muzychka, Y.S. and Yovanovich, M.M. (2009)**, "Pressure drop in laminar developing flow in noncircular ducts: a scaling and
+  modeling approach", J. Fluids Eng. 131, 111105 (copy at https://fluidi.mas.bg.ac.rs/mfPhD/jupyter/lesson-1/links/JFG111105.pdf;
+  wanted in the third pass). States Shah's model with K(∞) and C tabulated per geometry (Eq. 3) and argues K(∞) is redundant
+  for the apparent-friction form; no K(∞) values tabulated. Not used for numbers.
+- **du Plessis, J.P. and Collins, M.R. (1992)**, "A new definition for laminar flow entrance lengths of straight ducts", N&O
+  Joernaal, September 1992, pp. 11–16, https://scielo.org.za/pdf/rd/v8/02.pdf (scanned; read as page images). Tables of fRe
+  and entrance lengths from Shah & London for rectangular and annular ducts; L+_K given, K(∞) values not. Not used for numbers.
+- Definitions only, no values: Teng et al., "Fluid dynamics in microchannels" (InTech, 2012); Sahar et al. (2017), Appl. Therm.
+  Eng. 115, 793–814 (refers to Shah & Sekulic for K(∞)); Ma et al. (2018), Micromachines 9, 87; Duan et al. (2019),
+  Micromachines 10, 80; Kandlikar et al., *Heat Transfer and Fluid Flow in Minichannels and Microchannels* (publisher preview,
+  nomenclature only).
+- **Wanted, not obtained:** Shah & London (1971), Stanford report AD0736260 on DTIC (has the rectangular-duct fRe, K(∞), L+
+  table; download refused here); Steinke & Kandlikar (2006), Int. J. Therm. Sci. 45, 1073–1083 (paywalled); the MDPI 2023
+  Micromachines entrance-length paper (access refused).
