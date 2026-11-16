@@ -146,3 +146,27 @@ Full text read unless marked. PDFs fetched from the publishers' or authors' inst
   Eng. 100, 177–179; Kays (1950);
   Muzychka & Yovanovich (2009), J. Fluids Eng. 131, 111105 (no open copy found). Phillips's MIT thesis (1987, DSpace handle 1721.1/14921)
   could not be fetched (rate-limited).
+
+## Fourth pass (2026-11-15, incremental pressure drop K(∞), issue #12)
+Looked for a tabulated K(∞) for parallel plates or rectangular ducts by aspect ratio. Full text read unless marked.
+
+- **Ray, B., Durst, F. and Ray, S. (2017)**, "Pressure drop and flow development in the entrance region of micro-channels with
+  second order velocity slip condition and the requirement for development length", arXiv:1707.04947,
+  https://arxiv.org/pdf/1707.04947. Finite-volume Navier–Stokes solves of pipe and parallel-plate channel flow from a uniform
+  inlet, 10⁻² ≤ Re ≤ 10⁴. K(x) = 2(Δp_x − Δp_fd)/(ρu_av²) (their Eq. 17); K_fd = K0/[Re(1 + K2·Re)] + K1 (Eq. 24). **Used:**
+  Table 2, channel, Kn = 0.0001, C2 = 0: K0 = 80.3390, K1 = 0.6802 (Re on Dh = 4b, b the half gap). K1 is taken as K(∞); the K0
+  term is not used (see ASSUMPTIONS P9). The same table gives K1 = 1.2655 for the pipe. Preprint; journal version not checked.
+- **Muzychka, Y.S. and Yovanovich, M.M. (2009)**, "Pressure drop in laminar developing flow in noncircular ducts: a scaling and
+  modeling approach", J. Fluids Eng. 131, 111105 (copy at https://fluidi.mas.bg.ac.rs/mfPhD/jupyter/lesson-1/links/JFG111105.pdf;
+  wanted in the third pass). States Shah's model with K(∞) and C tabulated per geometry (Eq. 3) and argues K(∞) is redundant
+  for the apparent-friction form; no K(∞) values tabulated. Not used for numbers.
+- **du Plessis, J.P. and Collins, M.R. (1992)**, "A new definition for laminar flow entrance lengths of straight ducts", N&O
+  Joernaal, September 1992, pp. 11–16, https://scielo.org.za/pdf/rd/v8/02.pdf (scanned; read as page images). Tables of fRe
+  and entrance lengths from Shah & London for rectangular and annular ducts; L+_K given, K(∞) values not. Not used for numbers.
+- Definitions only, no values: Teng et al., "Fluid dynamics in microchannels" (InTech, 2012); Sahar et al. (2017), Appl. Therm.
+  Eng. 115, 793–814 (refers to Shah & Sekulic for K(∞)); Ma et al. (2018), Micromachines 9, 87; Duan et al. (2019),
+  Micromachines 10, 80; Kandlikar et al., *Heat Transfer and Fluid Flow in Minichannels and Microchannels* (publisher preview,
+  nomenclature only).
+- **Wanted, not obtained:** Shah & London (1971), Stanford report AD0736260 on DTIC (has the rectangular-duct fRe, K(∞), L+
+  table; download refused here); Steinke & Kandlikar (2006), Int. J. Therm. Sci. 45, 1073–1083 (paywalled); the MDPI 2023
+  Micromachines entrance-length paper (access refused).

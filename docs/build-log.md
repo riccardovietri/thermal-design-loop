@@ -217,3 +217,20 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
 - Gate on 1D vs resolved increments (10%) fails on both R_th (−36%) and ΔP (+41%); diagnosis in the summary. Re-blending the source's
   entrance asymptotes with the exact developed Nu of parallel plates gives +6.0% against +5.9% resolved, so the thermal gap is the
   developed anchor, not the entrance asymptotes.
+
+## 2026-11-15 — entrance effects re-anchored and rerun on the 18-design Level 1 set (issue #12, continued)
+- Merged `main` (SPEC Amendment 4) into `feat/entrance-effects`; shared docs were append-only on both sides.
+- K(∞) search: Ray, Durst & Ray (2017, arXiv:1707.04947) Table 2 gives K1 = 0.6802 for a parallel-plate channel at Kn = 10⁻⁴
+  (high-Re asymptote of K_fd). Muzychka & Yovanovich (2009, J. Fluids Eng. 131, 111105) is now read in full: it gives Shah's
+  model with K(∞) as Eq. 3 but no K(∞) table. du Plessis & Collins (1992) tabulate fRe and L+ only. Shah & London's 1971
+  Stanford report (DTIC AD0736260), which has the rectangular-duct K(∞) table, could not be downloaded here.
+- Re-anchored 1D: thermal blend to Nu_H1, ΔP = ΔP_fd + 0.680·ρU²/2, inlet/outlet separate. Default study output unchanged
+  (run into a temp folder: results.json and figures byte-identical, report.md differs only in the timing line).
+- Recommended design 0.39 / 0.39 / 3.75 mm (CFD + 1D increment): R_th 14.05 → 13.66 mK/W, core ΔP 1.600 → 1.617 kPa, Kays
+  inlet/outlet 20 Pa (separate). Objective margin 6.3% → 8.9%. Widest 1.00 mm: 35.98 → 28.37 mK/W.
+- Resolved tall-fin check (five designs, 1.00 / 0.42 / 0.39 / 0.36 / 0.27 mm channels): h +25.2, +5.9, +5.1, +4.8, +3.7% against
+  1D +21.9, +6.0, +5.3, +5.0, +3.9%; core ΔP +5.19, +1.34, +1.18, +1.11, +0.86% against +5.15, +1.30, +1.14, +1.08, +0.83%.
+  Contribution differences R_th −10.8, +1.9, +3.1, +3.6, +5.6%; ΔP −0.9, −2.7, −2.9, −2.8, −2.8%. Gate (recommended): pass.
+  The earlier formulation on the same design: −36% and +41%. Mesh 8 → 16 cells: h +0.007%, ΔP −0.001%; energy ≤ 0.05%.
+- Selection rule on the corrected values: walk 0.65 → 0.60 → 0.55 → 0.50 → 0.46 → 0.42 / 0.39 / 3.75 mm and stop: the step to
+  0.39 / 0.39 / 3.75 returns 0.248 (0.277 fully developed). Not applied; reported for Riccardo.

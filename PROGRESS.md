@@ -9,6 +9,8 @@ Next: (1) an industry photo for the write-up (needs a licensed image); (2) turn 
 (3) LinkedIn post; (4) the open questions below.
 
 ## Open questions for Riccardo
+- Entrance effects (issue #12): with the re-anchored correction applied, the selection rule would stop at 0.42 / 0.39 / 3.75 mm
+  (14.39 mK/W at 1.31 kPa) instead of 0.39 / 0.39 / 3.75 mm (return 0.248 against 0.25). Keep fully developed values for selection?
 - Plan view: the pin advantage (2.6–5.8% at equal ΔP) is smaller than the plan view's tall-fin bias measured on straight fins (−5.7% on
   R_th, no floor or cover). Treat it as unconfirmed until a 3D or end-wall check?
 - Pins at Re_d,max 50–136 may shed vortices; steady symmetric solutions were computed. Accept, or add an unsteady check?
@@ -48,6 +50,10 @@ Next: (1) an industry photo for the write-up (needs a licensed image); (2) turn 
   `level2/entrance.py`, `examples/output/entrance_effects/summary.md`. Recommended design 14.93 → 14.44 mK/W, core ΔP
   1.294 → 1.320 kPa; objective still met; recommendation unchanged. Resolved-check gate on the 1D increments fails
   (−36% R_th, +41% ΔP, tall-fin limit), reported untuned. `uv run pytest` → 64 passed.
+- 2026-11-15: Entrance correction re-anchored (approved) and rerun on the 18-design Level 1 set: thermal blend to Nu_H1,
+  K(∞) = 0.680 (Ray, Durst & Ray 2017), inlet/outlet separate. Recommended 0.39 / 0.39 / 3.75 mm: 14.05 → 13.66 mK/W, core ΔP
+  1.600 → 1.617 kPa, objective margin 8.9%. Gate now passes (+3.1% R_th, −2.9% ΔP). On corrected values the rule would stop at
+  0.42 / 0.39 / 3.75 mm (return 0.248 vs 0.25); not applied. `uv run pytest` → 81 passed.
 
 - 2026-11-15: SPEC Amendment 4 (issue #13): `tools.pareto.recommend_marginal_return_objective` (objective clause, ΔP-ratio guard
   1.10), denser Level 1 study (4,485 designs, all 18 front designs solved, about 5 s), cut-off sensitivity and local-return figures;
