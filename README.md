@@ -134,7 +134,7 @@ Picks, rule steps and excluded designs: [`summary.md`](examples/output/level2_pl
 ## Why trust the solver
 
 `uv run python validation/duct_fully_developed.py` solves laminar flow and heat transfer in rectangular ducts at four aspect ratios
-and reproduces the Shah & London reference values for f·Re and Nu to within 0.007%. This verifies the toolchain (gmsh, scikit-fem,
+and reproduces the Shah & London reference values for f·Re and Nu to within 0.008%. This verifies the toolchain (gmsh, scikit-fem,
 the element choice) on a separate fluid-only problem. It does not call the production conjugate solver (`tools/run_cfd.py`), whose
 own tests are looser (0.2% on f·Re, 5% on a limiting Nusselt number); a conjugate benchmark through `run_cfd()` is open as
 [issue #24](https://github.com/riccardovietri/thermal-design-loop/issues/24).

@@ -84,7 +84,7 @@ hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0
   <p>This design meets the objective with a 6.3% margin at rated flow, and misses it at 1.0 LPM. Entrance effects, checked below, lower the resistance rather than raise it. Manifolds, uneven flow between channels and a comparison with a measured plate are still open, so the recommendation is provisional until the checks at the end are done.</p>
 
   <h3>How it was chosen</h3>
-  <p>Heat removed per unit of pressure drop is not used to choose. It varies as one over the product of resistance and pressure drop, so along a front it rises only where resistance falls faster than pressure drop rises. On every front in this study it falls as pressure drop rises, so it would always point to the lowest-pressure design in the acceptable window. The selection walks along the front instead, and keeps going only while each 1% of extra pressure drop buys at least 0.25% lower resistance. The 0.25 cut-off is a judgment call.</p>
+  <p>Heat-removal capacity at the 20 K allowable base-to-inlet rise, per unit of pressure drop, is not used to choose. It varies as one over the product of resistance and pressure drop, so along a front it rises only where resistance falls faster than pressure drop rises. On every front in this study it falls as pressure drop rises, so it would always point to the lowest-pressure design in the acceptable window. The selection walks along the front instead, and keeps going only while each 1% of extra pressure drop buys at least 0.25% lower resistance. The 0.25 cut-off is a judgment call.</p>
   <div class="tablewrap"><table>
     <thead><tr><th>Design (channel / fin / height)</th><th>Resistance</th><th>Pressure drop</th><th>Return on the next step</th><th></th></tr></thead>
     <tbody>
@@ -157,12 +157,12 @@ hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0
   <div class="tablewrap"><table>
     <thead><tr><th>Check</th><th>Quantity</th><th>Compared with</th><th>Result</th></tr></thead>
     <tbody>
-      <tr><td>Toolchain, fluid-only rectangular ducts at four aspect ratios (a separate script, not the production conjugate solver)</td><td>Friction and Nusselt number</td><td>Shah and London reference values [4]</td><td class="n">within 0.007%</td></tr>
+      <tr><td>Toolchain, fluid-only rectangular ducts at four aspect ratios (a separate script, not the production conjugate solver)</td><td>Friction and Nusselt number</td><td>Shah and London reference values [4]</td><td class="n">within 0.008%</td></tr>
       <tr><td>Cross-section mesh at twice the resolution</td><td>Thermal resistance of the recommended design</td><td>Itself</td><td class="n">0.002% change</td></tr>
       <tr><td>Navier-Stokes solver, developing flow between plates</td><td>Local Nusselt number</td><td>An independent marching solution</td><td class="n">within 0.64%</td></tr>
       <tr><td>Plan-view solver, straight channel</td><td>Friction and Nusselt number</td><td>Analytical solution</td><td class="n">within 0.004%</td></tr>
       <tr><td>Plan view against cross-section, same straight design</td><td>Resistance and pressure drop</td><td>The cross-section CFD</td><td class="n">5.6% and 7.1% low</td></tr>
-      <tr><td>Energy balance, every Navier-Stokes run</td><td>Heat in against heat carried out</td><td>Conservation (a consistency check)</td><td class="n">within 0.75%</td></tr>
+      <tr><td>Energy balance, every Navier-Stokes run</td><td>Heat in against heat carried out</td><td>Conservation (a consistency check)</td><td class="n">within 0.76%</td></tr>
     </tbody>
   </table></div>
   <p>These checks show the solvers reproduce known solutions and that the meshes are fine enough. The duct result verifies the toolchain on a separate fluid-only problem. It does not exercise the production conjugate solver, whose own tests are looser (5% on a limiting Nusselt number); a tighter conjugate benchmark is open as <a href="https://github.com/riccardovietri/thermal-design-loop/issues/24">issue 24</a>. The energy balances are conservation checks, and the cross-section one passes at machine precision partly by construction, so they show that each solve is self-consistent, not that the thermal model is accurate. None of the checks is a comparison with a measured cold plate.</p>

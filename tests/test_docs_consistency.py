@@ -135,37 +135,88 @@ PER_TOPOLOGY = [(f"plan-view pick, {t}", I[0], (lambda t: lambda c: '<td>{}</td>
                  (lambda t: lambda c: '{:.1f} mK/W</td><td class="n">{:.2f} kPa</td>'.format(*_pv_pick(c, t)))(t))
                 for t in INDEX_LABELS]
 
-TEXT = {"README.md": README, "docs/index.html": INDEX}
+TEXT = {"README.md": README, "docs/index.html": INDEX, "ASSUMPTIONS.md": ROOT / "ASSUMPTIONS.md"}
 
 
-@pytest.mark.parametrize("label, name, build", [(lab, f, b) for lab, files, b in CHECKS for f in files],
-                         ids=[f"{lab} | {f}" for lab, files, _ in CHECKS for f in files])
-def test_text_quotes_results(label, name, build):
-    expected = build(ctx())
-    assert expected in _flat(TEXT[name]), f"{name}: {label} should read '{expected}' (from the committed results)"
+def load_texts() -> dict:
+    return {name: path.read_text() for name, path in TEXT.items()}
 
 
-@pytest.mark.parametrize("label, name, row_start, cells", PER_TOPOLOGY, ids=[p[0] for p in PER_TOPOLOGY])
-def test_index_plan_view_table(label, name, row_start, cells):
-    c = ctx()
-    html = _flat(TEXT[name])
-    start = html.find(row_start(c))
-    assert start >= 0, f"{name}: no table row for {label}"
-    row = html[start:html.find("</tr>", start)]
-    assert cells(c) in row, f"{name}: {label} should read '{cells(c)}' in its table row; found '{row}'"
+def failures(texts: dict) -> list[str]:
+    """Every disagreement between the published text (name -> raw text) and the committed results."""
+    c, out = ctx(), []
+    flat = {name: " ".join(t.split()) for name, t in texts.items()}
+    for label, files, build in CHECKS:
+        expected = build(c)
+        for name in files:
+            if expected not in flat[name]:
+                out.append(f"{name}: {label} should read '{expected}' (from the committed results)")
+    for label, name, row_start, cells in PER_TOPOLOGY:
+        html = flat[name]
+        start = html.find(row_start(c))
+        if start < 0:
+            out.append(f"{name}: no table row for {label}")
+            continue
+        row = html[start:html.find("</tr>", start)]
+        if cells(c) not in row:
+            out.append(f"{name}: {label} should read '{cells(c)}' in its table row; found '{row}'")
+    for name in ("README.md", "docs/index.html"):
+        for value in SUPERSEDED:
+            if re.search(rf"(?<![\d.]){re.escape(value)}(?![\d])", flat[name]):
+                out.append(f"{name}: superseded value '{value}' from an earlier study still appears")
+    bad = [i + 1 for i, line in enumerate(texts["docs/index.html"].splitlines()) if "—" in line or "–" in line]
+    if bad:
+        out.append(f"docs/index.html: em or en dash on lines {bad}; expected none (write ranges as 'a to b')")
+    return out
 
 
-@pytest.mark.parametrize("name", TEXT)
-@pytest.mark.parametrize("value", SUPERSEDED)
-def test_no_superseded_values(name, value):
-    hits = re.findall(rf"(?<![\d.]){re.escape(value)}(?![\d])", _flat(TEXT[name]))
-    assert not hits, f"{name}: superseded value '{value}' from an earlier study still appears"
+def test_published_text_matches_results():
+    found = failures(load_texts())
+    assert not found, "\n".join(found)
 
 
-def test_index_has_no_em_or_en_dash():
-    text = INDEX.read_text()
-    bad = [(i + 1, line.strip()[:80]) for i, line in enumerate(text.splitlines()) if "—" in line or "–" in line]
-    assert not bad, f"docs/index.html: em or en dash on lines {bad}; expected none (write ranges as 'a to b')"
+# Corruptions of the published text that the checks must catch: (id, file, exact old text, new text).
+MUTATIONS = [
+    ("README hero R_th gains a leading digit", "README.md", "3.75 mm tall. 14.0 mK/W at 1.60 kPa", "3.75 mm tall. 114.0 mK/W at 1.60 kPa"),
+    ("README entrance margin 88.9%", "README.md", "objective margin 8.9%", "objective margin 88.9%"),
+    ("README second parity claim disagrees", "README.md", "to 1.0% on average and 2.9% at worst", "to 1.0% on average and 3.9% at worst"),
+    ("README entrance dP 1.627 kPa", "README.md", "from 1.600 to 1.617 kPa", "from 1.600 to 1.627 kPa"),
+    ("README entrance R_th 13.56 at two decimals", "README.md", "from 14.05 to 13.66 mK/W", "from 14.05 to 13.56 mK/W"),
+    ("README pin pitch 0.8 x 1.0 mm", "README.md", "at 0.8 × 0.9 mm pitch", "at 0.8 × 1.0 mm pitch"),
+    ("README screened count", "README.md", "screens 4,485 fin geometries", "screens 4,486 fin geometries"),
+    ("README CFD count in hero table", "README.md", "2.9% at worst (18 designs)", "2.9% at worst (19 designs)"),
+    ("README duct bound below the saved error", "README.md", "Nu to within 0.008%", "Nu to within 0.007%"),
+    ("README reference row R_th", "README.md", "| 0.42 / 0.39 / 3.75 mm | 14.9 mK/W | 1.29 kPa |",
+     "| 0.42 / 0.39 / 3.75 mm | 13.9 mK/W | 1.29 kPa |"),
+    ("README 2.0 LPM flow sensitivity", "README.md", "falls to 12.8 mK/W (52.8 °C)", "falls to 12.3 mK/W (52.8 °C)"),
+    ("README plan-view straight pick", "README.md", "(13.4 mK/W at 1.31 kPa)", "(13.4 mK/W at 1.21 kPa)"),
+    ("index entrance dP 1.72 kPa", "docs/index.html", "from 1.60 to 1.62 kPa", "from 1.60 to 1.72 kPa"),
+    ("index duct bound below the saved error", "docs/index.html", "within 0.008%", "within 0.007%"),
+    ("index energy-balance bound below the saved error", "docs/index.html", "within 0.76%", "within 0.75%"),
+    ("index mesh change", "docs/index.html", "0.002% change", "0.02% change"),
+    ("index wetted-area range", "docs/index.html", "6.2 to 10.3 times", "6.2 to 8.3 times"),
+    ("index widest-channel miss", "docs/index.html", "misses by 10.8%", "misses by 1.8%"),
+    ("index walk table row", "docs/index.html", '0.46 / 0.44 / 4.0 mm</td><td class="n">15.9 mK/W',
+     '0.46 / 0.44 / 4.0 mm</td><td class="n">16.9 mK/W'),
+    ("index flow table 1.0 LPM resistance", "docs/index.html", '1.07 kPa</td><td class="n">16.5 mK/W',
+     '1.07 kPa</td><td class="n">15.5 mK/W'),
+    ("index pin pitch", "docs/index.html", "0.4 mm pins, 0.8 × 0.9 mm pitch", "0.4 mm pins, 0.9 × 0.9 mm pitch"),
+    ("index plan-view bias in prose", "docs/index.html", "resistance 5.6% lower than", "resistance 4.6% lower than"),
+    ("index 1D split part", "docs/index.html", "about 7.5 for fins", "about 7.8 for fins"),
+    ("index pin advantage range", "docs/index.html", "2.6 to 5.8% lower resistance", "2.6 to 6.8% lower resistance"),
+    ("index margin in the introduction", "docs/index.html", "with a 6.3% margin, but", "with a 6.8% margin, but"),
+    ("index allowable rise for capacity", "docs/index.html", "at the 20 K allowable", "at the 25 K allowable"),
+    ("index entrance gate agreement", "docs/index.html", "to within 3.1% and 2.9%", "to within 3.1% and 1.9%"),
+    ("ASSUMPTIONS heated width", "ASSUMPTIONS.md", "59.64 mm (77 × 0.775 mm)", "59.84 mm (77 × 0.775 mm)"),
+]
+
+
+@pytest.mark.parametrize("name, old, new", [m[1:] for m in MUTATIONS], ids=[m[0] for m in MUTATIONS])
+def test_checks_catch_mutation(name, old, new):
+    texts = load_texts()
+    assert texts[name].count(old) == 1, f"mutation target not found exactly once in {name}: {old!r}"
+    texts[name] = texts[name].replace(old, new)
+    assert failures(texts), f"{name}: corrupting {old!r} to {new!r} was not caught"
 
 
 def test_index_images_exist():
