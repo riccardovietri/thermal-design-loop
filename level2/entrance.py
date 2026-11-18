@@ -422,9 +422,15 @@ def write_summary(data: dict, out: Path) -> Path:
       f"{rres['plenums']['inlet_outlet_q']:.2f}·ρU²/2 ({rres['plenums']['inlet_outlet_q']*rec['dynamic_pressure_pa']:.0f} Pa) "
       "for the inlet and outlet.")
     a("")
-    a(f"**Gate.** In the tall-fin (parallel-plate) limit the re-anchored 1D correction and the resolved solve agree on the "
-      f"entrance contribution to within {gate_r['value']} on R_th and {gate_dp['value']} on ΔP for the recommended design "
-      f"(limit ±10%): **{'pass' if passed else 'FAIL'}**. All five resolved designs are in the table below. The first version of "
+    a(f"**Gate.** The ±10% check compares two parallel-plate calculations: the entrance factors of the re-anchored 1D "
+      f"correction and those of a resolved solve between two heated plates (the tall-fin limit), each passed through the same "
+      f"resistance network. On the recommended design they agree on the entrance contribution to within {gate_r['value']} on "
+      f"R_th and {gate_dp['value']} on ΔP (limit ±10%): **{'pass' if passed else 'FAIL'}**. The check does not validate fin "
+      "conduction, heat transfer from the channel floor, the adiabatic cover or development in the real duct (aspect ratio "
+      "about 0.1), and the incremental pressure drop K(∞) is a parallel-plate value. "
+      f"The widest channel reads {100*res[0]['comparison']['r_th_contribution_disagreement']:+.1f}% on R_th, "
+      f"{'outside' if abs(res[0]['comparison']['r_th_contribution_disagreement']) > GATE_AGREEMENT else 'inside'} the limit. "
+      "All five resolved designs are in the table below. The first version of "
       f"this check (earlier Level 1 pick, 0.42 / 0.44 / 4.0 mm) failed at −36% on R_th and +41% on ΔP; the earlier "
       f"formulation, applied to the current pick, still gives {100*c['earlier_r_th_contribution_disagreement']:+.0f}% and "
       f"{100*c['earlier_dp_contribution_disagreement']:+.0f}%. "
@@ -460,7 +466,8 @@ def write_summary(data: dict, out: Path) -> Path:
       "Table 2 (C3 = 0.501, f(Pr) = 0.886/[1 + (1.909 Pr^(1/6))^(9/2)]^(2/9), m = 2.27 + 1.65 Pr^(1/3)), local form "
       "(C2 = C4 = 1), z* = z/(√A·Re_√A·Pr): Nu_G = [(C3 (f·Re_√A / z*)^(1/3))⁵ + Nu_fd⁵]^(1/5), "
       "Nu = [Nu_G^m + (f(Pr)/√z*)^m]^(1/m), with Nu_fd the screen's Shah & London Nu_H1 converted to √A (re-anchored). Valid "
-      "for 0.1 < Pr < ∞; stated accuracy ±12% (Graetz) and ±15% (combined entry). R_th uses the mean of (wall − bulk) "
+      "for 0.1 < Pr < ∞. The source states ±12% (Graetz) and ±15% (combined entry) for its own blend; that accuracy does not "
+      "carry over to the re-anchored blend used here, whose only check is the tall-fin comparison above. R_th uses the mean of (wall − bulk) "
       "temperature over the length, so the effective h is the harmonic length-mean of the local h.")
     a(f"- **Hydrodynamic entrance:** ΔP = ΔP_fd + K(∞)·ρU²/2, U the channel mean velocity, K(∞) = {k_inf:.3f}: Ray, Durst & "
       "Ray (2017), arXiv:1707.04947, Table 2, parallel-plate channel, Kn = 10⁻⁴ (continuum), first-order slip (C2 = 0): "
@@ -564,7 +571,8 @@ def write_summary(data: dict, out: Path) -> Path:
       f"{100*mc['dp_increase_fine']:.3f}% on ΔP); thermal entrance h {100*mcp['h_eff']:+.4f}%; plenum ΔP {100*mpl['dp']:+.4f}%.")
     a("")
     a("**Gates.** " + "; ".join(f"{k}: {v['value']} (limit {v['limit']}), {'pass' if v['pass'] else '**FAIL**'}"
-                                for k, v in g.items()) + ".")
+                                for k, v in g.items()) + ". The mesh and energy-balance gates are consistency checks of "
+      "the resolved solves, not evidence of thermal accuracy; the agreement gates compare parallel-plate models only.")
     a("")
     ks = [x["plenums"]["developing_excess_q"] for x in res]
     io = [x["plenums"]["inlet_outlet_q"] for x in res]
