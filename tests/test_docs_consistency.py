@@ -563,6 +563,34 @@ MUTATIONS = [
     ("index allowable rise for capacity", "docs/index.html", "at the 20 K allowable", "at the 25 K allowable"),
     ("index entrance gate agreement", "docs/index.html", "to within 3.1% and 2.9%", "to within 3.1% and 1.9%"),
     ("ASSUMPTIONS heated width", "ASSUMPTIONS.md", "59.64 mm (77 × 0.775 mm)", "59.84 mm (77 × 0.775 mm)"),
+    # second review round (Codex, 2026-11-18): its ten probes, then more of the same classes
+    ("probe: second parity maximum 9.9%", "README.md", "to 1.0% on average and 2.9% at worst.", "to 1.0% on average and 9.9% at worst."),
+    ("probe: second parity unit K", "README.md", "to 1.0% on average and 2.9% at worst.", "to 1.0% on average and 2.9 K at worst."),
+    ("probe: delete second parity sentence", "README.md",
+     "The 1D screen and the CFD agree on thermal resistance to 1.0% on average and 2.9% at worst.\n", ""),
+    ("probe: duct bound unit K", "README.md", "Nu to within 0.008%", "Nu to within 0.008 K"),
+    ("probe: swap straight and zigzag pressure drops", "docs/index.html",
+     '<td class="n">13.4 mK/W</td><td class="n">1.31 kPa</td></tr>\n      <tr><td>Zigzag</td><td>0.4 mm gap, 0.3 mm amplitude</td><td class="n">13.4 mK/W</td><td class="n">1.46 kPa</td>',
+     '<td class="n">13.4 mK/W</td><td class="n">1.46 kPa</td></tr>\n      <tr><td>Zigzag</td><td>0.4 mm gap, 0.3 mm amplitude</td><td class="n">13.4 mK/W</td><td class="n">1.31 kPa</td>'),
+    ("probe: walk return 0.33 to 0.93", "docs/index.html", '1.05 kPa</td><td class="n">0.33</td>', '1.05 kPa</td><td class="n">0.93</td>'),
+    ("probe: pin caption pitch", "README.md", "0.4 mm diameter, 0.7 × 0.6 mm pitch", "0.4 mm diameter, 0.8 × 0.6 mm pitch"),
+    ("probe: solver tolerance in README", "README.md", "5% on a limiting Nusselt number", "2% on a limiting Nusselt number"),
+    ("probe: reverse capacity trend", "docs/index.html", "On every front in this study it falls as pressure drop rises",
+     "On every front in this study it rises as pressure drop rises"),
+    ("probe: parity average −1.0%", "README.md", "to 1.0% on average and 2.9% at worst.", "to −1.0% on average and 2.9% at worst."),
+    ("parity average -1.0% with a hyphen", "docs/index.html", "to 1.0% on average and 2.9% at worst", "to -1.0% on average and 2.9% at worst"),
+    ("solver tolerance in the case study", "docs/index.html", "(5% on a limiting Nusselt number)", "(1% on a limiting Nusselt number)"),
+    ("f·Re tolerance in README", "README.md", "(0.2% on f·Re,", "(0.1% on f·Re,"),
+    ("index pin caption diameter", "docs/index.html", "Circular pins, 0.4 mm across.", "Circular pins, 0.5 mm across."),
+    ("index objective margin unit changed", "docs/index.html", "with a 6.3% margin at rated flow", "with a 6.3 K margin at rated flow"),
+    ("index walk table row deleted", "docs/index.html",
+     '      <tr><td>0.46 / 0.44 / 4.0 mm</td><td class="n">15.9 mK/W</td><td class="n">1.05 kPa</td><td class="n">0.33</td><td>Keep going</td></tr>\n', ""),
+    ("index walk table action swapped", "docs/index.html", '<td class="n">0.19</td><td>Stop here</td>', '<td class="n">0.19</td><td>Keep going</td>'),
+    ("README reference table row deleted", "README.md", "| Lowest resistance within 5 kPa | 0.27 / 0.26 / 2.5 mm | 11.9 mK/W | 4.66 kPa |\n", ""),
+    ("README new unchecked number", "README.md", "Straight fins remain a sound choice;", "Straight fins remain a sound choice at 17.3 mK/W;"),
+    ("index base thickness in caption", "docs/index.html", "The bottom 2 mm is the copper base", "The bottom 3 mm is the copper base"),
+    ("index flow table row deleted", "docs/index.html",
+     '      <tr><td class="n">2.0 LPM</td><td class="n">2.13 kPa</td><td class="n">12.8 mK/W</td><td class="n">52.8 °C</td><td class="n">56.5 °C</td></tr>\n', ""),
 ]
 
 
@@ -572,6 +600,24 @@ def test_checks_catch_mutation(name, old, new):
     assert texts[name].count(old) == 1, f"mutation target not found exactly once in {name}: {old!r}"
     texts[name] = texts[name].replace(old, new)
     assert failures(texts), f"{name}: corrupting {old!r} to {new!r} was not caught"
+
+
+PRESENTATION_ONLY = [
+    ("extra CSS class on walk-table cells", "docs/index.html", '<td class="n">15.9 mK/W</td><td class="n">1.05 kPa</td><td class="n">0.33</td>',
+     '<td class="n num">15.9 mK/W</td><td class="n num" style="color: red">1.05 kPa</td><td class="n num">0.33</td>'),
+    ("extra CSS class on a plan-view row", "docs/index.html", "<tr><td>Straight</td><td>0.4 mm channels and fins</td>",
+     '<tr class="hl"><td class="name">Straight</td><td>0.4 mm channels and fins</td>'),
+    ("README table cells padded", "README.md", "| 0.42 / 0.39 / 3.75 mm | 14.9 mK/W | 1.29 kPa |", "|  0.42 / 0.39 / 3.75 mm  |  14.9 mK/W |   1.29 kPa  |"),
+]
+
+
+@pytest.mark.parametrize("name, old, new", [m[1:] for m in PRESENTATION_ONLY], ids=[m[0] for m in PRESENTATION_ONLY])
+def test_presentation_changes_do_not_fail(name, old, new):
+    texts = load_texts()
+    assert texts[name].count(old) == 1, f"target not found exactly once in {name}: {old!r}"
+    texts[name] = texts[name].replace(old, new)
+    found = failures(texts)
+    assert not found, "\n".join(found)
 
 
 def test_index_images_exist():
