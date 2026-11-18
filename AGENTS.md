@@ -43,3 +43,9 @@ Instructions for any coding agent (or person) picking this project up cold.
 - Work on a branch; merge to `main` by pull request once tests pass. Conventional commit prefixes (`feat:`, `fix:`, `docs:`, `test:`, `examples:`).
 - Do not edit `../thermal-mcp-server` or `../coldplate-opt`. Do not write to Notion.
 - `prototypes/` is exploratory code: not covered by tests, not part of the pipeline.
+- Test first for pure functions, physics formulas and selection logic: write the failing test from a hand calculation or a
+  published value before the implementation. Field solves are validated against known solutions instead.
+- Every pull request gets an independent adversarial review (Codex, read-only) before merge, and its findings are answered
+  in the pull request.
+- Text that quotes results (README.md, docs/index.html) must pass `tests/test_docs_consistency.py`; add a check there when
+  a new number is quoted.

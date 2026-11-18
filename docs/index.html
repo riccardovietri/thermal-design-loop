@@ -72,7 +72,7 @@ hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0
 
   <h2>Recommended design</h2>
   <p>Straight copper fins with 0.39 mm channels, 0.39 mm fins, 3.75 mm tall. The CFD gives 14.0 mK/W at 1.60 kPa, which puts the plate base at 54.0 °C on average and 59.0 °C at the outlet end.</p>
-  <p>Of that 14.0 mK/W, about 7.5 is fins and convection, 5.0 is the coolant warming up as it crosses the plate, and 1.4 is conduction through the base. Finer fins only reduce the first part.</p>
+  <p>The 1D model gives 13.9 mK/W for this design and splits it into about 7.5 for fins and convection, 5.0 for the coolant warming up as it crosses the plate, and 1.4 for conduction through the base. Finer fins only reduce the first part.</p>
   <div class="tablewrap"><table>
     <thead><tr><th>Flow</th><th>Pressure drop</th><th>Resistance</th><th>Average base</th><th>Peak base</th></tr></thead>
     <tbody>
@@ -84,7 +84,7 @@ hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0
   <p>This design meets the objective with a 6.3% margin at rated flow, and misses it at 1.0 LPM. Entrance effects, checked below, lower the resistance rather than raise it. Manifolds, uneven flow between channels and a comparison with a measured plate are still open, so the recommendation is provisional until the checks at the end are done.</p>
 
   <h3>How it was chosen</h3>
-  <p>Heat removed per unit of pressure drop is highest for the lowest-pressure design in the acceptable window, so that ratio cannot separate the candidates. The selection walks along the front instead, and keeps going only while each 1% of extra pressure drop buys at least 0.25% lower resistance. The 0.25 cut-off is a judgment call.</p>
+  <p>Heat removed per unit of pressure drop is not used to choose. It varies as one over the product of resistance and pressure drop, so along a front it rises only where resistance falls faster than pressure drop rises. On every front in this study it falls as pressure drop rises, so it would always point to the lowest-pressure design in the acceptable window. The selection walks along the front instead, and keeps going only while each 1% of extra pressure drop buys at least 0.25% lower resistance. The 0.25 cut-off is a judgment call.</p>
   <div class="tablewrap"><table>
     <thead><tr><th>Design (channel / fin / height)</th><th>Resistance</th><th>Pressure drop</th><th>Return on the next step</th><th></th></tr></thead>
     <tbody>
@@ -118,7 +118,7 @@ hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0
   <figure><img src="img/jet_fields.png" alt="Flow field of a slot jet striking a heated base, with wall jets running outward, a recirculation cell beside the jet, and local heat transfer peaking under the slot.">
     <figcaption>A slot jet striking the base. Heat transfer peaks under the slot and falls along the wall.</figcaption></figure>
   <p>Coolant enters through long slots in the cover, strikes the base and runs outward to return slots. With slots and gaps of 0.1 mm or more, the best of 18 arrays reached 23.8 mK/W, which misses the 20 mK/W requirement.</p>
-  <p>The fins in this study have six to eight times the wetted area of a flat base, so the liquid film over a flat base has to be much thinner to compete. In an earlier sweep, gaps of 0.05 mm came close to the fins. Features that small can be made, as an example by laser cutting, at a relatively small volume.</p>
+  <p>For the 18 straight-fin designs checked with CFD, the heated wetted area (channel floor plus both fin sides) is 6.2 to 10.3 times the heated footprint, and 10.2 for the recommended design, so the liquid film over a flat base has to be much thinner to compete. In an earlier sweep, gaps of 0.05 mm came close to the fins. Features that small can be made, as an example by laser cutting, at a relatively small volume.</p>
   <figure><img src="img/jet_compare.png" alt="Thermal resistance against pressure drop for slot-jet arrays and straight fins at equal flow. Every slot-jet point lies above the 20 mK/W line.">
     <figcaption>Slot jets and straight fins at the same flow.</figcaption></figure>
 
@@ -132,7 +132,7 @@ hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0
   <div class="tablewrap"><table>
     <thead><tr><th>Fin shape</th><th>Selected design</th><th>Resistance</th><th>Pressure drop</th></tr></thead>
     <tbody>
-      <tr><td>Circular pins</td><td>0.4 mm pins, 0.8 × 0.9 mm pitch</td><td class="n">12.7 mK/W</td><td class="n">1.42 kPa</td></tr>
+      <tr><td>Circular pins</td><td>0.4 mm pins, 0.8 × 0.9 mm pitch</td><td class="n">12.6 mK/W</td><td class="n">1.42 kPa</td></tr>
       <tr><td>Straight</td><td>0.4 mm channels and fins</td><td class="n">13.4 mK/W</td><td class="n">1.31 kPa</td></tr>
       <tr><td>Zigzag</td><td>0.4 mm gap, 0.3 mm amplitude</td><td class="n">13.4 mK/W</td><td class="n">1.46 kPa</td></tr>
       <tr><td>Sinusoidal</td><td>0.4 mm gap, 0.3 mm amplitude</td><td class="n">13.6 mK/W</td><td class="n">1.54 kPa</td></tr>
@@ -157,21 +157,21 @@ hr { border: 0; border-top: 1px solid var(--rule); width: 100%; margin: 26px 0 0
   <div class="tablewrap"><table>
     <thead><tr><th>Check</th><th>Quantity</th><th>Compared with</th><th>Result</th></tr></thead>
     <tbody>
-      <tr><td>Cross-section solver, rectangular ducts at four aspect ratios</td><td>Friction and Nusselt number</td><td>Shah and London reference values [4]</td><td class="n">within 0.007%</td></tr>
+      <tr><td>Toolchain, fluid-only rectangular ducts at four aspect ratios (a separate script, not the production conjugate solver)</td><td>Friction and Nusselt number</td><td>Shah and London reference values [4]</td><td class="n">within 0.007%</td></tr>
       <tr><td>Cross-section mesh at twice the resolution</td><td>Thermal resistance of the recommended design</td><td>Itself</td><td class="n">0.002% change</td></tr>
       <tr><td>Navier-Stokes solver, developing flow between plates</td><td>Local Nusselt number</td><td>An independent marching solution</td><td class="n">within 0.64%</td></tr>
       <tr><td>Plan-view solver, straight channel</td><td>Friction and Nusselt number</td><td>Analytical solution</td><td class="n">within 0.004%</td></tr>
       <tr><td>Plan view against cross-section, same straight design</td><td>Resistance and pressure drop</td><td>The cross-section CFD</td><td class="n">5.6% and 7.1% low</td></tr>
-      <tr><td>Energy balance, every Navier-Stokes run</td><td>Heat in against heat carried out</td><td>Conservation</td><td class="n">within 0.75%</td></tr>
+      <tr><td>Energy balance, every Navier-Stokes run</td><td>Heat in against heat carried out</td><td>Conservation (a consistency check)</td><td class="n">within 0.75%</td></tr>
     </tbody>
   </table></div>
-  <p>These checks show the solvers reproduce known solutions and that the meshes are fine enough. None of them is a comparison with a measured cold plate.</p>
-  <p>Both models assume fully developed flow. To see what that leaves out, the channel of the recommended design was also solved over its full 60 mm from a uniform inlet, in the tall-fin limit (two heated fin walls, no floor or cover). Developing flow raises the length-mean heat transfer coefficient by 5.1% and the channel pressure drop by 1.2%. A 1D entrance correction built from published results [7, 8] matches the resulting changes in resistance and pressure drop to within 3.1% and 2.9%. An earlier version of the correction missed them by 36 to 41% and was rebuilt before these numbers were produced. Applied to the recommended design, the correction lowers the resistance from 14.0 to 13.7 mK/W and raises the pressure drop from 1.60 to 1.62 kPa, so the margin on the objective grows to 8.9%. Across the 18 designs the order by resistance does not change, but the return on the last step of the selection falls from 0.277 to 0.248, just under the cut-off, so the rule applied to the corrected values would stop one step earlier, at 0.42 mm channels.</p>
+  <p>These checks show the solvers reproduce known solutions and that the meshes are fine enough. The duct result verifies the toolchain on a separate fluid-only problem. It does not exercise the production conjugate solver, whose own tests are looser (5% on a limiting Nusselt number); a tighter conjugate benchmark is open as <a href="https://github.com/riccardovietri/thermal-design-loop/issues/24">issue 24</a>. The energy balances are conservation checks, and the cross-section one passes at machine precision partly by construction, so they show that each solve is self-consistent, not that the thermal model is accurate. None of the checks is a comparison with a measured cold plate.</p>
+  <p>Both models assume fully developed flow. To see what that leaves out, the channel of the recommended design was also solved over its full 60 mm from a uniform inlet, in the tall-fin limit (two heated fin walls, no floor or cover). Developing flow raises the length-mean heat transfer coefficient by 5.1% and the channel pressure drop by 1.2%. A 1D entrance correction built from published results [7, 8] matches the resulting changes in resistance and pressure drop to within 3.1% and 2.9%. Of the five designs checked this way, the widest channel misses by 10.8% on resistance. The check compares two parallel-plate calculations passed through the same resistance network. It does not test fin conduction, heat transfer from the channel floor, the adiabatic cover or the real duct, which is about ten times taller than it is wide, and its pressure-drop term is a parallel-plate value. An earlier version of the correction missed them by 36 to 41% and was rebuilt before these numbers were produced. Applied to the recommended design, the correction lowers the resistance from 14.0 to 13.7 mK/W and raises the pressure drop from 1.60 to 1.62 kPa, so the margin on the objective grows to 8.9%. Across the 18 designs the order by resistance does not change, but the return on the last step of the selection falls from 0.277 to 0.248, just under the cut-off, so the rule applied to the corrected values would stop one step earlier, at 0.42 mm channels.</p>
   <p>An indicative comparison with a published skived copper plate [2] is recorded on <a href="https://github.com/riccardovietri/thermal-design-loop/issues/11">issue 11</a>. With a base of 2 to 3 mm assumed, the 1D model reads 6 to 16% low on thermal resistance from 1 LPM up. The paper does not publish the base thickness, so this is indicative only and not a validation.</p>
 
   <h2>Next checks</h2>
   <ol>
-    <li><a href="https://github.com/riccardovietri/thermal-design-loop/issues/12">The full three-dimensional duct.</a> The tall-fin check of entrance effects agrees with the 1D correction. What it does not cover is development in the real duct, with its floor, cover and corners, and the losses in the inlet and outlet manifolds.</li>
+    <li><a href="https://github.com/riccardovietri/thermal-design-loop/issues/12">The full three-dimensional duct.</a> The tall-fin check of entrance effects agrees with the 1D correction between parallel plates. What it does not cover is development in the real duct, with its floor, cover and corners, and the losses in the inlet and outlet manifolds.</li>
     <li><a href="https://github.com/riccardovietri/thermal-design-loop/issues/11">A measured plate.</a> This needs a published test with complete geometry. The closest one found [2] does not publish its base thickness.</li>
     <li><a href="https://github.com/riccardovietri/thermal-design-loop/issues/10">Pins in 3D.</a> A matched 3D comparison of straight fins and circular pins at equal pressure drop, to see whether the pin lead survives the floor and cover.</li>
   </ol>
