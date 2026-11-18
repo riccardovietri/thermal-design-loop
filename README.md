@@ -5,7 +5,9 @@ a conjugate CFD model checks all 18 on the Pareto front, and the output is a rec
 
 **[Read the case study: Choosing a cold plate for a 1 kW chip](https://riccardovietri.github.io/thermal-design-loop/)**
 
-![Thermal resistance vs pressure drop](examples/output/gpu_coldplate/pareto.png)
+![Pareto front of each fin planform at equal flow](examples/output/level2_planview/pareto_topologies.png)
+
+*Thermal resistance against pressure drop for six fin shapes (78 plan-view designs solved, 1.5 LPM); the ring is the design picked across all shapes.*
 
 | | |
 |---|---|
@@ -14,9 +16,6 @@ a conjugate CFD model checks all 18 on the Pareto front, and the output is a rec
 | **Recommended design** | Straight copper fins: 0.39 mm channels, 0.39 mm fins, 3.75 mm tall. 14.0 mK/W at 1.60 kPa |
 | **1D screen vs CFD** | Thermal resistance agrees within 1.0% on average, 2.9% at worst (18 designs) |
 | **Main limitation** | Fully developed 2D flow: no entrance effects, manifolds or flow maldistribution, and no comparison with a measurement yet |
-
-*Grey dots: the 1D screen; blue: designs checked with CFD; ring: the recommendation. Shading marks the 5 kPa budget with the
-20 mK/W threshold (light) and the 15 mK/W objective (darker).*
 
 One command, about five seconds on a laptop, no LLM in the loop:
 
@@ -54,6 +53,11 @@ flowchart LR
 
 ## What it found
 
+![Thermal resistance vs pressure drop](examples/output/gpu_coldplate/pareto.png)
+
+*Straight fins. Grey dots: the 1D screen; blue: designs checked with CFD; ring: the recommendation. Shading marks the 5 kPa budget
+with the 20 mK/W threshold (light) and the 15 mK/W objective (darker).*
+
 | | Channel / fin / height | R_th | ΔP |
 |---|---|---|---|
 | Recommended (marginal return, meets the 15 mK/W objective) | 0.39 / 0.39 / 3.75 mm | 14.0 mK/W | 1.60 kPa |
@@ -69,10 +73,10 @@ per watt of pumping power.
 The cut-off of 0.25 is a judgment, so the report re-runs the rule from 0.05 to 0.60: the pick holds from 0.20 to 0.25; from 0.30 up it
 is the 0.42 mm design at 1.29 kPa, below 0.20 it moves to higher pressure drop. Returns between neighbouring designs fall gradually
 (about 0.7 at 0.2 kPa, 0.28–0.41 from 0.7 to 1.6 kPa, mostly below 0.2 beyond), so there is no sharp knee for the cut-off to find.
-An earlier, coarser grid (672 designs, 8 solved) recommended 0.42 / 0.44 / 4.0 mm (14.9 mK/W at 1.29 kPa): it had no design between
-1.29 and 2.28 kPa, and the denser grid adds one whose return clears the cut-off.
+An earlier, coarser grid stopped at 1.29 kPa because it had no design between 1.29 and 2.28 kPa; the denser grid adds one whose
+return clears the cut-off.
 
-All at the 1.5 LPM rated flow. The recommended design averages 54.0 °C at the chip interface; at 1.0 LPM it rises to 16.6 mK/W
+All at the 1.5 LPM rated flow. The recommended design averages 54.0 °C at the chip interface; at 1.0 LPM it rises to 16.5 mK/W
 (56.5 °C), at 2.0 LPM it falls to 12.8 mK/W (52.8 °C).
 The 1D screen and the CFD agree on thermal resistance to 1.0% on average and 2.9% at worst.
 For straight fins in laminar flow, a correct 1D model is enough; the CFD is the evidence for that statement, not a replacement for it.
@@ -97,12 +101,10 @@ sinusoidal and zigzag channels, offset strip fins and staggered circular and dia
 into the same resistance network as Level 1, at the same 1.5 LPM, footprint and 0.15 mm manufacturing limits, with fin height at most
 10 times the narrowest gap.
 
-![Pareto front of each fin planform at equal flow](examples/output/level2_planview/pareto_topologies.png)
-
-*Each line is one planform's Pareto front over its eligible designs (1.5 LPM PG25 at 40 °C, 1 kW over 60 × 60 mm, copper,
-2 mm base). The ring is the design the rule picks across all planforms. The 36 designs whose fins are taller than 10 × their
-narrowest gap are left out. The plan view has no floor or cover: on straight fins it reads ΔP 7% and R_th 6% below the
-cross-section CFD.*
+The first figure on this page shows each planform's Pareto front over its eligible designs (1.5 LPM PG25 at 40 °C, 1 kW over
+60 × 60 mm, copper, 2 mm base). The ring is the design the rule picks across all planforms. The 36 designs whose fins are taller
+than 10 × their narrowest gap are left out. The plan view has no floor or cover: on straight fins it reads ΔP 7% and R_th 6% below
+the cross-section CFD.
 
 ![Each fin planform against straight fins](examples/output/level2_planview/pareto_topologies_panels.png)
 

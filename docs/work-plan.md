@@ -48,7 +48,7 @@ This file says what to do, in what order, and when to stop. The issues hold the 
 **Do not.** Change the default study, the recommendation or the committed Level 1 results.
 
 ## Issue #10: 3D check of straight fins against circular pins
-**Question.** The plan-view model puts circular pins 3–6% below straight fins at equal ΔP. The same model reads 5.7% low on R_th and 7.1% low
+**Question.** The plan-view model puts circular pins 3–6% below straight fins at equal ΔP. The same model reads 5.6% low on R_th and 7.1% low
 on ΔP for straight fins because it has no floor or cover. Does the pin lead survive in 3D?
 
 ### Stage 1: toolchain and validation gate
@@ -57,9 +57,11 @@ on ΔP for straight fins because it has no floor or cover. Does the pin lead sur
 2. Build a 3D model of the **straight-fin** unit cell: one fin pitch wide with symmetry planes, full fin height with the floor, the
    adiabatic cover, the 2 mm base with uniform flux underneath, conjugate conduction in fin and base. Use a streamwise-periodic
    (fully developed) formulation so it is comparable with Level 1; a short developing run is optional.
-3. Run the Level 1 recommended design (0.42 mm channel, 0.44 mm fin, 4.0 mm tall).
+3. Run the Level 1 recommended design, read from the committed `examples/output/gpu_coldplate/results.json` (`recommended`);
+   since SPEC Amendment 4 it is 0.39 mm channel, 0.39 mm fin, 3.75 mm tall (`w0387_t0387_h3750_q150`).
 
-**Gate.** R_th and ΔP within 2% of the Level 1 cross-section CFD (14.93 mK/W, 1.29 kPa), mesh change under 2% at one refinement, energy
+**Gate.** R_th and ΔP within 2% of the Level 1 cross-section CFD for that design, taken from the same `results.json` (currently 14.05 mK/W,
+1.60 kPa), mesh change under 2% at one refinement, energy
 balance within 1%. **If the gate fails, stop and report.** Do not proceed to pins on an unvalidated model.
 
 ### Stage 2: pins
