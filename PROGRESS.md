@@ -61,6 +61,12 @@ Next: (1) Riccardo's call on the open questions below; (2) issue #10 (3D straigh
 - 2026-11-15: README and case study brought in line with Amendment 4 (`docs/case-study-update`): fin-shape comparison as the first
   README figure, every case-study number and figure from the committed results, cut-off and local-return paragraph, entrance-effect
   paragraph (numbers from #18), indicative measured-plate comparison (issue #11), work-plan gate for issue #10 reads results.json.
+- 2026-11-18: Review corrections (`docs/review-corrections`), after an external adversarial review (Codex, GPT-6) of main at
+  d85f40c: `tests/test_docs_consistency.py` (README and case study against the committed results, written failing first);
+  case study and README corrected (cross-topology pick 12.6 not 12.7 mK/W, 1D split labelled as 1D with its 13.9 total,
+  wetted area 6.2 to 10.3 times the heated footprint, ratio wording, entrance gate scope, energy-balance and duct-validation
+  scope, heated width 59.64 mm); report, plan-view and entrance generators reworded and regenerated without solves. No
+  results JSON changed.
 
 ## Result of the example study
 Rated flow 1.5 LPM, 4,485 designs screened (1,783 feasible within 5 kPa), all 18 on the 1D front solved. 1D vs CFD on R_th: mean
@@ -74,6 +80,10 @@ Lowest ΔP meeting the threshold: 0.55 / 0.44 / 4.0 mm → 18.47 mK/W at 0.70 kP
 Slot jets at 1.5 LPM with ≥ 0.1 mm features: best 23.8 mK/W at 0.49 kPa; none meets the 20 mK/W threshold.
 
 ## Open items
+- Code findings of the 2026-11-18 review, each with a failing test to write first: #20 (entrance option: peak temperature
+  uses length-mean h), #21 (failed confidence checks must block recommendations), #22 (selection guard depends on front
+  sampling), #23 (plan-view reuse ignores operating conditions and solver settings), #24 (validate the production
+  conjugate solver through `run_cfd()`), #25 (input validation and laminar limit at the solver boundary).
 - Merge policy (Riccardo agreed 11/10): branch per milestone, pull request into `main`, merge when CI passes.
 - README, ASSUMPTIONS.md, AGENTS.md and CI (`.github/workflows/ci.yml`) added 11/10.
 - CLIs exist for screen_1d, mesh, postprocess and run_study; run_cfd, check_confidence, pareto and report are functions only.

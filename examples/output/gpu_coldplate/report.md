@@ -71,16 +71,16 @@ Return e between neighbouring points of the CFD-verified front within budget (18
 | 2.0 | 2.13 | 12.80 | 52.8 | 56.5 |
 
 ## 1D screen vs CFD
-The 1D screen evaluated 4485 designs (1783 feasible) in 13 ms. Every design on its Pareto front within budget (18) was solved with the 2D conjugate model in 2.3 s.
+The 1D screen evaluated 4485 designs (1783 feasible) in 13 ms. Every design on its Pareto front within budget (18) was solved with the 2D conjugate model in 2.8 s.
 
 - R_th: 1D differs from CFD by 1.0% on average, 2.9% at worst (mean signed +0.1%).
-- ΔP: identical to within 0.03%. This is expected, not a result: both models assume fully developed flow and share the same f·Re.
+- ΔP: identical to within 0.03%. This is expected, not a result: the screen evaluates a polynomial fit of f·Re and the CFD derives friction from its solved velocity field, but both assume fully developed laminar flow in the same rectangular channel, so close agreement on ΔP is expected.
 
 ![Parity](parity.png)
 
 R_th from the 1D screen against the 2D conjugate CFD for each solved design, coloured by the 1D fin efficiency; the band is ±5%.
 
-Ratios (CFD): Capacity = threshold × heat load / R_th, the heat load the design could carry at the threshold rise (base-to-inlet rise of threshold × heat load, 20 K here); capacity per kPa = capacity / ΔP; kW per pumping W = heat load / (ΔP × volumetric flow), using hydraulic power. Both ratios always favour the lowest ΔP inside the window, which is why they are reported and not used to choose.
+Ratios (CFD): Capacity = threshold × heat load / R_th, the heat load the design could carry at the threshold rise (base-to-inlet rise of threshold × heat load, 20 K here); capacity per kPa = capacity / ΔP; kW per pumping W = heat load / (ΔP × volumetric flow), using hydraulic power. At fixed flow and load, kW per pumping W falls as ΔP rises for any design. Capacity per kPa is proportional to 1 / (R_th × ΔP), so along a front it rises wherever R_th falls faster than ΔP rises (a return above 1); on the designs in this study it falls as ΔP rises. Neither ratio is used to choose.
 
 | Channel (mm) | Fin (mm) | Height (mm) | Flow (LPM) | Re | ΔP CFD (kPa) | R_th 1D (mK/W) | R_th CFD (mK/W) | 1D − CFD | Fin eff. | Capacity (kW) | kW per kPa | kW per pumping W |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -114,6 +114,8 @@ Ratios (CFD): Capacity = threshold × heat load / R_th, the heat load the design
 | Laminar assumption: highest Reynolds number | 177 | < 2000 | pass |
 | Mesh quality: lowest element quality (SICN) | 0.76 | > 0.3 | pass |
 
+The residual and energy-balance rows are conservation and consistency checks. They pass close to machine precision partly by construction: the temperature field is close to linear at the chip interface, where the flux is recovered, and the elements represent that almost exactly. They show each solve is self-consistent, not that the thermal model is accurate.
+
 Mesh study on `w0387_t0387_h3750_q150`:
 
 | Cells across half channel | Unknowns | R_th (mK/W) | ΔP (kPa) |
@@ -127,7 +129,7 @@ Mesh study on `w0387_t0387_h3750_q150`:
 Recommended design at 1.5 LPM PG25: axial velocity (left; copper in brown) and temperature at mid-length (right) on the cross-section, mirrored to show three channels. Re = 114, ΔP = 1.60 kPa, R_th = 14.0 mK/W.
 
 ## Inputs
-- Heat load 1000 W, uniform over 60 × 60 mm; 2.0 mm base, k = 390 W/m·K.
+- Heat load 1000 W, uniform over 60 × 60 mm; 2.0 mm base, k = 390 W/m·K. The channel count is the whole number of channel-plus-fin pitches that fit the width, so the modelled heated width is slightly under the footprint: 77 × 0.775 mm = 59.64 mm of 60 mm for the recommended design.
 - Rated flow 1.5 LPM (1.5 LPM per kW); the Pareto study is run at rated flow only. ΔP budget 5 kPa (channel core, at rated flow; one third of a 15 kPa whole-plate allocation). R_th threshold 20 mK/W, objective 15 mK/W, marginal-return cut-off 0.25.
 - PG25 at 40 °C (CoolProp): ρ = 1010.6 kg/m³, cp = 3958 J/kg·K, k = 0.481 W/m·K, μ = 1.394 mPa·s.
 - R_th = (average chip-interface temperature − inlet temperature) / heat load. TIM and junction-to-case are excluded.

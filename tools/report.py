@@ -35,8 +35,10 @@ RULE_DEFINITION = (
 RATIO_DEFINITIONS = (
     "Capacity = threshold × heat load / R_th, the heat load the design could carry at the threshold rise "
     "(base-to-inlet rise of threshold × heat load, {rise:g} K here); capacity per kPa = capacity / ΔP; "
-    "kW per pumping W = heat load / (ΔP × volumetric flow), using hydraulic power. Both ratios always favour the lowest ΔP "
-    "inside the window, which is why they are reported and not used to choose.")
+    "kW per pumping W = heat load / (ΔP × volumetric flow), using hydraulic power. At fixed flow and load, kW per pumping W "
+    "falls as ΔP rises for any design. Capacity per kPa is proportional to 1 / (R_th × ΔP), so along a front it rises wherever "
+    "R_th falls faster than ΔP rises (a return above 1); on the designs in this study it falls as ΔP rises. Neither ratio is "
+    "used to choose.")
 X_MIN_KPA = 0.3
 
 
@@ -341,7 +343,9 @@ def write_report(study: dict, out: Path) -> Path:
          "conjugate model") + f" in {study['t_cfd_s']:.1f} s.",
         "",
         f"- R_th: 1D differs from CFD by {stats['mean_abs_pct']:.1f}% on average, {stats['max_abs_pct']:.1f}% at worst (mean signed {stats['mean_pct']:+.1f}%).",
-        f"- ΔP: identical to within {study['dp_max_abs_pct']:.2f}%. This is expected, not a result: both models assume fully developed flow and share the same f·Re.",
+        f"- ΔP: identical to within {study['dp_max_abs_pct']:.2f}%. This is expected, not a result: the screen evaluates a polynomial fit of f·Re and the CFD derives friction from its "
+        "solved velocity field, but both assume fully developed laminar flow in the same rectangular channel, so close agreement "
+        "on ΔP is expected.",
         "",
         "![Parity](parity.png)",
         "",
@@ -363,6 +367,10 @@ def write_report(study: dict, out: Path) -> Path:
                         f"{ratios[c.design_id]['kw_per_pumping_w']:.1f} |" if ratios.get(c.design_id) else "— | — | — |"))
     lines += ["", "## Confidence checks", "", "| Check | Value | Limit | Result |", "|---|---|---|---|"]
     lines += [f"| {c['check']} | {c['value']} | {c['limit']} | {'pass' if c['pass'] else 'FAIL'} |" for c in conf["checks"]]
+    lines += ["", "The residual and energy-balance rows are conservation and consistency checks. They pass close to machine "
+              "precision partly by construction: the temperature field is close to linear at the chip interface, where the flux "
+              "is recovered, and the elements represent that almost exactly. They show each solve is self-consistent, not that "
+              "the thermal model is accurate."]
     ms = conf["mesh_study"]
     lines += ["", f"Mesh study on `{ms['design_id']}`:", "", "| Cells across half channel | Unknowns | R_th (mK/W) | ΔP (kPa) |", "|---|---|---|---|"]
     lines += [f"| {r['cells_across_half_channel']} | {r['n_dofs']} | {r['r_th_k_per_w']*1e3:.4f} | {r['dp_pa']/1e3:.4f} |" for r in ms["levels"]]
@@ -373,7 +381,10 @@ def write_report(study: dict, out: Path) -> Path:
         f"ΔP = {rec_c.dp_pa/1e3:.2f} kPa, R_th = {rec_c.r_th_k_per_w*1e3:.1f} mK/W.", "",
         "## Inputs",
         f"- Heat load {req.heat_load_w:.0f} W, uniform over {req.footprint_width_m*1e3:.0f} × {req.flow_length_m*1e3:.0f} mm; "
-        f"{req.base_thickness_m*1e3:.1f} mm base, k = {req.solid_k:.0f} W/m·K.",
+        f"{req.base_thickness_m*1e3:.1f} mm base, k = {req.solid_k:.0f} W/m·K. The channel count is the whole number of "
+        f"channel-plus-fin pitches that fit the width, so the modelled heated width is slightly under the footprint: "
+        f"{rec_c.n_channels} × {(d.w_ch_m + d.t_fin_m)*1e3:.3f} mm = {rec_c.n_channels*(d.w_ch_m + d.t_fin_m)*1e3:.2f} mm "
+        f"of {req.footprint_width_m*1e3:.0f} mm for the recommended design.",
         f"- Rated flow {d.flow_lpm:.1f} LPM ({d.flow_lpm/(req.heat_load_w/1e3):.1f} LPM per kW); the Pareto study is run at rated flow only. "
         f"ΔP budget {req.dp_budget_pa/1e3:g} kPa (channel core, at rated flow; one third of a 15 kPa whole-plate allocation). "
         f"R_th threshold {fmt_req(threshold)}, objective {fmt_req(objective)}, marginal-return cut-off {cutoff:g}.",

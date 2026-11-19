@@ -556,8 +556,11 @@ def write_summary(data: dict, out: Path, outside: list[str] | None = None) -> Pa
              "coincident designs cannot produce a large return. Objective clause: if the walk stops at a design that misses the "
              "objective and a design further along the eligible front meets it, the rule continues to the lowest-ΔP design that "
              "meets it. "
-             "Capacity = threshold × heat load / R_th; kW per pumping W = heat load / (ΔP × flow). Both ratios always favour the lowest "
-             "ΔP inside the window, which is why they are reported and not used to choose.", "",
+             "Capacity = threshold × heat load / R_th; kW per pumping W = heat load / (ΔP × flow). At fixed flow and load, kW per "
+             "pumping W falls as ΔP rises for any design. Capacity per kPa is proportional to 1 / (R_th × ΔP), so along a front it "
+             "rises wherever R_th falls faster than ΔP rises (a return above 1); on every front in this study (each planform's and "
+             "the cross-topology front) it falls as ΔP rises, though not across all eligible designs. Neither ratio is used to "
+             "choose.", "",
              "![Pareto front of each fin planform](pareto_topologies.png)", "",
              f"Each line is one planform's Pareto front over its eligible designs, at {FLOW_LPM:g} LPM PG25 at 40 °C, 1 kW over "
              "60 × 60 mm, copper, 2 mm base, features and gaps ≥ 0.15 mm, H / t ≤ 10 and H / gap ≤ 10. The ring marks the design "

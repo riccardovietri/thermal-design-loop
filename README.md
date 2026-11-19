@@ -15,7 +15,7 @@ a conjugate CFD model checks all 18 on the Pareto front, and the output is a rec
 | **Requirement** | Channel pressure drop ≤ 5 kPa; thermal resistance ≤ 20 mK/W (must), ≤ 15 mK/W (objective) |
 | **Recommended design** | Straight copper fins: 0.39 mm channels, 0.39 mm fins, 3.75 mm tall. 14.0 mK/W at 1.60 kPa |
 | **1D screen vs CFD** | Thermal resistance agrees within 1.0% on average, 2.9% at worst (18 designs) |
-| **Main limitation** | Fully developed 2D flow: no entrance effects, manifolds or flow maldistribution, and no comparison with a measurement yet |
+| **Main limitation** | The default study is fully developed 2D flow; entrance effects are quantified separately (13.7 mK/W at 1.62 kPa, objective margin 8.9%, [summary](examples/output/entrance_effects/summary.md)). No manifolds or flow maldistribution, and no comparison with a measurement yet |
 
 One command, about five seconds on a laptop, no LLM in the loop:
 
@@ -23,6 +23,9 @@ One command, about five seconds on a laptop, no LLM in the loop:
 uv sync
 uv run python run_study.py examples/gpu_coldplate.yaml
 ```
+
+On Linux, gmsh also needs a few system libraries (the ones CI installs):
+`sudo apt-get install -y libglu1-mesa libxcursor1 libxinerama1 libxft2`.
 
 ## The problem
 
@@ -44,7 +47,8 @@ flowchart LR
    combination of channel width, fin thickness and fin height at rated flow, and discards designs that break the pressure or manufacturing limits.
 2. **Verify.** Every design on the 1D Pareto front within the budget (18 here) is solved with a 2D conjugate finite-element model of the channel cross-section
    (gmsh + scikit-fem): fluid velocity, and temperature in the fluid, fin and base together.
-3. **Decide.** Mesh independence, solver residual and energy balance are checked and reported. Among CFD-verified designs within the
+3. **Decide.** Mesh independence, solver residual and energy balance are checked and reported (the last two are conservation
+   and consistency checks, not evidence of thermal accuracy). Among CFD-verified designs within the
    pressure budget that meet the threshold, the rule starts at the lowest pressure drop and moves along the front while a further design
    returns at least 0.25 in log-log terms (a doubling of pressure drop must buy at least about 16% lower resistance), ignoring designs
    less than 10% further in pressure drop; it recommends the point where that stops. If that point misses the objective and a further
@@ -79,13 +83,14 @@ return clears the cut-off.
 All at the 1.5 LPM rated flow. The recommended design averages 54.0 °C at the chip interface; at 1.0 LPM it rises to 16.5 mK/W
 (56.5 °C), at 2.0 LPM it falls to 12.8 mK/W (52.8 °C).
 The 1D screen and the CFD agree on thermal resistance to 1.0% on average and 2.9% at worst.
-For straight fins in laminar flow, a correct 1D model is enough; the CFD is the evidence for that statement, not a replacement for it.
+For the straight-fin designs studied here (laminar, fully developed, uniform heat flux, 2D cross-section), the 1D model gives the
+same answer as the CFD; the CFD is the evidence for that statement, not a replacement for it. Agreement between two models is not
+agreement with hardware: no measured plate has been compared yet ([issue #11](https://github.com/riccardovietri/thermal-design-loop/issues/11)).
 
 ![1D vs CFD](examples/output/gpu_coldplate/parity.png)
 
-![Velocity and temperature in the recommended design](examples/output/gpu_coldplate/fields_recommended.png)
-
-*The recommended design's cross-section at 1.5 LPM: coolant velocity (copper in brown) and temperature at mid-length.*
+The velocity and temperature fields of the recommended design's cross-section are in the
+[report](examples/output/gpu_coldplate/report.md#confidence-checks), with the mesh study.
 
 Full output: [`examples/output/gpu_coldplate/report.md`](examples/output/gpu_coldplate/report.md).
 
@@ -110,9 +115,13 @@ the cross-section CFD.
 
 *One panel per planform: its designs and front in colour against the straight-fin front in grey, with the planform's own pick ringed.*
 
+![Flow and temperature around staggered circular pins](examples/output/level2_planview/fields_pin_circle.png)
+
+*Staggered circular pins in plan view (0.4 mm diameter, 0.7 × 0.6 mm pitch, 1.5 LPM): speed with streamlines (top) and temperature above the local bulk (bottom).*
+
 The honest headline: staggered circular pins are the best planform in this model, but only by 3–6% at equal pressure drop,
 which is inside the 6% this model reads low on straight fins because it has no floor or cover. The same marginal-return rule picks
-pins of 0.4 mm diameter at 0.8 × 0.9 mm pitch (12.7 mK/W at 1.42 kPa) across all topologies, and 0.4 mm straight fins and channels
+pins of 0.4 mm diameter at 0.8 × 0.9 mm pitch (12.6 mK/W at 1.42 kPa) across all topologies, and 0.4 mm straight fins and channels
 (13.4 mK/W at 1.31 kPa) among straight fins. For offset strips the walk stops at its first point (18.4 mK/W), and the objective
 clause continues to the lowest-pressure design that meets 15 mK/W (14.6 mK/W at 1.57 kPa). Across planforms the pick names a
 different pin array at 0.20 and at 0.30, but it is circular pins at every cut-off from 0.05 to 0.60. Nobody has shown a volume process for 0.15 mm pin or wavy features in copper, so a
@@ -125,20 +134,32 @@ Picks, rule steps and excluded designs: [`summary.md`](examples/output/level2_pl
 ## Why trust the solver
 
 `uv run python validation/duct_fully_developed.py` solves laminar flow and heat transfer in rectangular ducts at four aspect ratios
-and reproduces the Shah & London reference values for f·Re and Nu to within 0.007%.
+and reproduces the Shah & London reference values for f·Re and Nu to within 0.008%. This verifies the toolchain (gmsh, scikit-fem,
+the element choice) on a separate fluid-only problem. It does not call the production conjugate solver (`tools/run_cfd.py`), whose
+own tests are looser (0.2% on f·Re, 5% on a limiting Nusselt number); a conjugate benchmark through `run_cfd()` is open as
+[issue #24](https://github.com/riccardovietri/thermal-design-loop/issues/24).
+
+The residual and energy-balance rows of the report's confidence checks are conservation and consistency checks. They pass close to
+machine precision partly by construction, so they show each solve is self-consistent, not that the thermal model is accurate.
 
 ## What it does not do
 
-The CFD is a 2D cross-section with fully developed flow. It does not capture entrance effects, manifolds, flow maldistribution,
-or any geometry that varies along the flow. Every assumption is listed with its basis in [`ASSUMPTIONS.md`](ASSUMPTIONS.md).
+The default study (1D screen and CFD) is a 2D cross-section with fully developed flow. Entrance effects are quantified separately
+in [`examples/output/entrance_effects/summary.md`](examples/output/entrance_effects/summary.md): for the recommended design developing
+flow lowers R_th from 14.05 to 13.66 mK/W and raises the channel-core ΔP from 1.600 to 1.617 kPa, so the objective margin grows
+from 6.3% to 8.9%. That correction is checked only between parallel plates (tall-fin limit), not in the real duct. The study does
+not capture manifolds, flow maldistribution, or any geometry that varies along the flow, and it has not been compared with a measured
+plate. Every assumption is listed with its basis in [`ASSUMPTIONS.md`](ASSUMPTIONS.md).
 
 ## Layout
 
 - `run_study.py` — the deterministic orchestrator.
 - `tools/` — one function per engineering step: `screen_1d`, `mesh`, `run_cfd`, `postprocess`, `check_confidence`, `pareto`, `report`.
-- `examples/` — the requirements file and a committed copy of its output.
-- `validation/` — solver validation against analytical results.
-- `prototypes/` — exploratory work toward the next fidelity level (2D Navier-Stokes).
+- `level2/` — 2D Navier-Stokes models: slot jets, plan-view fin planforms and the entrance-effect check.
+- `examples/` — the requirements file and a committed copy of each study's output.
+- `validation/` — toolchain and solver checks against analytical and independent solutions, with their saved results.
+- `docs/` — the case study (`index.html`, published with GitHub Pages), build log, literature survey and work plan.
+- `prototypes/` — exploratory code (a wavy-channel Level 2 prototype); not covered by tests and not part of the pipeline.
 - `SPEC.md`, `PLAN.md`, `DECISIONS.md`, `ASSUMPTIONS.md`, `PROGRESS.md` — scope, milestones, decisions, assumptions and current state.
 
 MIT licence.
