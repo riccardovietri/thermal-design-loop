@@ -45,7 +45,8 @@ Instructions for any coding agent (or person) picking this project up cold.
 - `prototypes/` is exploratory code: not covered by tests, not part of the pipeline.
 - Test first for pure functions, physics formulas and selection logic: write the failing test from a hand calculation or a
   published value before the implementation. Field solves are validated against known solutions instead.
-- Every pull request gets an independent adversarial review (Codex, read-only) before merge, and its findings are answered
-  in the pull request.
+- External review (for example Codex, read-only) is optional input, not a merge gate. Use it when Riccardo asks for it, or for a
+  change to physics, validation or selection logic where a second opinion is worth the time. Triage the findings, fix what is
+  real, and stop after one round unless something major turns up.
 - Text that quotes results (README.md, docs/index.html) must pass `tests/test_docs_consistency.py`; add a check there when
   a new number is quoted.
