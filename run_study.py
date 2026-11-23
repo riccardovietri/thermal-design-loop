@@ -4,6 +4,7 @@
 """
 import argparse
 import json
+import sys
 import time
 from dataclasses import replace
 from pathlib import Path
@@ -11,7 +12,7 @@ from pathlib import Path
 import numpy as np
 import yaml
 
-from tools.check_confidence import check_confidence, mesh_independence
+from tools.check_confidence import check_confidence, mesh_independence, run_failures
 from tools.fluids import fluid_props
 from tools.mesh import mesh
 from tools.pareto import (capacity_ratios, cutoff_sensitivity, pareto_indices, recommend_marginal_return_objective,
@@ -65,13 +66,23 @@ def run_study(config: Path, out_dir: Path | None = None, runs_dir: Path | None =
     shortlist = front if whole_front else [front[i] for i in spread_along_front([s.dp_pa for s in front], opts["n_cfd"])]
 
     t0 = time.perf_counter()
-    pairs, qualities = [], []
+    pairs, qualities, excluded, solved = [], [], [], []
     for s in shortlist:
         run = runs_dir / s.design.design_id
         info = mesh(s.design, req.base_thickness_m, run, opts["mesh_cells_across_half_channel"])
         qualities.append(info.min_quality_sicn)
-        pairs.append((s, run_cfd(s.design, req, fluid, info.path, run)))
+        c = run_cfd(s.design, req, fluid, info.path, run)
+        solved.append(c)
+        reasons = run_failures(c, info.min_quality_sicn)
+        # a design whose own run fails a check is not a candidate for selection (issue #21)
+        if reasons:
+            excluded.append((s, c, reasons))
+        else:
+            pairs.append((s, c))
     t_cfd = time.perf_counter() - t0
+    if not pairs:
+        raise SystemExit("Every CFD design failed a per-run confidence check; no candidate for selection: "
+                         + "; ".join(f"{c.design_id}: {', '.join(r)}" for _, c, r in excluded))
 
     cfd = [c for _, c in pairs]
     ok = [(s, c) for s, c in pairs if c.dp_pa <= req.dp_budget_pa]
@@ -104,7 +115,8 @@ def run_study(config: Path, out_dir: Path | None = None, runs_dir: Path | None =
         sensitivity.append({"flow_lpm": q, "design_id": d.design_id, "dp_pa": c.dp_pa, "r_th_k_per_w": c.r_th_k_per_w,
                             "base_avg_temp_c": c.base_avg_temp_c, "base_max_temp_c": c.base_max_temp_c, "reynolds": c.reynolds})
     mesh_study = mesh_independence(rec_design, req, fluid, runs_dir / "_mesh_study", (cells // 2, cells, cells * 2))
-    confidence = check_confidence(cfd, mesh_study, min(qualities))
+    confidence = check_confidence(solved, mesh_study, min(qualities))
+    failed_checks = [c["check"] for c in confidence["checks"] if not c["pass"]]
     threshold = req.r_th_threshold_k_per_w
     ratios = {c.design_id: capacity_ratios(c.dp_pa, c.r_th_k_per_w, req.heat_load_w, s.design.flow_lpm / 6e4, threshold)
               if threshold is not None else None for s, c in pairs}
@@ -112,7 +124,7 @@ def run_study(config: Path, out_dir: Path | None = None, runs_dir: Path | None =
     study = {
         "name": name, "requirements": req, "fluid": fluid, "pairs": pairs, "recommended": recommended, "rule": rec["rule"],
         "selection": rec, "references": references, "ratios": ratios, "lowest_r_th": lowest, "flow_sensitivity": sensitivity,
-        "solved_whole_front": whole_front, **cut,
+        "solved_whole_front": whole_front, **cut, "failed_checks": failed_checks, "excluded": excluded,
         "n_sweep": len(sweep), "n_feasible": len(feasible), "t_screen_s": t_screen, "t_cfd_s": t_cfd, "confidence": confidence,
         "parity": parity_stats([s.r_th_k_per_w for s, _ in pairs], [c.r_th_k_per_w for _, c in pairs]),
         "dp_max_abs_pct": max(100 * abs(s.dp_pa / c.dp_pa - 1) for s, c in pairs),
@@ -123,8 +135,12 @@ def run_study(config: Path, out_dir: Path | None = None, runs_dir: Path | None =
     plot_fields(runs_dir / recommended[1].design_id, out_dir / "fields_recommended.png")
     plot_selection(cut, pairs, recommended[1], req, out_dir)
     write_report(study, out_dir / "report.md")
+    # Keys of a blocked study come first; a passing study writes exactly what it wrote before issue #21.
+    blocked = {"status": "blocked", "failed_checks": failed_checks,
+               "excluded_designs": [{"design_id": c.design_id, "reasons": r, "one_d": to_dict(s), "cfd": to_dict(c)}
+                                    for s, c, r in excluded]} if failed_checks else {}
     (out_dir / "results.json").write_text(json.dumps({
-        "recommended": recommended[1].design_id, "rule": rec["rule"],
+        **blocked, "recommended": recommended[1].design_id, "rule": rec["rule"],
         "meets_threshold": rec["meets_threshold"], "meets_objective": rec["meets_objective"],
         "dp_budget_pa": req.dp_budget_pa, "r_th_threshold_k_per_w": threshold,
         "r_th_objective_k_per_w": req.r_th_objective_k_per_w, "marginal_return_cutoff": req.marginal_return_cutoff,
@@ -193,7 +209,7 @@ def plot_only(config: Path, out_dir: Path | None = None, runs_dir: Path | None =
             plot_fields(runs_dir / saved["recommended"], out_dir / "fields_recommended.png")]
 
 
-def main() -> None:
+def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("config", type=Path)
     ap.add_argument("--out", type=Path, default=None)
@@ -202,7 +218,7 @@ def main() -> None:
     if a.plot_only:
         for p in plot_only(a.config, a.out):
             print(p)
-        return
+        return 0
     t0 = time.perf_counter()
     study = run_study(a.config, a.out)
     rec = study["recommended"][1]
@@ -223,7 +239,13 @@ def main() -> None:
     print(f"1D vs CFD R_th: mean |diff| {study['parity']['mean_abs_pct']:.1f}%, max {study['parity']['max_abs_pct']:.1f}%")
     print(f"confidence checks: {'all pass' if study['confidence']['all_pass'] else 'FAILURES, see report'}")
     print(f"report: {out / 'report.md'}")
+    if study["failed_checks"]:
+        print("BLOCKED: confidence checks failed: " + "; ".join(study["failed_checks"]), file=sys.stderr)
+        for _, c, r in study["excluded"]:
+            print(f"  excluded {c.design_id}: {', '.join(r)}", file=sys.stderr)
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

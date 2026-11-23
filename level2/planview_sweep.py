@@ -102,6 +102,17 @@ def aspect_exclusion(row: dict) -> str | None:
     return f"H / min gap = {h:g} / {gap:.3f} = {h / gap:.1f} > {MAX_H_OVER_GAP:g}" if h / gap > MAX_H_OVER_GAP + 1e-9 else None
 
 
+ENERGY_LIMIT = 0.01  # energy balance limit per solve, as gate G2 of validation/level2_planview_straight.py
+
+
+def check_exclusion(row: dict) -> str | None:
+    """Reason a design is excluded by a failed solver check (not converged, energy balance over the limit), else None."""
+    if row["status"] != "converged":
+        return f"not converged ({row['status']})"
+    e = row["result"]["energy_balance_error"]
+    return f"energy balance error {100 * e:+.3f}% (limit {100 * ENERGY_LIMIT:g}%)" if abs(e) > ENERGY_LIMIT else None
+
+
 def _load() -> dict:
     path = OUT / "results.json"
     return json.loads(path.read_text()) if path.exists() else {}
@@ -277,9 +288,14 @@ def cutoff_sweep(ok: list[dict]) -> dict:
 def summarise(data: dict) -> dict:
     rows = data["designs"]
     conv_all = _converged(rows)
+    # issue #21: a design that did not converge or fails its energy balance is not a candidate; geometry rejections are
+    # counted per topology as before (never solved)
+    excluded_checks = [{"design_id": r["design_id"], "topology": r["topology"], "reason": check_exclusion(r)}
+                       for r in rows if r["status"] != "rejected" and check_exclusion(r)]
+    checked = [r for r in conv_all if not check_exclusion(r)]
     excluded = [{"design_id": r["design_id"], "topology": r["topology"], "reason": aspect_exclusion(r)}
-                for r in conv_all if aspect_exclusion(r)]
-    ok = [r for r in conv_all if not aspect_exclusion(r)]  # eligible: converged and H / gap <= 10
+                for r in checked if aspect_exclusion(r)]
+    ok = [r for r in checked if not aspect_exclusion(r)]  # eligible: converged, energy balance within limit, H / gap <= 10
     budget, threshold, objective = REQ.dp_budget_pa, REQ.r_th_threshold_k_per_w, REQ.r_th_objective_k_per_w
     flow_m3_s = FLOW_LPM / 6e4
     ratios = {r["design_id"]: capacity_ratios(r["result"]["dp_pa"], r["result"]["r_th_k_per_w"], REQ.heat_load_w, flow_m3_s, threshold)
@@ -331,7 +347,8 @@ def summarise(data: dict) -> dict:
             "vs_straight_front": vs_straight, "equal_dp": equal_dp,
             "max_energy_balance_error": max(abs(r["result"]["energy_balance_error"]) for r in conv_all),
             "worst_undershoot_rel": min(r["result"]["undershoot_rel"] for r in conv_all),
-            "total_seconds": sum(r["result"]["seconds"] for r in conv_all)}
+            "total_seconds": sum(r["result"]["seconds"] for r in conv_all),
+            **({"excluded_checks": excluded_checks} if excluded_checks else {})}  # absent when none, so saved results stay as they were
 
 
 X_LIM, Y_LIM = (0.3, 1.5 * REQ.dp_budget_pa / 1e3), (8.0, 1.5 * REQ.r_th_threshold_k_per_w * 1e3)
@@ -381,7 +398,7 @@ def _spread(values: list[float], min_gap: float) -> list[float]:
 
 
 def _eligible_and_excluded(data):
-    conv = _converged(data["designs"])
+    conv = [r for r in _converged(data["designs"]) if not check_exclusion(r)]
     return [r for r in conv if not aspect_exclusion(r)], [r for r in conv if aspect_exclusion(r)]
 
 
@@ -600,6 +617,9 @@ def write_summary(data: dict, out: Path, outside: list[str] | None = None) -> Pa
               "| Design | ΔP (kPa) | R_th (mK/W) | Straight at same ΔP | Difference |", "|---|---|---|---|---|"]
     lines += [f"| `{v['design_id']}` | {v['dp_pa']/1e3:.2f} | {v['r_th_k_per_w']*1e3:.2f} | {v['straight_r_th_at_same_dp']*1e3:.2f} | "
               f"{v['difference_pct']:+.1f}% |" for v in summ["vs_straight_front"]]
+    if summ.get("excluded_checks"):
+        lines += ["", "## Excluded by a failed solver check (not in fronts or selection)", "", "| Design | Reason |", "|---|---|"]
+        lines += [f"| `{e['design_id']}` | {e['reason']} |" for e in summ["excluded_checks"]]
     lines += ["", "## Excluded by H / min gap > 10 (solved, kept in results.json, not in fronts or selection)", "",
               "| Design | Reason |", "|---|---|"] + [f"| `{e['design_id']}` | {e['reason']} |" for e in summ["excluded"]]
     fields_path = OUT / "fields.json"

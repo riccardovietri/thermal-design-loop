@@ -647,6 +647,7 @@ def run(plot_only: bool = False, level1_path: Path = LEVEL1, out_dir: Path = OUT
     path = out_dir / "results.json"
     if plot_only:
         data = json.loads(path.read_text())
+        data["gates"] = gates_for(data["resolved"], data["level1_recommended"])  # re-evaluated from the saved solves
     else:
         t0 = time.perf_counter()
         rows = one_d_table(level1, req, fluid)
@@ -681,6 +682,10 @@ def run(plot_only: bool = False, level1_path: Path = LEVEL1, out_dir: Path = OUT
     for k, v in data["gates"].items():
         print(f"{k}: {v['value']} (limit {v['limit']}) {'pass' if v['pass'] else 'FAIL'}")
     print(f"wrote {out_dir}")
+    failed = [k for k, v in data["gates"].items() if not v["pass"]]
+    if failed:  # gates are on the recommended design; other designs outside ±10% are reported in the summary, not gated
+        print("GATE FAILED: " + "; ".join(failed), file=sys.stderr)
+        return 1
     return 0
 
 

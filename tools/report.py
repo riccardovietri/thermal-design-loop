@@ -266,10 +266,15 @@ def write_report(study: dict, out: Path) -> Path:
     stats, conf, ratios = study["parity"], study["confidence"], study["ratios"]
     d = rec_s.design
     fmt_req = lambda v: f"{v*1e3:g} mK/W" if v is not None else "none set"
-    lines = [
-        f"# Cold-plate design study: {study['name']}",
-        "",
-        f"**Recommended design:** {d.w_ch_m*1e3:.2f} mm channels, {d.t_fin_m*1e3:.2f} mm fins, {d.h_fin_m*1e3:.2f} mm tall "
+    failed, excluded = study.get("failed_checks", []), study.get("excluded", [])
+    lines = [f"# Cold-plate design study: {study['name']}", ""]
+    if failed:  # issue #21: a failed check blocks the recommendation
+        lines += [f"**Confidence checks failed: {'; '.join(failed)}.** This study does not make a recommendation. The design "
+                  "below is the one the rule would pick from the designs that passed their own checks; it is provisional and must "
+                  "not be used until the failures are resolved. See \"Confidence checks\""
+                  + (" and \"Excluded designs\"" if excluded else "") + ".", ""]
+    lines += [
+        f"**{'Provisional design (not recommended)' if failed else 'Recommended design'}:** {d.w_ch_m*1e3:.2f} mm channels, {d.t_fin_m*1e3:.2f} mm fins, {d.h_fin_m*1e3:.2f} mm tall "
         f"({rec_c.n_channels} channels) at {d.flow_lpm:.1f} LPM (rated flow). CFD gives R_th = {rec_c.r_th_k_per_w*1e3:.1f} mK/W at "
         f"ΔP = {rec_c.dp_pa/1e3:.2f} kPa, so the chip interface averages {rec_c.base_avg_temp_c:.1f} °C "
         f"(peak {rec_c.base_max_temp_c:.1f} °C) for {req.heat_load_w:.0f} W and {req.inlet_temp_c:.0f} °C inlet. "
@@ -371,6 +376,10 @@ def write_report(study: dict, out: Path) -> Path:
               "precision partly by construction: the temperature field is close to linear at the chip interface, where the flux "
               "is recovered, and the elements represent that almost exactly. They show each solve is self-consistent, not that "
               "the thermal model is accurate."]
+    if excluded:
+        lines += ["", "## Excluded designs", "", "Solved, but their own run failed a per-run check, so they are not candidates "
+                  "for selection and are left out of the tables and figures above.", "", "| Design | Reason |", "|---|---|"]
+        lines += [f"| `{c.design_id}` | {'; '.join(r)} |" for _, c, r in excluded]
     ms = conf["mesh_study"]
     lines += ["", f"Mesh study on `{ms['design_id']}`:", "", "| Cells across half channel | Unknowns | R_th (mK/W) | ΔP (kPa) |", "|---|---|---|---|"]
     lines += [f"| {r['cells_across_half_channel']} | {r['n_dofs']} | {r['r_th_k_per_w']*1e3:.4f} | {r['dp_pa']/1e3:.4f} |" for r in ms["levels"]]
