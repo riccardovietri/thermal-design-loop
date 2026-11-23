@@ -234,3 +234,34 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
   The earlier formulation on the same design: −36% and +41%. Mesh 8 → 16 cells: h +0.007%, ΔP −0.001%; energy ≤ 0.05%.
 - Selection rule on the corrected values: walk 0.65 → 0.60 → 0.55 → 0.50 → 0.46 → 0.42 / 0.39 / 3.75 mm and stop: the step to
   0.39 / 0.39 / 3.75 returns 0.248 (0.277 fully developed). Not applied; reported for Riccardo.
+
+## 2026-11-23 (Mon) — Level 3 stage one: 3D straight fins in OpenFOAM against Level 1 (issue #10)
+- Toolchain. OpenFOAM v2406 (`opencfd/openfoam-default:2406`, native arm64, 1.9 GB) pulled and ran first time in Docker.
+  FEniCSx 0.9 from conda-forge installed in 60 s with the libmamba solver but would not import until `yaml` was pinned to 0.2.5;
+  a 3D Taylor-Hood Stokes probe with MUMPS took 14.7 s / 1.25 GB at 59 k unknowns and 92.5 s / 3.65 GB at 0.44 M, and had not
+  finished after 20 min at 1.45 M (stopped). Pins need Navier-Stokes with Newton plus conjugate energy on a submesh, so FEniCSx means writing
+  a solver; OpenFOAM is the pick.
+- Model. Half fin + half channel, 2 mm base, adiabatic cover, symmetry both sides, cyclic over one pitch streamwise.
+  `chtMultiRegionSimpleFoam`, two blockMesh regions conformal at the interface. Flow held at the Level 1 mean velocity by
+  `meanVelocityForce` (its gradient is in Pa/m in the compressible solver: 26.7 kPa/m × 60 mm = 1.60 kPa). Energy as linear rise +
+  periodic part, the sink a compiled `scalarCodedSource` normalised to remove exactly the applied heat. Two snags: coded sources
+  refuse to compile as root (run the container as the host user), and the entrypoint changes directory (use absolute paths).
+- Convergence. Cross-stream velocity and pressure residuals stay at O(0.1–1) normalised because the fields are round-off
+  (|u_y| ≈ 1e-12 m/s), so `residualControl` never fires; runs use a fixed count and G4 checks u_x and both energy residuals and the
+  flatness of R_th and ΔP. SIMPLEC with relaxation 0.9 / 1.0 diverged in 14 iterations; plain SIMPLE 0.7 / 0.7 / 0.9 converges
+  linearly (u_x residual 1e-8 after about 500 iterations on the production mesh, 1500 on the fine one).
+- Numbers (six cases in parallel, one core each, 9 min 20 s wall; peak memory 0.54–0.61 GB per container):
+
+| Design | Level 1 R_th / ΔP | 3D coarse (1.1 k cells) | 3D production (8.6 k / 6.5 k) | 3D fine (69 k / 52 k) | Richardson |
+|---|---|---|---|---|---|
+| 0.387 / 0.387 / 3.75 (pick) | 14.049 mK/W / 1599.9 Pa | +0.66% / −2.20% | +0.17% / −0.54% (38 s) | +0.05% / −0.14% (559 s) | +0.01% / −0.00% |
+| 1.000 / 0.444 / 4.00 (widest) | 35.979 mK/W / 181.6 Pa | +1.10% / −1.99% | +0.26% / −0.49% (32 s) | +0.07% / −0.12% (395 s) | +0.02% / −0.00% |
+
+- Gates on the pick: G1 +0.17% / −0.54% (±2%), G2 +0.12% / −0.41% (±2%), G3 interface heat vs applied 9e-9% (1%), G4 residuals
+  ≤ 4.2e-11, R_th and ΔP flat to 4.4e-8% over the last 10%. All pass. Observed order of accuracy 2.0–2.1. f·Re on the fine mesh
+  21.061 against the exact duct series 21.090 (−0.14%), widest 18.211 against 18.233.
+- What it means. The 3D finite-volume solve, built independently of Level 1 (different method, mesh, code, and a third dimension),
+  converges to the Level 1 P2 finite-element numbers to within 0.02%. Level 1's production mesh is the more accurate of the two at
+  the same cost; the 3D production mesh reads 0.2% high on R_th and 0.5% low on ΔP. For a straight channel the periodic 3D solution
+  has no streamwise variation, so this validates the conjugate plumbing (interface coupling, base conduction, adiabatic cover,
+  caloric term, bookkeeping of n, flux and flow), not three-dimensional flow physics; pins are where that starts.

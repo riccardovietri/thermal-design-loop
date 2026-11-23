@@ -1,0 +1,501 @@
+{
+  "image": "opencfd/openfoam-default:2406@sha256:dd5aa20630a55722663bf83ba0cb74870cba130081303e32e3865007fa2aa35a",
+  "solver": "chtMultiRegionSimpleFoam (OpenFOAM v2406)",
+  "level1": "examples/output/gpu_coldplate/results.json",
+  "recommended": "w0387_t0387_h3750_q150",
+  "n_iter": {
+    "0": 1000,
+    "1": 1500,
+    "2": 3000
+  },
+  "mesh_levels": {
+    "0": 1,
+    "1": 2,
+    "2": 4
+  },
+  "gate_limits": {
+    "agreement": 0.02,
+    "mesh": 0.02,
+    "energy": 0.01,
+    "residual": 1e-08,
+    "flat": 0.001
+  },
+  "designs": {
+    "w0387_t0387_h3750_q150": {
+      "design": {
+        "w_ch_m": 0.00038729833462074176,
+        "t_fin_m": 0.0003872983346207417,
+        "h_fin_m": 0.00375,
+        "flow_lpm": 1.5
+      },
+      "level1_cfd": {
+        "r_th_k_per_w": 0.014048739455188577,
+        "dp_pa": 1599.8922253279345,
+        "f_re_fanning": 21.08974954941637,
+        "reynolds": 113.78986968230303,
+        "n_channels": 77
+      },
+      "levels": {
+        "0": {
+          "design_id": "w0387_t0387_h3750_q150",
+          "level": 0,
+          "grid": {
+            "factor": 1,
+            "n_fin": 6,
+            "n_channel": 6,
+            "n_base": 6,
+            "n_fluid_z": 24,
+            "n_x": 3,
+            "lx_m": 0.0007745966692414834,
+            "dx_m": 0.00025819888974716116,
+            "n_cells_fluid": 432,
+            "n_cells_solid": 648
+          },
+          "r_th_k_per_w": 0.014141231781405885,
+          "dp_pa": 1564.76303397,
+          "f_re_fanning": 20.626677202489685,
+          "f_re_exact_duct": 21.089735967501316,
+          "reynolds": 113.78986968230306,
+          "u_bar_m_s": 0.2235488222919144,
+          "flow_cell_m3_s": 1.6233766232e-07,
+          "flow_cell_target_m3_s": 1.6233766233766235e-07,
+          "heat_applied_w": 0.08383080835946789,
+          "heat_into_fluid_w": 0.08383080835431,
+          "heat_recovered_at_base_w": 0.08383080835049,
+          "energy_balance_error": -6.152733877939909e-11,
+          "base_flux_error": -1.0709533260211401e-10,
+          "iterations": 1000,
+          "final_residuals": {
+            "Ux": 3.049449773e-13,
+            "h_fluid": 4.98566235485e-12,
+            "h_solid": 1.11041157182e-11,
+            "p_rgh": 0.694607290087
+          },
+          "flat_last_10pct": {
+            "r_th": 6.363976012835337e-11,
+            "dp": 3.834488282450366e-12
+          },
+          "mesh_quality": {
+            "fluid": {
+              "cells": 432.0,
+              "max_non_orthogonality": 0.0,
+              "max_skewness": 6.36115937965e-14,
+              "max_aspect_ratio": 16.3810568916,
+              "mesh_ok": true
+            },
+            "solid": {
+              "cells": 648.0,
+              "max_non_orthogonality": 0.0,
+              "max_skewness": 4.09270399597e-14,
+              "max_aspect_ratio": 34.3682585328,
+              "mesh_ok": true
+            }
+          },
+          "seconds": 12.620520667172968,
+          "peak_memory_mb": 537.5234375
+        },
+        "1": {
+          "design_id": "w0387_t0387_h3750_q150",
+          "level": 1,
+          "grid": {
+            "factor": 2,
+            "n_fin": 12,
+            "n_channel": 12,
+            "n_base": 12,
+            "n_fluid_z": 48,
+            "n_x": 6,
+            "lx_m": 0.0007745966692414834,
+            "dx_m": 0.00012909944487358058,
+            "n_cells_fluid": 3456,
+            "n_cells_solid": 5184
+          },
+          "r_th_k_per_w": 0.014072184559805898,
+          "dp_pa": 1591.174851276,
+          "f_re_fanning": 20.97483728684431,
+          "f_re_exact_duct": 21.089735967501316,
+          "reynolds": 113.78986968230306,
+          "u_bar_m_s": 0.2235488222919144,
+          "flow_cell_m3_s": 1.6233766232e-07,
+          "flow_cell_target_m3_s": 1.6233766233766235e-07,
+          "heat_applied_w": 0.08383080835946789,
+          "heat_into_fluid_w": 0.08383080835323,
+          "heat_recovered_at_base_w": 0.08383080835049,
+          "energy_balance_error": -7.441058880175433e-11,
+          "base_flux_error": -1.0709533260211401e-10,
+          "iterations": 1500,
+          "final_residuals": {
+            "Ux": 4.18556523816e-13,
+            "h_fluid": 1.89719388097e-12,
+            "h_solid": 2.15030382109e-11,
+            "p_rgh": 0.646467706286
+          },
+          "flat_last_10pct": {
+            "r_th": 4.264011366217346e-11,
+            "dp": 3.770872503139344e-12
+          },
+          "mesh_quality": {
+            "fluid": {
+              "cells": 3456.0,
+              "max_non_orthogonality": 0.0,
+              "max_skewness": 1.05554269628e-13,
+              "max_aspect_ratio": 16.3264723331,
+              "mesh_ok": true
+            },
+            "solid": {
+              "cells": 5184.0,
+              "max_non_orthogonality": 0.0,
+              "max_skewness": 1.34272689967e-13,
+              "max_aspect_ratio": 34.5759590187,
+              "mesh_ok": true
+            }
+          },
+          "seconds": 38.20010145800188,
+          "peak_memory_mb": 545.109375
+        },
+        "2": {
+          "design_id": "w0387_t0387_h3750_q150",
+          "level": 2,
+          "grid": {
+            "factor": 4,
+            "n_fin": 24,
+            "n_channel": 24,
+            "n_base": 24,
+            "n_fluid_z": 96,
+            "n_x": 12,
+            "lx_m": 0.0007745966692414834,
+            "dx_m": 6.454972243679029e-05,
+            "n_cells_fluid": 27648,
+            "n_cells_solid": 41472
+          },
+          "r_th_k_per_w": 0.014055733915605892,
+          "dp_pa": 1597.7265409499998,
+          "f_re_fanning": 21.06120153823745,
+          "f_re_exact_duct": 21.089735967501316,
+          "reynolds": 113.78986968230306,
+          "u_bar_m_s": 0.2235488222919144,
+          "flow_cell_m3_s": 1.6233766232e-07,
+          "flow_cell_target_m3_s": 1.6233766233766235e-07,
+          "heat_applied_w": 0.08383080835946789,
+          "heat_into_fluid_w": 0.08383080835223,
+          "heat_recovered_at_base_w": 0.08383080835049,
+          "energy_balance_error": -8.633926906753686e-11,
+          "base_flux_error": -1.0709533260211401e-10,
+          "iterations": 3000,
+          "final_residuals": {
+            "Ux": 2.99389631921e-12,
+            "h_fluid": 5.74404206761e-12,
+            "h_solid": 4.17304178145e-11,
+            "p_rgh": 0.725011039479
+          },
+          "flat_last_10pct": {
+            "r_th": 4.410989351555372e-10,
+            "dp": 6.384093254041545e-11
+          },
+          "mesh_quality": {
+            "fluid": {
+              "cells": 27648.0,
+              "max_non_orthogonality": 0.0,
+              "max_skewness": 2.63438988292e-13,
+              "max_aspect_ratio": 16.3065422008,
+              "mesh_ok": true
+            },
+            "solid": {
+              "cells": 41472.0,
+              "max_non_orthogonality": 0.0,
+              "max_skewness": 6.19720717615e-11,
+              "max_aspect_ratio": 34.6679620884,
+              "mesh_ok": true
+            }
+          },
+          "seconds": 558.9642434171401,
+          "peak_memory_mb": 604.93359375
+        }
+      },
+      "gates": {
+        "G1 R_th vs Level 1": {
+          "value": "+0.17%",
+          "limit": "\u00b12%",
+          "pass": true
+        },
+        "G1 \u0394P vs Level 1": {
+          "value": "-0.54%",
+          "limit": "\u00b12%",
+          "pass": true
+        },
+        "G2 R_th production vs fine": {
+          "value": "+0.12%",
+          "limit": "\u00b12%",
+          "pass": true
+        },
+        "G2 \u0394P production vs fine": {
+          "value": "-0.41%",
+          "limit": "\u00b12%",
+          "pass": true
+        },
+        "G3 energy balance: heat into the coolant across the interface vs applied": {
+          "value": "8.6e-09%",
+          "limit": "1%",
+          "pass": true
+        },
+        "G4 final initial residual (Ux, h fluid, h solid)": {
+          "value": "4.2e-11",
+          "limit": "< 1e-8",
+          "pass": true
+        },
+        "G4 R_th and \u0394P flat over the last 10% of iterations": {
+          "value": "4.4e-08%",
+          "limit": "0.1%",
+          "pass": true
+        }
+      },
+      "richardson": {
+        "r_th_k_per_w": {
+          "order": 2.069439282489174,
+          "extrapolated": 0.014050588643651461
+        },
+        "dp_pa": {
+          "order": 2.0112446424771377,
+          "extrapolated": 1599.8878884689973
+        }
+      }
+    },
+    "w1000_t0444_h4000_q150": {
+      "design": {
+        "w_ch_m": 0.001,
+        "t_fin_m": 0.000443502685462079,
+        "h_fin_m": 0.004,
+        "flow_lpm": 1.5
+      },
+      "level1_cfd": {
+        "r_th_k_per_w": 0.0359792396006611,
+        "dp_pa": 181.6086003201116,
+        "f_re_fanning": 18.232792416415613,
+        "reynolds": 176.8305519593384,
+        "n_channels": 41
+      },
+      "levels": {
+        "0": {
+          "design_id": "w1000_t0444_h4000_q150",
+          "level": 0,
+          "grid": {
+            "factor": 1,
+            "n_fin": 3,
+            "n_channel": 6,
+            "n_base": 6,
+            "n_fluid_z": 24,
+            "n_x": 3,
+            "lx_m": 0.001443502685462079,
+            "dx_m": 0.000481167561820693,
+            "n_cells_fluid": 432,
+            "n_cells_solid": 378
+          },
+          "r_th_k_per_w": 0.03637383865580589,
+          "dp_pa": 177.98626076099998,
+          "f_re_fanning": 17.869123707298105,
+          "f_re_exact_duct": 18.232776830709973,
+          "reynolds": 176.8305519593384,
+          "u_bar_m_s": 0.1524390243902439,
+          "flow_cell_m3_s": 3.04878048683e-07,
+          "flow_cell_target_m3_s": 3.048780487804878e-07,
+          "heat_applied_w": 0.29339485476871524,
+          "heat_into_fluid_w": 0.2933948546911,
+          "heat_recovered_at_base_w": 0.2933948546622,
+          "energy_balance_error": -2.64541943906238e-10,
+          "base_flux_error": -3.630440392754508e-10,
+          "iterations": 1000,
+          "final_residuals": {
+            "Ux": 1.03117031807e-12,
+            "h_fluid": 1.15321143618e-11,
+            "h_solid": 1.95765031317e-11,
+            "p_rgh": 0.716731628667
+          },
+          "flat_last_10pct": {
+            "r_th": 2.4741431126074076e-11,
+            "dp": 1.685507289295174e-11
+          },
+          "mesh_quality": {
+            "fluid": {
+              "cells": 432.0,
+              "max_non_orthogonality": 0.0,
+              "max_skewness": 4.13118293049e-14,
+              "max_aspect_ratio": 10.7194348137,
+              "mesh_ok": true
+            },
+            "solid": {
+              "cells": 378.0,
+              "max_non_orthogonality": 0.0,
+              "max_skewness": 4.56856193994e-14,
+              "max_aspect_ratio": 13.3107692931,
+              "mesh_ok": true
+            }
+          },
+          "seconds": 12.266481208149344,
+          "peak_memory_mb": 537.22265625
+        },
+        "1": {
+          "design_id": "w1000_t0444_h4000_q150",
+          "level": 1,
+          "grid": {
+            "factor": 2,
+            "n_fin": 6,
+            "n_channel": 12,
+            "n_base": 12,
+            "n_fluid_z": 48,
+            "n_x": 6,
+            "lx_m": 0.001443502685462079,
+            "dx_m": 0.0002405837809103465,
+            "n_cells_fluid": 3456,
+            "n_cells_solid": 3024
+          },
+          "r_th_k_per_w": 0.036073048314005894,
+          "dp_pa": 180.7197724344,
+          "f_re_fanning": 18.143557576735468,
+          "f_re_exact_duct": 18.232776830709973,
+          "reynolds": 176.8305519593384,
+          "u_bar_m_s": 0.1524390243902439,
+          "flow_cell_m3_s": 3.04878048683e-07,
+          "flow_cell_target_m3_s": 3.048780487804878e-07,
+          "heat_applied_w": 0.29339485476871524,
+          "heat_into_fluid_w": 0.2933948546825,
+          "heat_recovered_at_base_w": 0.2933948546622,
+          "energy_balance_error": -2.9385405220239136e-10,
+          "base_flux_error": -3.630440392754508e-10,
+          "iterations": 1500,
+          "final_residuals": {
+            "Ux": 9.24823582194e-13,
+            "h_fluid": 4.84039974904e-12,
+            "h_solid": 1.76368932813e-11,
+            "p_rgh": 0.69085155034
+          },
+          "flat_last_10pct": {
+            "r_th": 3.077084143043862e-10,
+            "dp": 1.3280043731356272e-11
+          },
+          "mesh_quality": {
+            "fluid": {
+              "cells": 3456.0,
+              "max_non_orthogonality": 0.0,
+              "max_skewness": 1.12435098757e-13,
+              "max_aspect_ratio": 10.6058500975,
+              "mesh_ok": true
+            },
+            "solid": {
+              "cells": 3024.0,
+              "max_non_orthogonality": 0.0,
+              "max_skewness": 8.53996617481e-14,
+              "max_aspect_ratio": 13.3912113457,
+              "mesh_ok": true
+            }
+          },
+          "seconds": 32.243982792366296,
+          "peak_memory_mb": 543.69140625
+        },
+        "2": {
+          "design_id": "w1000_t0444_h4000_q150",
+          "level": 2,
+          "grid": {
+            "factor": 4,
+            "n_fin": 12,
+            "n_channel": 24,
+            "n_base": 24,
+            "n_fluid_z": 96,
+            "n_x": 12,
+            "lx_m": 0.001443502685462079,
+            "dx_m": 0.00012029189045517325,
+            "n_cells_fluid": 27648,
+            "n_cells_solid": 24192
+          },
+          "r_th_k_per_w": 0.03600485458220593,
+          "dp_pa": 181.3888522836,
+          "f_re_fanning": 18.21073057393366,
+          "f_re_exact_duct": 18.232776830709973,
+          "reynolds": 176.8305519593384,
+          "u_bar_m_s": 0.1524390243902439,
+          "flow_cell_m3_s": 3.04878048683e-07,
+          "flow_cell_target_m3_s": 3.048780487804878e-07,
+          "heat_applied_w": 0.29339485476871524,
+          "heat_into_fluid_w": 0.2933948545072,
+          "heat_recovered_at_base_w": 0.2933948546622,
+          "energy_balance_error": -8.91342333275702e-10,
+          "base_flux_error": -3.630440392754508e-10,
+          "iterations": 3000,
+          "final_residuals": {
+            "Ux": 1.02047970018e-11,
+            "h_fluid": 7.60925174802e-11,
+            "h_solid": 8.19170959815e-11,
+            "p_rgh": 0.712416751121
+          },
+          "flat_last_10pct": {
+            "r_th": 1.7119914597074626e-08,
+            "dp": 7.77335529278389e-10
+          },
+          "mesh_quality": {
+            "fluid": {
+              "cells": 27648.0,
+              "max_non_orthogonality": 0.0,
+              "max_skewness": 2.55647804572e-13,
+              "max_aspect_ratio": 10.5565673188,
+              "mesh_ok": true
+            },
+            "solid": {
+              "cells": 24192.0,
+              "max_non_orthogonality": 0.0,
+              "max_skewness": 2.10685160783e-13,
+              "max_aspect_ratio": 13.4268439814,
+              "mesh_ok": true
+            }
+          },
+          "seconds": 395.35242333309725,
+          "peak_memory_mb": 593.0078125
+        }
+      },
+      "gates": {
+        "G1 R_th vs Level 1": {
+          "value": "+0.26%",
+          "limit": "\u00b12%",
+          "pass": true
+        },
+        "G1 \u0394P vs Level 1": {
+          "value": "-0.49%",
+          "limit": "\u00b12%",
+          "pass": true
+        },
+        "G2 R_th production vs fine": {
+          "value": "+0.19%",
+          "limit": "\u00b12%",
+          "pass": true
+        },
+        "G2 \u0394P production vs fine": {
+          "value": "-0.37%",
+          "limit": "\u00b12%",
+          "pass": true
+        },
+        "G3 energy balance: heat into the coolant across the interface vs applied": {
+          "value": "8.9e-08%",
+          "limit": "1%",
+          "pass": true
+        },
+        "G4 final initial residual (Ux, h fluid, h solid)": {
+          "value": "8.2e-11",
+          "limit": "< 1e-8",
+          "pass": true
+        },
+        "G4 R_th and \u0394P flat over the last 10% of iterations": {
+          "value": "1.7e-06%",
+          "limit": "0.1%",
+          "pass": true
+        }
+      },
+      "richardson": {
+        "r_th_k_per_w": {
+          "order": 2.141047202196794,
+          "extrapolated": 0.035984861233821344
+        },
+        "dp_pa": {
+          "order": 2.030505236456441,
+          "extrapolated": 181.6057002508507
+        }
+      }
+    }
+  }
+}
