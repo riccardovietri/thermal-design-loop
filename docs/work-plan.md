@@ -78,6 +78,15 @@ residuals ≤ 4e-11, monitors flat to 4e-8%. Widest channel (1.00 / 0.44 / 4.0 m
    stable. If it sheds, report time-averaged values and say so.
 4. Mesh independence and energy balance for at least one pin case.
 
+**Status (2026-11-23): stage two run; steady results in, mesh gate and steadiness check running detached.** `level3/pins.py`,
+`level3/pins_study.py`, results in `examples/output/level3_pins_vs_straight/`. P0 (pick as a slip slab, the plan-view problem):
+dp/dx +0.20%, h +0.92% against the plan view, refinement −0.06% / +0.52% (gate passed). Conjugate production (about 0.3 M cells,
+5000 iterations, residuals ≤ 7e-10, flat to 2e-7, energy 8e-10): 0.9 × 0.7 mm 14.68 mK/W at 1.480 kPa, pick 0.8 × 0.9 mm
+15.24 mK/W at 1.518 kPa, 0.8 × 0.7 mm 13.45 mK/W at 1.993 kPa; R_th 13–21% and ΔP 7–8% above the plan view (straight fins about
+6% and 6–7%). Against straight fins at equal ΔP: +4.1%, +8.2%, −1.6% (plan view −2.6%, −4.1%, −5.8%). The pin lead does not
+survive; at about 2 kPa it is a tie within the straight reference's uncertainty. Pending: mesh gate (2× in every direction) and the
+full-pitch transient (`uv run python -m level3.status`).
+
 **Deliver.** `level3/` code with a validation script; results under `examples/output/level3_pins_vs_straight/`; one figure (R_th against
 ΔP for both, 3D and plan view) in the shared plot style; a table at two or three equal-ΔP levels; a paragraph answering the question;
 `ASSUMPTIONS.md`, `DECISIONS.md`, `README.md` and `PROGRESS.md` updated. CI should run the validation only if it is fast; otherwise
