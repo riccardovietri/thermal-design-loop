@@ -1113,5 +1113,24 @@
       "difference_pct": -1.5693893624906585
     }
   ],
-  "long_jobs": {}
+  "long_jobs": {
+    "mesh_gate": {
+      "what": "pick at 2x the production mesh in every direction (steady)",
+      "state": "running",
+      "latest": {
+        "time_or_iteration": "17",
+        "dp_pa": 20180.756,
+        "r_th_mk_per_w": 9.96639
+      }
+    },
+    "transient": {
+      "what": "pick on the full lateral pitch (periodic sides), steady start, perturbed, then transient",
+      "state": "running",
+      "latest": {
+        "time_or_iteration": "624",
+        "dp_pa": 1519.939,
+        "r_th_mk_per_w": 14.96059
+      }
+    }
+  }
 }

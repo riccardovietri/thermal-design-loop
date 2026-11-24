@@ -77,5 +77,5 @@ The pick in 3D. Top: speed on the mid-height plane (z = t_b + H / 2), the comput
 
 ## Long jobs (detached)
 
-Not started.
-
+- `mesh_gate`: pick at 2x the production mesh in every direction (steady). State: **running**. `uv run python -m level3.status` shows progress; `--summary-only` folds the result in when it finishes.
+- `transient`: pick on the full lateral pitch (periodic sides), steady start, perturbed, then transient. State: **running**. `uv run python -m level3.status` shows progress; `--summary-only` folds the result in when it finishes.

@@ -292,7 +292,8 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
   plan view −2.6%, −4.1%, −5.8%. The pick is dominated in 3D by its 0.9 × 0.7 mm neighbour. Near 2 kPa the straight reference is
   a chord between Level 1 grid designs, and the 0.40 / 0.40 / 4.0 mm point shows such a chord can sit 3% above a real design, so
   −1.6% there is a tie.
-- Detached: mesh gate (pick at factor 4, 2.6 M cells, five processes, started from the production solution by `mapFields`) and
+- Detached: mesh gate (pick at factor 4, 2.6 M cells, five processes, 10000 iterations from a uniform start, about 3.5 s per
+  iteration, so roughly ten hours; mapping the production solution with `mapFields` segfaulted on T at the coupled patches) and
   full-pitch transient (0.68 M cells, steady start, a lateral velocity kick in pin A's wake, then `chtMultiRegionFoam` to 0.15 s,
   second-order backward time stepping, Co ≤ 1.5). Two snags found by smoke tests on the coarse mesh: a `#` comment in controlDict is read as a
   directive, and `0/uniform/time` carried the steady deltaT of 1 s into the transient start.

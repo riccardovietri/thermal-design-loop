@@ -255,15 +255,14 @@ def step_steady(pv: dict, n_procs: int = None) -> None:
 def long_jobs(pv: dict) -> dict:
     pick = next(r for r in pv["designs"] if r["design_id"] == pv["summary"]["recommended"]["design_id"])
     return {"mesh_gate": {"params_mm": pick["params_mm"], "factor": FINE, "n_procs": 5,
-                          "source": str(case_dir(pick["design_id"], "conj", PRODUCTION, PROD_PROCS)),
-                          "what": "pick at 2x the production mesh in every direction (steady, started from the production solution)"},
+                          "what": "pick at 2x the production mesh in every direction (steady)"},
             "transient": {"params_mm": pick["params_mm"], "factor": PRODUCTION, "n_procs": 5,
                           "what": "pick on the full lateral pitch (periodic sides), steady start, perturbed, then transient"}}
 
 
 # about 15 shedding periods if the wake sheds at St 0.2 on d and the gap velocity, and 10 passes of the flow through the period
 TRANSIENT = {"steady_iter": 3000, "end_time": 0.15, "max_co": 1.5, "write_interval": 0.01, "dt0": 1e-6}
-MESH_GATE_ITER = 5000  # started from the production solution mapped onto the finer mesh
+MESH_GATE_ITER = 10000  # uniform start; production needed about 4000 to reach 1e-8 on a mesh 2x coarser
 
 
 def _transient_allrun(regions, n_procs, steady_iter) -> str:
@@ -290,14 +289,9 @@ def prepare_long(name: str, spec: dict, case: Path | None = None, transient: dic
     case = Path(case or LONG / name)
     transient = transient or TRANSIENT
     if name == "mesh_gate":
+        # uniform start, as production: mapFields from the production case segfaults on T (coupled patches) between
+        # different meshes, so the solution is not mapped
         prepare(spec["params_mm"], "conj", spec["factor"], MESH_GATE_ITER, n_procs=spec["n_procs"], case=case)
-        # start from the converged production solution (mapped, same geometry); fall back to the uniform start
-        mp = ("mapFields /src -consistent -sourceTime latestTime -sourceRegion {r} -targetRegion {r} > log.mapFields.{r} 2>&1")
-        allrun = (case / "Allrun").read_text().replace(
-            "rm -rf 0 && cp -r 0.orig 0\n",
-            "rm -rf 0 && cp -r 0.orig 0\n(" + " && ".join(mp.format(r=r) for r in ("fluid", "solid"))
-            + " && touch mapped) || (rm -rf 0 && cp -r 0.orig 0)\n")
-        (case / "Allrun").write_text(allrun)
         return case
     p = spec["params_mm"]
     n_steady = transient["steady_iter"]
@@ -337,10 +331,14 @@ regions
     return case
 
 
-def launch_long(pv: dict) -> None:
+def launch_long(pv: dict, names: list[str] | None = None) -> None:
+    """Start the detached jobs (all, or those named); jobs.json keeps entries of jobs not restarted."""
     LONG.mkdir(parents=True, exist_ok=True)
-    jobs = {}
+    jf = LONG / "jobs.json"
+    jobs = json.loads(jf.read_text()) if jf.exists() else {}
     for name, spec in long_jobs(pv).items():
+        if names and name not in names:
+            continue
         case = LONG / name
         if not ((case / "Allrun").exists() and (case / "mesh.msh").exists()) or (case / "log.solver").exists() \
                 or (case / "log.solver.steady").exists():
@@ -941,8 +939,8 @@ def write_summary(data: dict, out: Path, fields_png: bool) -> Path:
                      f"against {r['uy_wake_max_abs_first_step']:.2e} m/s just after the perturbation.")
         if "error" in j:
             line += f" Post-processing error: {j['error']}."
-        if j.get("latest"):
-            line += f" Latest: {j['latest']}."
+        if j["state"] == "running":
+            line += " `uv run python -m level3.status` shows progress; `--summary-only` folds the result in when it finishes."
         a.append(line)
     a.append("")
     out.write_text("\n".join(a))
@@ -968,7 +966,7 @@ def main(argv=None) -> int:
     ap.add_argument("--p0", action="store_true")
     ap.add_argument("--parallel-check", action="store_true")
     ap.add_argument("--steady", action="store_true")
-    ap.add_argument("--launch-long", action="store_true")
+    ap.add_argument("--launch-long", nargs="*", metavar="JOB", help="start detached jobs: mesh_gate, transient (default both)")
     ap.add_argument("--prepare-long", action="store_true", help="write the long-job cases without starting them")
     ap.add_argument("--summary-only", action="store_true")
     ap.add_argument("--finish", nargs="+", type=Path, help="analyse finished case directories (driver was not running)")
@@ -988,8 +986,8 @@ def main(argv=None) -> int:
         for name, spec in long_jobs(pv).items():
             print(prepare_long(name, spec), flush=True)
         return 0
-    if a.launch_long:
-        launch_long(pv)
+    if a.launch_long is not None:
+        launch_long(pv, a.launch_long or None)
         return 0
     data = summarise()
     if "p0" in data and not data["p0"]["pass"]:
