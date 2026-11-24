@@ -77,5 +77,5 @@ The pick in 3D. Top: speed on the mid-height plane (z = t_b + H / 2), the comput
 
 ## Long jobs (detached)
 
-- `mesh_gate`: pick at 2x the production mesh in every direction (steady). State: **running**. `uv run python -m level3.status` shows progress; `--summary-only` folds the result in when it finishes.
-- `transient`: pick on the full lateral pitch (periodic sides), steady start, perturbed, then transient. State: **running**. `uv run python -m level3.status` shows progress; `--summary-only` folds the result in when it finishes.
+- `mesh_gate`: pick at 2x the production mesh in every direction (steady). State: **finished**. Fine mesh (2,611,728 cells): R_th 15.223 mK/W, ΔP 1.521 kPa; production against fine +0.15% and -0.19% (limit ±2%: pass).
+- `transient`: pick on the full lateral pitch (periodic sides), steady start, perturbed, then transient. State: **finished**. Ran to t = 0.150 s; over the last half, R_th 15.225 mK/W (range 7.02e-04 mK/W), ΔP 1.519 kPa (range 6.76e-03 Pa); largest |u_y| on the wake centreline 8.95e-04 m/s against 2.01e-02 m/s just after the perturbation.
