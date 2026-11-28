@@ -37,6 +37,14 @@ Instructions for any coding agent (or person) picking this project up cold.
   `runs/level3/<design_id>/level<k>/` and `examples/output/level3_straight_validation/`; `--design <id> --levels 1 2` selects cases,
   `--summary-only` rewrites the summary from `runs/level3/`. `uv run python validation/level3_straight.py` checks gates G1–G4 on
   the committed results in seconds (`--run` re-solves first).
+- Level 3 stage two (circular pins against straight fins, same Docker image): `uv run python -m level3.pins_study --p0`
+  (plan-view cross-check, about 2 min), `--parallel-check` (coarse pick serial against four processes, about 5 min),
+  `--steady` (the three pin designs on three processes each plus the plan-view straight pick, about 70 min),
+  `--summary-only` (rewrite `examples/output/level3_pins_vs_straight/` from `runs/level3/`, seconds), `--launch-long`
+  (detached mesh-gate and transient jobs in containers `l3pins_mesh_gate` and `l3pins_transient`, kept awake with
+  `caffeinate -i`; hours). `uv run python -m level3.status` says whether each detached job is running, finished or failed
+  and prints its latest R_th and ΔP; `--summary-only` folds finished jobs into the summary.
+  `uv run python validation/level3_pins.py` checks the recorded stage-two gates in seconds.
 - Figures share one style, `tools/plotstyle.py` (8 in wide, 200 dpi, text ≥ 10 pt so it stays legible at 700 px). Titles are one
   short line; conditions and caveats go in the markdown caption next to the figure.
 - `uv run python -m level2.sweep` — slot-jet mesh study, the 18-case sweep at rated flow and the comparison plot with fins, 10–20 minutes.

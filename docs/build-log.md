@@ -265,3 +265,35 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
   the same cost; the 3D production mesh reads 0.2% high on R_th and 0.5% low on ΔP. For a straight channel the periodic 3D solution
   has no streamwise variation, so this validates the conjugate plumbing (interface coupling, base conduction, adiabatic cover,
   caloric term, bookkeeping of n, flux and flow), not three-dimensional flow physics; pins are where that starts.
+
+## 2026-11-23 (Mon, evening) — Level 3 stage two: circular pins against straight fins in 3D (issue #10)
+- Mesh. gmsh in plan (Frontal-Delaunay for quads, recombined: all quadrilaterals), extruded in z through the base and the fin
+  layer, `gmshToFoam` → `splitMeshRegions -cellZonesOnly` → `createPatch` for cyclic and symmetry patches. Conformal interface,
+  all hexahedra, non-orthogonality ≤ 31°, skewness ≤ 0.57. Cell x ∈ [−S_L/2, 3S_L/2] so no pin is cut by a cyclic plane.
+  Production (factor 2): wall size gap/64, core gap/24, 48 layers over the pins, 8 in the base; 0.28–0.33 M cells.
+- P0 (the pick as a 0.05 mm slip slab, fluid only, flux on the pin walls = the plan-view problem). Plan factor 1 / 2 / 4:
+  h 11768 / 11263 / 11205 W/m²K, dp/dx 23772 / 23721 / 23736 Pa/m; plan view 11159 and 23675. Production +0.92% and +0.20%,
+  2× finer +0.52% and −0.06%. Gate (3%, 2%) passed.
+- Coarse conjugate pick (43 k cells) serial against four processes: 15.2288 mK/W and 1512.57 Pa both, to 4e-11 relative;
+  749 s against 205 s. Parallel trusted.
+- First production attempt stalled: three cases on two processes each, the solid energy equation hit 50 GAMG cycles every outer
+  iteration (base cells of aspect ratio up to 170) and the containers ran at a quarter of their CPU, 4 s per iteration. Restarted
+  with three processes each and the solid solve at relTol 0.1: 0.8 s per iteration, 5000 iterations in 65–71 min, peak 0.9–1.0 GB.
+  Lesson: never oversubscribe the Docker VM with MPI jobs; a P0 rerun alongside slowed production two- to three-fold.
+- Results (3D vs plan view): 0.9 × 0.7 mm 14.68 vs 12.91 mK/W (×1.137), 1.480 vs 1.370 kPa (×1.080); pick 0.8 × 0.9 mm
+  15.24 vs 12.65 (×1.205), 1.518 vs 1.420 (×1.069); 0.8 × 0.7 mm 13.45 vs 11.88 (×1.132), 1.993 vs 1.865 (×1.069). Straight
+  fins: plan-view pick 0.40 / 0.40 / 4.0 mm in 3D 14.14 mK/W at 1.387 kPa (×1.058, ×1.061; 2× finer +0.12%, −0.41%).
+  Residuals ≤ 7e-10, R_th and ΔP flat to 2e-7, energy balance 8e-10. Coarse against production: −0.11% R_th, −0.36% ΔP.
+- Why the pins lose more than straight fins: the floor. The plan-view network gives the floor (83% of the plan area for the pick)
+  the pins' h, so 15–21% of the heat goes through it; in 3D the floor carries 3.7–5.4% (wall heat flux split by face orientation).
+  The pin temperature falls to about the bulk temperature by mid-height (fin efficiency was already 0.46 in the plan view), so
+  most pin heat leaves near the root, in the slow flow next to the floor.
+- Equal ΔP against the 3D straight reference (Level 1 CFD designs plus the two 3D straight points): +4.1%, +8.2%, −1.6%;
+  plan view −2.6%, −4.1%, −5.8%. The pick is dominated in 3D by its 0.9 × 0.7 mm neighbour. Near 2 kPa the straight reference is
+  a chord between Level 1 grid designs, and the 0.40 / 0.40 / 4.0 mm point shows such a chord can sit 3% above a real design, so
+  −1.6% there is a tie.
+- Detached: mesh gate (pick at factor 4, 2.6 M cells, five processes, 10000 iterations from a uniform start, about 3.5 s per
+  iteration, so roughly ten hours; mapping the production solution with `mapFields` segfaulted on T at the coupled patches) and
+  full-pitch transient (0.68 M cells, steady start, a lateral velocity kick in pin A's wake, then `chtMultiRegionFoam` to 0.15 s,
+  second-order backward time stepping, Co ≤ 1.5). Two snags found by smoke tests on the coarse mesh: a `#` comment in controlDict is read as a
+  directive, and `0/uniform/time` carried the steady deltaT of 1 s into the transient start.
