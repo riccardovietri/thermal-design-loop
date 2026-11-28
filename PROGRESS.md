@@ -1,6 +1,27 @@
 # PROGRESS
 
 ## Resume here
+Issue #10 stage two (`feat/level3-pins`, pull request open against `feat/level3-straight-validation`, not merged): circular pins
+in 3D. The pin lead of the plan view does not survive: against straight fins at equal ΔP the three pin designs are +4.1%, +8.2%
+(the cross-topology pick, now dominated by its 0.9 × 0.7 mm neighbour) and −1.6% (a tie within the straight reference's
+uncertainty at 2 kPa), against −2.6%, −4.1%, −5.8% in the plan view. Pins read R_th 13–21% above the plan view, mostly because the
+plan-view network gives the floor the pins' h (V4). Details: `examples/output/level3_pins_vs_straight/summary.md`.
+Two detached jobs were started from the worktree
+`/Users/riccardovietri/Github/thermal-design-loop/.claude/worktrees/agent-a3e4be5c5d6b60347` (their files are under its
+`runs/level3/long/`; run these commands from that directory, or copy `runs/level3/` across first):
+- check: `uv run python -m level3.status` (running / finished / failed, latest R_th, ΔP, wake u_y); `docker ps -a --filter name=l3pins_`.
+- post-process when finished: `uv run python -m level3.pins_study --summary-only`, then `uv run python validation/level3_pins.py`
+  (fails if the mesh gate fails), and commit `examples/output/level3_pins_vs_straight/`.
+- if a job failed: its logs are in `runs/level3/long/<job>/log.*`; `uv run python -m level3.pins_study --launch-long` restarts both.
+Riccardo's call needed: whether the case study should say the pin advantage vanished in 3D (proposed text in the pull request).
+
+Issue #10 stage one (`feat/level3-straight-validation`, pull request open, not merged): OpenFOAM v2406 in Docker,
+streamwise-periodic 3D conjugate straight-fin cell. Gate passes on the recommended design: R_th 14.072 vs 14.049 mK/W (+0.17%),
+ΔP 1591.2 vs 1599.9 Pa (−0.54%), 2× refinement +0.12% / −0.41%, energy balance 9e-9%, residuals ≤ 4e-11; widest channel +0.26% /
+−0.49%. Richardson-extrapolated 3D values sit within 0.02% of Level 1 on both designs, an independent benchmark of the production
+cross-section solver (issue #24, not closed by this). Next on #10: stage two (pins) needs Riccardo's go-ahead; see the pull request
+for what it needs and the run-time estimate. Issue #21 (failed checks block) is pull request #28, open.
+
 SPEC Amendment 4 (#17) is merged; Riccardo accepted the new Level 1 pick. README and the case study (`docs/index.html`, `docs/img/`)
 match the committed results as of `docs/case-study-update`. Headline: Level 1 recommends 0.39 / 0.39 / 3.75 mm straight fins
 (14.05 mK/W at 1.60 kPa, 6.3% margin on the 15 mK/W objective; 4,485 designs screened, 18 solved, 1D vs CFD 1.0% mean, 2.9% max);

@@ -234,3 +234,66 @@ what was tried, what the numbers were, what surprised us. Keep figures and comma
   The earlier formulation on the same design: −36% and +41%. Mesh 8 → 16 cells: h +0.007%, ΔP −0.001%; energy ≤ 0.05%.
 - Selection rule on the corrected values: walk 0.65 → 0.60 → 0.55 → 0.50 → 0.46 → 0.42 / 0.39 / 3.75 mm and stop: the step to
   0.39 / 0.39 / 3.75 returns 0.248 (0.277 fully developed). Not applied; reported for Riccardo.
+
+## 2026-11-23 (Mon) — Level 3 stage one: 3D straight fins in OpenFOAM against Level 1 (issue #10)
+- Toolchain. OpenFOAM v2406 (`opencfd/openfoam-default:2406`, native arm64, 1.9 GB) pulled and ran first time in Docker.
+  FEniCSx 0.9 from conda-forge installed in 60 s with the libmamba solver but would not import until `yaml` was pinned to 0.2.5;
+  a 3D Taylor-Hood Stokes probe with MUMPS took 14.7 s / 1.25 GB at 59 k unknowns and 92.5 s / 3.65 GB at 0.44 M, and had not
+  finished after 20 min at 1.45 M (stopped). Pins need Navier-Stokes with Newton plus conjugate energy on a submesh, so FEniCSx means writing
+  a solver; OpenFOAM is the pick.
+- Model. Half fin + half channel, 2 mm base, adiabatic cover, symmetry both sides, cyclic over one pitch streamwise.
+  `chtMultiRegionSimpleFoam`, two blockMesh regions conformal at the interface. Flow held at the Level 1 mean velocity by
+  `meanVelocityForce` (its gradient is in Pa/m in the compressible solver: 26.7 kPa/m × 60 mm = 1.60 kPa). Energy as linear rise +
+  periodic part, the sink a compiled `scalarCodedSource` normalised to remove exactly the applied heat. Two snags: coded sources
+  refuse to compile as root (run the container as the host user), and the entrypoint changes directory (use absolute paths).
+- Convergence. Cross-stream velocity and pressure residuals stay at O(0.1–1) normalised because the fields are round-off
+  (|u_y| ≈ 1e-12 m/s), so `residualControl` never fires; runs use a fixed count and G4 checks u_x and both energy residuals and the
+  flatness of R_th and ΔP. SIMPLEC with relaxation 0.9 / 1.0 diverged in 14 iterations; plain SIMPLE 0.7 / 0.7 / 0.9 converges
+  linearly (u_x residual 1e-8 after about 500 iterations on the production mesh, 1500 on the fine one).
+- Numbers (six cases in parallel, one core each, 9 min 20 s wall; peak memory 0.54–0.61 GB per container):
+
+| Design | Level 1 R_th / ΔP | 3D coarse (1.1 k cells) | 3D production (8.6 k / 6.5 k) | 3D fine (69 k / 52 k) | Richardson |
+|---|---|---|---|---|---|
+| 0.387 / 0.387 / 3.75 (pick) | 14.049 mK/W / 1599.9 Pa | +0.66% / −2.20% | +0.17% / −0.54% (38 s) | +0.05% / −0.14% (559 s) | +0.01% / −0.00% |
+| 1.000 / 0.444 / 4.00 (widest) | 35.979 mK/W / 181.6 Pa | +1.10% / −1.99% | +0.26% / −0.49% (32 s) | +0.07% / −0.12% (395 s) | +0.02% / −0.00% |
+
+- Gates on the pick: G1 +0.17% / −0.54% (±2%), G2 +0.12% / −0.41% (±2%), G3 interface heat vs applied 9e-9% (1%), G4 residuals
+  ≤ 4.2e-11, R_th and ΔP flat to 4.4e-8% over the last 10%. All pass. Observed order of accuracy 2.0–2.1. f·Re on the fine mesh
+  21.061 against the exact duct series 21.090 (−0.14%), widest 18.211 against 18.233.
+- What it means. The 3D finite-volume solve, built independently of Level 1 (different method, mesh, code, and a third dimension),
+  converges to the Level 1 P2 finite-element numbers to within 0.02%. Level 1's production mesh is the more accurate of the two at
+  the same cost; the 3D production mesh reads 0.2% high on R_th and 0.5% low on ΔP. For a straight channel the periodic 3D solution
+  has no streamwise variation, so this validates the conjugate plumbing (interface coupling, base conduction, adiabatic cover,
+  caloric term, bookkeeping of n, flux and flow), not three-dimensional flow physics; pins are where that starts.
+
+## 2026-11-23 (Mon, evening) — Level 3 stage two: circular pins against straight fins in 3D (issue #10)
+- Mesh. gmsh in plan (Frontal-Delaunay for quads, recombined: all quadrilaterals), extruded in z through the base and the fin
+  layer, `gmshToFoam` → `splitMeshRegions -cellZonesOnly` → `createPatch` for cyclic and symmetry patches. Conformal interface,
+  all hexahedra, non-orthogonality ≤ 31°, skewness ≤ 0.57. Cell x ∈ [−S_L/2, 3S_L/2] so no pin is cut by a cyclic plane.
+  Production (factor 2): wall size gap/64, core gap/24, 48 layers over the pins, 8 in the base; 0.28–0.33 M cells.
+- P0 (the pick as a 0.05 mm slip slab, fluid only, flux on the pin walls = the plan-view problem). Plan factor 1 / 2 / 4:
+  h 11768 / 11263 / 11205 W/m²K, dp/dx 23772 / 23721 / 23736 Pa/m; plan view 11159 and 23675. Production +0.92% and +0.20%,
+  2× finer +0.52% and −0.06%. Gate (3%, 2%) passed.
+- Coarse conjugate pick (43 k cells) serial against four processes: 15.2288 mK/W and 1512.57 Pa both, to 4e-11 relative;
+  749 s against 205 s. Parallel trusted.
+- First production attempt stalled: three cases on two processes each, the solid energy equation hit 50 GAMG cycles every outer
+  iteration (base cells of aspect ratio up to 170) and the containers ran at a quarter of their CPU, 4 s per iteration. Restarted
+  with three processes each and the solid solve at relTol 0.1: 0.8 s per iteration, 5000 iterations in 65–71 min, peak 0.9–1.0 GB.
+  Lesson: never oversubscribe the Docker VM with MPI jobs; a P0 rerun alongside slowed production two- to three-fold.
+- Results (3D vs plan view): 0.9 × 0.7 mm 14.68 vs 12.91 mK/W (×1.137), 1.480 vs 1.370 kPa (×1.080); pick 0.8 × 0.9 mm
+  15.24 vs 12.65 (×1.205), 1.518 vs 1.420 (×1.069); 0.8 × 0.7 mm 13.45 vs 11.88 (×1.132), 1.993 vs 1.865 (×1.069). Straight
+  fins: plan-view pick 0.40 / 0.40 / 4.0 mm in 3D 14.14 mK/W at 1.387 kPa (×1.058, ×1.061; 2× finer +0.12%, −0.41%).
+  Residuals ≤ 7e-10, R_th and ΔP flat to 2e-7, energy balance 8e-10. Coarse against production: −0.11% R_th, −0.36% ΔP.
+- Why the pins lose more than straight fins: the floor. The plan-view network gives the floor (83% of the plan area for the pick)
+  the pins' h, so 15–21% of the heat goes through it; in 3D the floor carries 3.7–5.4% (wall heat flux split by face orientation).
+  The pin temperature falls to about the bulk temperature by mid-height (fin efficiency was already 0.46 in the plan view), so
+  most pin heat leaves near the root, in the slow flow next to the floor.
+- Equal ΔP against the 3D straight reference (Level 1 CFD designs plus the two 3D straight points): +4.1%, +8.2%, −1.6%;
+  plan view −2.6%, −4.1%, −5.8%. The pick is dominated in 3D by its 0.9 × 0.7 mm neighbour. Near 2 kPa the straight reference is
+  a chord between Level 1 grid designs, and the 0.40 / 0.40 / 4.0 mm point shows such a chord can sit 3% above a real design, so
+  −1.6% there is a tie.
+- Detached: mesh gate (pick at factor 4, 2.6 M cells, five processes, 10000 iterations from a uniform start, about 3.5 s per
+  iteration, so roughly ten hours; mapping the production solution with `mapFields` segfaulted on T at the coupled patches) and
+  full-pitch transient (0.68 M cells, steady start, a lateral velocity kick in pin A's wake, then `chtMultiRegionFoam` to 0.15 s,
+  second-order backward time stepping, Co ≤ 1.5). Two snags found by smoke tests on the coarse mesh: a `#` comment in controlDict is read as a
+  directive, and `0/uniform/time` carried the steady deltaT of 1 s into the transient start.

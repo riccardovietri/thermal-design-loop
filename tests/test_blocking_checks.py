@@ -185,11 +185,36 @@ def _planview():
     return json.loads(Path("examples/output/level2_planview/results.json").read_text())
 
 
+def _assert_same(new, committed, path="summary"):
+    """Same keys, lengths, picks, counts and strings; floats to 1e-9 relative. The interpolated values differ in the last
+    digit between platforms (0.1764291904972411 against 0.17642919049724107), which exact equality reports as a changed pick."""
+    if isinstance(committed, dict):
+        assert isinstance(new, dict) and new.keys() == committed.keys(), path
+        for k in committed:
+            _assert_same(new[k], committed[k], f"{path}/{k}")
+    elif isinstance(committed, list):
+        assert isinstance(new, list) and len(new) == len(committed), path
+        for i, (a, b) in enumerate(zip(new, committed)):
+            _assert_same(a, b, f"{path}[{i}]")
+    elif isinstance(committed, float):
+        assert isinstance(new, float) and new == pytest.approx(committed, rel=1e-9, abs=0), path
+    else:
+        assert type(new) is type(committed) and new == committed, path
+
+
+def test_assert_same_catches_a_changed_value():
+    _assert_same({"a": [1.0, "x"], "n": 3}, {"a": [1.0 + 1e-12, "x"], "n": 3})
+    for changed in ({"a": [1.0 + 1e-6, "x"], "n": 3}, {"a": [1.0, "y"], "n": 3}, {"a": [1.0, "x"], "n": 4},
+                    {"a": [1.0, "x"]}, {"a": [1.0], "n": 3}):
+        with pytest.raises(AssertionError):
+            _assert_same(changed, {"a": [1.0, "x"], "n": 3})
+
+
 def test_planview_committed_picks_unchanged():
     from level2.planview_sweep import summarise
     data = _planview()
     summ = json.loads(json.dumps(summarise(data), default=float))  # as written to results.json
-    assert summ == data["summary"]
+    _assert_same(summ, data["summary"])
     assert "excluded_checks" not in summ
 
 
