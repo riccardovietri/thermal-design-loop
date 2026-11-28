@@ -31,6 +31,12 @@ Instructions for any coding agent (or person) picking this project up cold.
   and the resolved tall-fin check on five picked from it (widest, recommended and neighbours, narrowest); writes
   `examples/output/entrance_effects/` (about 5 min). Rerun after the Level 1 results change; `--level1`, `--out` select
   other files; `--plot-only` redraws the figure and summary.
+- Level 3 (3D conjugate, issue #10 stage one) needs Docker: `docker pull opencfd/openfoam-default:2406` (about 1.9 GB, native
+  arm64; the code pins it by digest, `level3.foam.IMAGE`). `uv run python -m level3.straight` solves the Level 1 recommended and
+  widest-channel designs at three mesh levels in parallel (about 10 min, six one-core containers, under 0.7 GB each) and writes
+  `runs/level3/<design_id>/level<k>/` and `examples/output/level3_straight_validation/`; `--design <id> --levels 1 2` selects cases,
+  `--summary-only` rewrites the summary from `runs/level3/`. `uv run python validation/level3_straight.py` checks gates G1–G4 on
+  the committed results in seconds (`--run` re-solves first).
 - Figures share one style, `tools/plotstyle.py` (8 in wide, 200 dpi, text ≥ 10 pt so it stays legible at 700 px). Titles are one
   short line; conditions and caveats go in the markdown caption next to the figure.
 - `uv run python -m level2.sweep` — slot-jet mesh study, the 18-case sweep at rated flow and the comparison plot with fins, 10–20 minutes.

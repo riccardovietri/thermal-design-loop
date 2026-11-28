@@ -1,6 +1,13 @@
 # PROGRESS
 
 ## Resume here
+Issue #10 stage one (`feat/level3-straight-validation`, pull request open, not merged): OpenFOAM v2406 in Docker,
+streamwise-periodic 3D conjugate straight-fin cell. Gate passes on the recommended design: R_th 14.072 vs 14.049 mK/W (+0.17%),
+ΔP 1591.2 vs 1599.9 Pa (−0.54%), 2× refinement +0.12% / −0.41%, energy balance 9e-9%, residuals ≤ 4e-11; widest channel +0.26% /
+−0.49%. Richardson-extrapolated 3D values sit within 0.02% of Level 1 on both designs, an independent benchmark of the production
+cross-section solver (issue #24, not closed by this). Next on #10: stage two (pins) needs Riccardo's go-ahead; see the pull request
+for what it needs and the run-time estimate. Issue #21 (failed checks block) is pull request #28, open.
+
 SPEC Amendment 4 (#17) is merged; Riccardo accepted the new Level 1 pick. README and the case study (`docs/index.html`, `docs/img/`)
 match the committed results as of `docs/case-study-update`. Headline: Level 1 recommends 0.39 / 0.39 / 3.75 mm straight fins
 (14.05 mK/W at 1.60 kPa, 6.3% margin on the 15 mK/W objective; 4,485 designs screened, 18 solved, 1D vs CFD 1.0% mean, 2.9% max);

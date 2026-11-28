@@ -64,6 +64,12 @@ on ΔP for straight fins because it has no floor or cover. Does the pin lead sur
 1.60 kPa), mesh change under 2% at one refinement, energy
 balance within 1%. **If the gate fails, stop and report.** Do not proceed to pins on an unvalidated model.
 
+**Status (2026-11-23): stage one done, gate passed; stage two not started (needs Riccardo's go-ahead).** OpenFOAM v2406 in Docker,
+streamwise-periodic conjugate cell (`level3/`, `uv run python -m level3.straight`). Recommended design: 3D 14.072 mK/W and
+1591.2 Pa against Level 1 14.049 mK/W and 1599.9 Pa (+0.17%, −0.54%); 2× refinement +0.12%, −0.41%; energy balance 9e-9%;
+residuals ≤ 4e-11, monitors flat to 4e-8%. Widest channel (1.00 / 0.44 / 4.0 mm): +0.26%, −0.49%. Details in
+`examples/output/level3_straight_validation/summary.md`; `uv run python validation/level3_straight.py` checks the gates.
+
 ### Stage 2: pins
 1. Circular-pin unit cell with the same boundaries: floor, cover, base, conduction along the pin. Streamwise-periodic, lateral symmetry.
 2. Designs: the cross-topology pick (0.4 mm diameter, 0.8 × 0.9 mm pitch, 4 mm tall) and its two neighbours on the pin front in
